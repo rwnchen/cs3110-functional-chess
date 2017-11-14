@@ -1,3 +1,3 @@
 (* Runs the entire project. *)
-open Pgn
+open Replayer
 open Opener

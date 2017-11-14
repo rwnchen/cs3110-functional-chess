@@ -12,7 +12,7 @@ type board
 type metadata
 
 (* Represents an actual opening move SEQUENCE
- * TODO: Find a unified representation type for chess moves, other than [string] *)
+ * TODO: replace string with the representation for moves. *)
 type opmoves = metadata * string
 
 (* Represents the database of stored openings
