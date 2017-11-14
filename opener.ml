@@ -1,4 +1,5 @@
 open Str
+open Trie
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Representation types *)
 
@@ -23,7 +24,7 @@ type opmoves = metadata * string
  *
  * We will have to find some way of saving this database beforehand and loading
  * it every time the application begins. *)
-type openings
+type openings = ()
 
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Helper functions/states *)
@@ -31,10 +32,10 @@ type openings
 (* Regex used to parse string lines containing the game moves. *)
 let moves_regex = regexp "."
 
-(* Regex used to parse *)
-
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Exposed functions *)
+
+let init_openings f = failwith "init_openings: Unimplemented"
 
 let suggest_moveset o b = []
 

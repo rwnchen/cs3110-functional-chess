@@ -1,4 +1,5 @@
 (* open game engine types *)
+open Trie
 
 (* TODO: Remove this once the game/board engine types have been defined *)
 (* Represents the current state of the game board
@@ -7,9 +8,7 @@
 type board
 
 (* Metadata associated with each opening sequence, such as white/black
- * winrates, move name, etc.
- *
- * TODO: content to be determined *)
+ * winrates, move name, etc. *)
 type metadata
 
 (* Represents an actual opening move SEQUENCE
@@ -21,6 +20,11 @@ type opmoves = metadata * string
  * We will have to find some way of saving this database beforehand and loading
  * it every time the application begins. *)
 type openings
+
+(* [init_openings s]
+ * Given the path to the openings database on disk [s], loads and returns the
+ * database. *)
+val init_openings : string -> openings
 
 (* [suggest_moveset o b]
  * Given the database of openings [o] and the current board state [b],
