@@ -21,6 +21,12 @@ type init_board = board
 
 type end_game = | Checkmate | Stalemate
 
+(* [moves p pos] returns a list positions that piece [p] can move to, given that
+ * it is in position [pos] on the board.
+ *
+ * Kevin: Er, aren't you going to need the state of the board as an arg as well? *)
+val moves : piece -> position -> position list
+
 (* [is_check b m] returns whether or not a board [b] would be in check as a
  * result of the given move [m]. *)
 val is_check : board -> move -> bool

@@ -24,15 +24,6 @@ type tag_pair =
  * replay is mutable. *)
 type replay
 
-(* Represents the chess game, as used in the chess engine
- * TODO: Remove this definition once the actual game state has been defined. *)
-type game
-
-(* The separation of replay and game lets me define the state
- * of a replayed game however I want and still have it be compatible with
- * however the actual chess game engine represents its game state. *)
-
-
 (* [load_pgn file]
  * Loads and returns the .pgn file specified by [file]
  *
@@ -40,13 +31,6 @@ type game
  * may store the contents of *multiple* chess games. The returned list will contain
  * each game in the order that they appear in the pgn file. *)
 val load_pgn : string -> replay list
-
-(* [init_state rs]
- * Returns the initial (starting) state of the replayed game.
- * I don't know if there are replays that deliberately start from midgame.
- *
- * Probably not needed, actually. *)
-(*val init_state : replay -> game_state*)
 
 (* [forward r]
  * Advances the replay forward one step, and returns the new replay state
@@ -65,10 +49,6 @@ val backward : replay -> replay * string
 (* [tags r]
  * Returns a list of all the tag_pairs associated with the replay. *)
 val tags : replay -> tag_pair list
-
-(* [to_replay g]
- * Converts a game [g] to a replay format ready for writing. *)
-val to_replay : game -> replay
 
 (* [save_pgn r file]
  * Saves the replay [r] to the pgn file specified by [file]. If [file]

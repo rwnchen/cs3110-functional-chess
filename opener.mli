@@ -1,14 +1,10 @@
-(* open game engine types *)
-open Trie
-open Board
-
 (* Metadata associated with each opening sequence, such as white/black
- * winrates, move name, etc. *)
-type metadata
+ * winrates, opening name, etc. *)
+type opmetadata
 
 (* Represents an actual opening move SEQUENCE
  * TODO: replace string with the representation for moves. *)
-type opmoves = metadata * string
+type opmoves
 
 (* Represents the database of stored openings
  *
@@ -21,17 +17,6 @@ type openings
  * database. *)
 val init_openings : string -> openings
 
-(* [suggest_moveset o b]
- * Given the database of openings [o] and the current board state [b],
- * suggest a set (possibly empty) of possible next moves from ECO. *)
-val suggest_moveset : openings -> board -> opmoves list
-
-(* [suggest_move o b]
- * Similar to [suggest_moveset o b], but simply returns the opening sequence
- * with the highest win rate for the player whose turn it currently is. *)
-val suggest_move : openings -> board -> opmoves option
-
 (* [opening_name o]
  * Returns the name of the opening move sequence represented by [o] *)
 val opening_name : opmoves -> string
-

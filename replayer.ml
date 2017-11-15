@@ -16,9 +16,6 @@ type replay =
     nmove : int;           (* The next move to make *)
   }
 
-(* TODO: Remove once the game engine is ready. *)
-type game = int
-
 let placeholder = { tags = [];
                     moves = [||];
                     nmove = 0; }
@@ -35,7 +32,5 @@ let forward r = r, "d3"
 let backward r = r, "d3"
 
 let tags r = r.tags
-
-let to_replay g = placeholder
 
 let save_pgn r f = ()

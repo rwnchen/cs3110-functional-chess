@@ -1,10 +1,8 @@
-open Board
-
 (* Represents the color of the piece. *)
 type color = | White | Black
 
 (* Represents the type of the piece *)
-type piece =
+type piece_rank =
   | King
   | Queen
   | Rook
@@ -13,8 +11,4 @@ type piece =
   | Pawn
 
 (* Represents a piece in chess. *)
-type piece = color * piece_type
-
-(* [moves p pos] returns a list positions that piece [p] can move to, given that
- * it is in position [pos] on the board. *)
-val moves : piece -> position -> position list
+type piece = color * piece_rank
