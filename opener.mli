@@ -1,11 +1,6 @@
 (* open game engine types *)
 open Trie
-
-(* TODO: Remove this once the game/board engine types have been defined *)
-(* Represents the current state of the game board
- *
- * What's needed: The current sequence of moves of the game *)
-type board
+open Board
 
 (* Metadata associated with each opening sequence, such as white/black
  * winrates, move name, etc. *)
