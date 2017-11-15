@@ -1,3 +1,5 @@
+python_log
+.DS_store
 *.annot
 *.cmo
 *.cma
@@ -7,6 +9,7 @@
 *.cmx
 *.cmxs
 *.cmxa
+*.pyc
 
 # ocamlbuild working directory
 _build/
