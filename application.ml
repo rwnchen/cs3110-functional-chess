@@ -14,18 +14,22 @@ type state = int (* TODO *)
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Helper functions/states *)
 
+(* game -> board *)
+let extract_board g = failwith "extract_board unimplemented"
+
+(* game -> bool
+ * true if it is white's turn *)
+let extract_turn g = failwith "extract_turn unimplemented"
+
+(* game -> metadata *)
+let extract_meta g = failwith "extract_meta unimplemented"
+
+(* metadata -> tag_pair list *)
+let extract_tags m = failwith "extract_tags unimplemented"
 
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Exposed functions *)
 let initial_state = 42
-
-let extract_board g = failwith "extract_board unimplemented"
-
-let extract_turn g = failwith "extract_turn unimplemented"
-
-let extract_meta g = failwith "extract_meta unimplemented"
-
-let extract_tags m = failwith "extract_tags unimplemented"
 
 let suggest_moveset o g = []
 

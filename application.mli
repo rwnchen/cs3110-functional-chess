@@ -12,7 +12,10 @@ type metadata
 (* Represents the state of a chess game, including board and
  * metadata information, as well as whose turn it currently is.
  *
- * This type has to be accessed by multiple different modules *)
+ * This type has to be accessed by multiple different modules
+ * EDIT: Not anymore! The application module is strictly superior to
+ * the others; no other module will require any of the types defined
+ * here. Functionality that did has been moved to this module instead. *)
 type game
 
 (* Represents the state of the application overall.
@@ -27,13 +30,6 @@ type game
  *   - the opening database currently loaded
  * *)
 type state
-
-(* These functions allow other modules (e.g. opener) access the internal
- * data they need in the game state *)
-val extract_board : game -> board
-val extract_turn : game -> bool             (* true if white's turn *)
-val extract_meta : game -> metadata
-val extract_tags : metadata -> tag_pair list
 
 (* Provide chess openings *)
 (* [suggest_moveset o g]
