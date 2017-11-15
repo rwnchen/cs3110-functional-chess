@@ -1,14 +1,8 @@
 (* Represents the color of the piece. *)
-type color = | White | Black
+type color
 
 (* Represents the type of the piece *)
-type piece_rank =
-  | King
-  | Queen
-  | Rook
-  | Knight
-  | Bishop
-  | Pawn
+type piece_rank
 
 (* Represents a piece in chess. *)
-type piece = color * piece_rank
+type piece
