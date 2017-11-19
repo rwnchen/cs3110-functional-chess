@@ -6,3 +6,6 @@ test:
 
 clean:
 	ocamlbuild -clean
+
+run:
+	ocamlbuild -use-ocamlfind -pkgs lymp controller.byte && ./controller.byte

@@ -1,13 +1,18 @@
 open Lymp
 
-let move_piece a b =
-  failwith "Unimplemented"
+let interpreter = "python2"
+let py = init ~exec:interpreter "."
+let gui = get_module py "gui"
 
-let click_listener () =
-  failwith "Unimplemented"
+let move_piece game (x1,y1) (x2,y2) =
+  get_string gui "move" [!game;Pytuple [Pyint x1;Pyint y1]; Pytuple [Pyint x2;Pyint y2]]
 
-let highlight tiles =
-  failwith "Unimplemented"
+let rec highlight game tiles =
+  match tiles with
+  | [] -> !game
+  | (x,y)::t ->
+    game := Pyref(get_ref gui "highlight" [!game; Pyint x; Pyint y]);
+    highlight game t
 
 let openers opener_list =
   failwith "Unimplemented"
@@ -15,13 +20,25 @@ let openers opener_list =
 let history move_list =
   failwith "Unimplemented"
 
-(* This is just to show we can connect and do communicate with the python file*)
-let interpreter = "python2"
-let py = init ~exec:interpreter "."
-let gui = get_module py "gui"
+(* let rec update t = *)
 let () =
-  let msg = get_string gui "get_message" [Pystr ""] in
-  Printf.printf "%s\n" msg;
-  let msg = get_string gui "get_message" [Pystr "TEST"] in
-  Printf.printf "%s\n" msg;
-  (* close py *)
+  let game = ref (Pyref (get_ref gui "start_game" [])) in
+  let update = ref (get_list gui "update_game" [!game; Pybool true]) in
+  game := List.nth !update 0;
+
+  while (true) do
+    update := (get_list gui "update_game" [!game; Pybool true]);
+    game := List.nth !update 0;
+
+    if ((List.nth !update 1) = (Pybool true)) then begin
+      (* let piece = move_piece game (0,0) (5,5) in *)
+      (* print_endline piece; *)
+      game := (highlight game [(0,0);(0,1);(0,2);(0,3)]);
+    end
+    else begin
+      print_string "";
+    end
+
+  done;;
+
+  close py
