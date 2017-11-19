@@ -31,8 +31,8 @@ let () =
     game := List.nth !update 0;
 
     if ((List.nth !update 1) = (Pybool true)) then begin
-      (* let piece = move_piece game (0,0) (5,5) in *)
-      (* print_endline piece; *)
+      let piece = get_string gui "get_piece" [!game] in
+      print_endline piece;
       game := (highlight game [(0,0);(0,1);(0,2);(0,3)]);
     end
     else begin
