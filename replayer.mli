@@ -1,4 +1,4 @@
-(* There are seven tag pairs common to every PGN file (per Wikipedia), which are:
+(* There are seven tag pairs common to every PGN file, which are:
  *   - Event: the name of the tournament or match event.
  *   - Site: the location of the event. This is in City, Region COUNTRY format, where COUNTRY is the three-letter International Olympic Committee code for the country. An example is New York City, NY USA.
  *   - Date: the starting date of the game, in YYYY.MM.DD form. ?? is used for unknown values.
@@ -7,21 +7,23 @@
  *   - Black: the player of the black pieces, same format as White.
  *   - Result: the result of the game. This can only have four possible values: 1-0 (White won), 0-1 (Black won), 1/2-1/2 (Draw), or * (other, e.g., the game is ongoing).
  *
- * Additionally, there may be an arbitrary number of additional tags. *)
+ * Additionally, there may be an arbitrary number of additional tags.
+ * For more information, see the Wikipedia page for Portable Game Format.  *)
+(* Redeclared because ocaml. *)
 type tag_pair =
   | Event of string
-  | Site of string * string * string
-  | Date of int * int * int  (* Year * Month * Day *)
-  | Round of int
-  | White of string * string (* Lastname * Firstname *)
-  | Black of string * string
+  | Site of string  (* Location in which the game was held *)
+  | Date of string  (* Formatting of date may vary depending on pgn *)
+  | Round of string (* May not be an int (e.g. unfinished, 'N/A') *)
+  | White of string (* Name of white player *)
+  | Black of string (* Name of black player *)
   | Result of string         (* TODO: Consider a new type for game state*)
   | Tag of string * string   (* tag name * tag contents *)
 
 (* Represents a single replayed game in the format used by the PGN
  * replay module. The replay contains more information than simply the
  * state of the game board.
- * replay is mutable. *)
+ * replay is immutable. *)
 type replay
 
 (* [load_pgn file]
@@ -32,19 +34,14 @@ type replay
  * each game in the order that they appear in the pgn file. *)
 val load_pgn : string -> replay list
 
-(* [forward r]
- * Advances the replay forward one step, and returns the new replay state
- * as well as the move that was made.
- * For example, if [r] is the initial starting chess game, then [forward r]
- * returns the state of the game after white has made its first move, as well
- * as white's first move.
- *
- * TODO: Representing "no more moves to make" (game has ended) *)
-val forward : replay -> replay * string
+(* [get_move r n]
+ * Obtains a string representing white and black's [n]th moves for replay [r]
+ * Returns None if [n] is out of bounds or [r] is invalid *)
+val get_move : replay -> int -> string option
 
-(* [next_move r]
- * See above, but backwards. *)
-val backward : replay -> replay * string
+(* [moves_list r]
+ * Returns the list of moves associated with replay [r] *)
+val moves_list : replay -> string list
 
 (* [tags r]
  * Returns a list of all the tag_pairs associated with the replay. *)
