@@ -1,6 +1,18 @@
 open Str
 open Printf
 
+(* EXAMPLE USAGE *)
+(* Assuming that "replays/test_pgn.pgn" exists (which it should)
+   Loading the test PGN files:
+     let replays = load_pgn "replays/test_pgn.pgn"
+
+   Saving a replay into "example.pgn" from a list of replays:
+     replays |> List.hd |> save_pgn "replays/example.pgn"
+   or
+     let a_replay = List.hd replays in
+     save_pgn "example.pgn" a_replay
+ *)
+
 (* Redeclared because ocaml. *)
 type tag_pair =
   | Event of string
