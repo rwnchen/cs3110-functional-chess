@@ -1,4 +1,5 @@
 open Str
+open Printf
 
 (* Redeclared because ocaml. *)
 type tag_pair =
@@ -17,15 +18,16 @@ type replay =
     mutable moves : string array;  (* The set of moves *)
   }
 
-let empty_replay = { tags = [];
-                     moves = [||]; }
-
-let tag_trim = Str.regexp "\[\|\]"
-let quote_trim = Str.regexp {|"|}
-let move_regexp = Str.regexp " [0-9+]. "
-let delim = Str.regexp {| "|}
+let tag_rx = regexp "\\[\\|\\]"
+let quote_trim = regexp {|"|}
+let move_rx = regexp "[0-9+]. "
+let delim = regexp {| "|}
 
 (* Helper functions *)
+(* [empty_replay ()]
+ * Thunk to construct a new empty replay. *)
+let empty_replay () = { tags = []; moves = [||]; }
+
 (* [build_tag h t]
  * Constructs a tag_pair given the tag name as [h] and the tag content
  * as [t] *)
@@ -41,71 +43,71 @@ let build_tag h t =
   | _ -> Tag(h, t)
 
 (* [parse_tag line tags]
- * Parses a tag *)
+ * Constructs a tag_pair from [line] and returns after prepending it onto [tags]
+ * If [line] does NOT contain a valid tag pair, simply returns [tags]*)
 let parse_tag line tags =
-  let line' = Str.global_replace tag_trim "" line in (* Trims out the [] from the line *)
-  (*Printf.printf "Trimmed: %s\n" line';*)
-  let split = Str.bounded_split delim line' 2 in     (* Splits tag name and tag content *)
+  let line' = global_replace tag_rx "" line in (* Trims out the [] from the line *)
+  let split = bounded_split delim line' 2 in   (* Splits tag name and tag content *)
   match split with
   | h::t::[] ->
-    let s = Str.global_replace quote_trim "" t in    (* Trims out extra quotations *)
-    (*Printf.printf "Head: %s | Tail: %s\n" h s;*)
+    let s = global_replace quote_trim "" t in  (* Trims out extra quotations *)
     (build_tag h s)::tags
   | _ ->
-    (*print_endline "No split match";*)
     tags
+
+let tag_to_string = function
+  | Event(t) -> sprintf {|Event "%s"|} t
+  | Site(t) -> sprintf {|Site "%s"|} t
+  | Date(t) -> sprintf {|Date "%s"|} t
+  | Round(t) -> sprintf {|Round "%s"|} t
+  | White(t) -> sprintf {|White "%s"|} t
+  | Black(t) -> sprintf {|Black "%s"|} t
+  | Result(t) -> sprintf {|Result "%s"|} t
+  | Tag(h, t) -> sprintf {|%s "%s"|} h t
 
 (* [parse_moves line]
  * Returns an array of all the white-black move pairs in the line [line] *)
 let parse_moves line =
-  line |> Str.split move_regexp |> Array.of_list
+  line |> split move_rx |> Array.of_list
 
-(* [read_replay f]
- * Tries to read exactly one replay from the given file [f].
+(* [read_replay c]
+ * Tries to read exactly one replay given an input channel for a
+ * pgn file [c].
+ * Closes the channel on EOF
+ *
  * Will use this to construct a replay-stream reader, maybe. *)
-let read_replay file =
-  let in_channel = open_in file in
-  let r = empty_replay in
+let read_replay in_channel =
+  let r = empty_replay () in
   let read_replay = ref false in
   try
     while not !read_replay do
       let line = in_channel |> input_line |> String.trim  in
 
       (* Simple parsing *)
-      if String.get line 0 == '[' then
+      if string_match tag_rx line 0 then
         begin
-          Printf.printf "Tag line %s\n" line;
           r.tags <- parse_tag line r.tags
         end
-      else if String.get line 0 == '1' then
+      else if string_match move_rx line 0 then
         begin
-          Printf.printf "Moves line %s\n" line;
           r.moves <- parse_moves line;
           read_replay := true
         end
       else
-        Printf.printf "Non line %s\n" line;
+        ()
     done;
     Some r
   with
-    End_of_file -> close_in in_channel; Some r
+    End_of_file -> close_in in_channel; None
 
-(* Exposed module functions
- * TODO EVERYTHING *)
+(* Exposed module functions  *)
 let load_pgn file =
-  let in_channel = open_in file in
-  let replays = [] in
-  let x = ref 0 in
-  let readfile =
-  try
-    while !x < 4 do
-      let line = input_line in_channel in
-      Printf.printf "line is: %s\n" line;
-      x := !x+1;
-    done
-  with End_of_file -> close_in in_channel in
-  readfile;
-  replays
+  let rec load_pgn' pgn in_channel =
+    match read_replay in_channel with
+    | None -> pgn
+    | Some(r) -> load_pgn' (r::pgn) in_channel
+  in
+  file |> open_in |> load_pgn' []
 
 let get_move r n =
   try Some r.moves.(n) with
@@ -115,4 +117,25 @@ let moves_list r = Array.to_list r.moves
 
 let tags r = r.tags
 
-let save_pgn r f = ()
+let to_replay m t = {tags = t; moves = Array.of_list m}
+
+let save_pgn f r =
+  let rec save_tags out tags =
+    match tags with
+    | h::t ->
+      h |> tag_to_string |> fprintf out "[%s]\n";
+      save_tags out t
+    | [] -> ()
+  in
+  let out_channel = open_out f in
+
+  (* Save the replay tags *)
+  save_tags out_channel r.tags;
+  fprintf out_channel "\n";
+
+  (* Save the move history *)
+  for i = 0 to Array.length r.moves - 1 do
+    fprintf out_channel "%d. %s" (i+1) r.moves.(i)
+  done;
+  fprintf out_channel "\n\n";
+  close_out out_channel

@@ -40,18 +40,27 @@ val load_pgn : string -> replay list
 val get_move : replay -> int -> string option
 
 (* [moves_list r]
- * Returns the list of moves associated with replay [r] *)
+ * Returns an list of moves associated with replay [r]
+ * The head of the list contains the FIRST pair of moves by white and black,
+ * and the tail contains the last move, with notation describing who won
+ * NOTE: See an example PGN file to see how the last move is formatted. It's
+ * slightly different. *)
 val moves_list : replay -> string list
 
 (* [tags r]
  * Returns a list of all the tag_pairs associated with the replay. *)
 val tags : replay -> tag_pair list
 
-(* [save_pgn r file]
+(* [to_replay m t]
+ * Converts a game with a move history [m] and a set of tag pairs [t]
+ * into a replay. *)
+val to_replay : string list -> tag_pair list -> replay
+
+(* [save_pgn file r]
  * Saves the replay [r] to the pgn file specified by [file]. If [file]
  * does not exist, a new pgn file will be created. If [file] already
  * contains one or more saved replays, [r] will be *appended* to the end
  * of [file]. *)
-val save_pgn : replay -> string -> unit
+val save_pgn :  string -> replay -> unit
 
 (* TODO: What other kinds of data is needed from a chess replay game? *)
