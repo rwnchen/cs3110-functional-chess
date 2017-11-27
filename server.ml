@@ -32,6 +32,9 @@ let rec handle_connection ic oc ind () =
           let rep = snd reply in
           let is_text = fst reply in
           let interact = (Lwt_log.info "Interaction" >>= handle_connection ic oc ind) in
+          if !users < 2 then
+            Lwt_io.write_line oc "Not enough users" >>= handle_connection ic oc ind
+          else
           if is_text then
             ((broadcast !outs rep oc ind); interact)
           else
