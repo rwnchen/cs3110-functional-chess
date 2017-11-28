@@ -34,7 +34,7 @@ type end_game
 
 (* [is_check b m] returns whether or not a board [b] would be in check as a
  * result of the given move [m]. *)
-val is_check : board -> move -> bool
+val is_check : board -> move -> check
 
 (* [legal_moves b c] returns a list of legal moves by player [c] given
  * board [b]. *)
