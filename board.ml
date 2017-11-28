@@ -116,7 +116,7 @@ and moves_k b mh c (f,r) =
   let n = moveable_space b c (f,r+1) in
   let s = moveable_space b c (f,r-1) in
 
-  let rank = match c with | Black -> 8 | White -> 1 in
+  (* let rank = match c with | Black -> 8 | White -> 1 in *)
   let castle = [] in (* TODO *)
   e @ w @ n @ s @ castle
 
@@ -255,9 +255,40 @@ and is_attacked b opp_ps d_pos =
     else is_attacked b t d_pos
 
 
+
+
 (********************* BOARD UPDATE LOGIC **********************)
 
-let update_board b mh c m =
+let all_moves b mh c =
+  let ps = match c with | Black -> fst b | White -> snd b in
+  let rec loop pieces move_lst =
+    match pieces with
+    | [] -> move_lst
+    | (i_pos, pce)::t ->
+      begin
+        let pmoves = List.map
+                      (fun f_pos -> (i_pos,f_pos)) (moves b mh pce i_pos) in
+        let new_ml = List.rev_append pmoves move_lst in
+        loop t new_ml
+      end in
+  loop ps []
+
+let rec legal_moves b mh c =
+  let mvs = all_moves b mh c in
+  let selfcheck = match c with | Black -> Black_Check | White -> White_Check in
+  let rec loop move_lst legal_lst =
+    match move_lst with
+    | [] -> legal_lst
+    | move::t ->
+      begin
+        let b' = update_board b mh c move in
+        if is_check b' c = selfcheck
+        then loop t legal_lst
+        else loop t ((move, b')::legal_lst)
+      end in
+  loop mvs []
+
+and update_board b mh c m =
   let i_pos = fst m in
   let f_pos = snd m in
   let bl_ps = fst b in
@@ -266,10 +297,20 @@ let update_board b mh c m =
     match c with
     | Black -> List.assoc i_pos bl_ps
     | White -> List.assoc i_pos wh_ps in
-  let selfcheck = match c with | Black -> Black_Check | White -> White_Check in
-  let oppcheck = match c with | Black -> White_Check | White -> Black_Check in
+  let ps = match c with | Black -> bl_ps | White ->  wh_ps in
+(*   let selfcheck = match c with | Black -> Black_Check | White -> White_Check in
+  let oppcheck = match c with | Black -> White_Check | White -> Black_Check in *)
+  (* match piece with
+  | Pawn moved ->
+    if abs ((fst i_pos) - (fst f_pos)) = 2
+    then
+      let *)
 
-  if List.mem f_pos (moves b mh piece i_pos)
+  let ps' = (List.remove_assoc i_pos ps) in
+  let ps'' = (f_pos,piece)::ps' in
+  if c = Black then (ps'', wh_ps) else (bl_ps, ps'')
+
+  (* if List.mem f_pos (moves b mh piece i_pos)
   then
     let ps = if c = Black then bl_ps else wh_ps in
     let ps' = (List.remove_assoc i_pos ps) in
@@ -285,8 +326,14 @@ let update_board b mh c m =
     else let () = mh.ms <- ((piece,m)::mh.ms) in
       (b', "")
   else (b, "Not a possible move.")
+ *)
+
+let make_move b c (m:move) (leg_mves:((move * board) list)) =
+  try
+    let b' = List.assoc m leg_mves in
+    let oppc = match c with | Black -> White | White -> Black in
+    (b', is_check b' oppc)
+  with Not_found -> (b, No_Check)
 
 
 let promote b (f,r) = failwith "unimplemented"
-
-let end_type b = failwith "unimplemented"
