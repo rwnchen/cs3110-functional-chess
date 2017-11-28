@@ -18,7 +18,9 @@ type position = int * int
 
 type move = position * position
 
-type move_history = (piece * move) list
+type move_list = (piece * move) list
+
+type move_history = {mutable ms : move_list}
 
 type board = (position * piece) list * (position * piece) list
 
@@ -30,6 +32,8 @@ type end_game = | Checkmate | Stalemate
 (******************************************************************************)
 (*************************** BOARD INITIALIZATION *****************************)
 (******************************************************************************)
+
+let mh = {ms = []}
 
 let rec setup_board color =
   match color with
@@ -157,7 +161,7 @@ and moves_p b mh c moved (f,r) =
 
   let two_sq = if moved then [] else [(f,r+2*inc)] in
   let en_pass =
-    match mh with
+    match mh.ms with
     | [] -> []
     | (p, ((f1,r1),(f2,r2)))::t ->
       if (snd p = Pawn true) && f1 = f2 then
@@ -245,14 +249,13 @@ and is_attacked b opp_ps d_pos =
   | ((f,r), piece)::t ->
     if (snd piece) != King && can_attack piece (f,r) d_pos
     then
-      if List.mem d_pos (moves b [] piece (f,r))
+      if List.mem d_pos (moves b mh piece (f,r))
       then true (*  match c with | Black -> Black_Check | White -> White_Check *)
       else is_attacked b t d_pos
     else is_attacked b t d_pos
 
 
 (********************* BOARD UPDATE LOGIC **********************)
-
 
 let update_board b mh c m =
   let i_pos = fst m in
@@ -263,15 +266,26 @@ let update_board b mh c m =
     match c with
     | Black -> List.assoc i_pos bl_ps
     | White -> List.assoc i_pos wh_ps in
+  let selfcheck = match c with | Black -> Black_Check | White -> White_Check in
+  let oppcheck = match c with | Black -> White_Check | White -> Black_Check in
 
-  if List.mem f_pos (moves b mh snd piece i_pos)
+  if List.mem f_pos (moves b mh piece i_pos)
   then
-    let bl_ps' = (List.remove_assoc i_pos bl_ps) in
-    let bl_ps'' = (f_pos,piece)::bl_ps' in
-    let b' = (bl_ps'',wh_ps) in
-    failwith "unimplemented"
+    let ps = if c = Black then bl_ps else wh_ps in
+    let ps' = (List.remove_assoc i_pos ps) in
+    let ps'' = (f_pos,piece)::ps' in
+    let b' = if c = Black then (ps'', wh_ps) else (bl_ps, ps'') in
 
-  else b
+    if is_check b' c = selfcheck
+    then (b , "Places king in check.")
+    else if is_check b' c = oppcheck
+    then
+      let () = mh.ms <- ((piece,m)::mh.ms) in
+      (b', "Check.")
+    else let () = mh.ms <- ((piece,m)::mh.ms) in
+      (b', "")
+  else (b, "Not a possible move.")
+
 
 let promote b (f,r) = failwith "unimplemented"
 
