@@ -259,6 +259,24 @@ and is_attacked b opp_ps d_pos =
 
 (********************* BOARD UPDATE LOGIC **********************)
 
+(* gets the piece on board [b] at position [pos] *)
+let get_piece b pos =
+  let b_ps = fst b in
+  let w_ps = snd b in
+  let rec loop pieces = begin
+    match pieces with
+    | [] -> None
+    | ((x,y),piece)::t ->
+      if ((x = (fst pos)) && (y = (snd pos))) then
+        Some piece
+      else
+        loop t
+  end in
+  match loop b_ps with
+  | Some p -> Some p
+  | None -> loop w_ps
+
+
 let all_moves b mh c =
   let ps = match c with | Black -> fst b | White -> snd b in
   let rec loop pieces move_lst =

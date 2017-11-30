@@ -10,7 +10,7 @@ type piece
 (* Represents a square on a chessboard as a tuple, where the first int is the
  * file and the second int represents the rank. Both numbers should be between
  * 1 and 8, inclusive. *)
-type position
+type position = int * int
 
 (* Represents the movement of a piece from one position to another as a tuple,
  * where the first position is the initial position and the second position is
@@ -35,6 +35,8 @@ type check
 (* Represents the end-game state. A game can either end in a checkmate or
  * stalemate when a player can no longer make any legal moves *)
 type end_game
+
+val get_piece : board -> position -> piece option
 
 (* [legal_moves b c] returns a list of legal moves by player [c] given
  * board [b]. *)
