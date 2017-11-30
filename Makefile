@@ -11,4 +11,4 @@ run:
 	ocamlbuild -use-ocamlfind -pkgs lymp controller.byte && ./controller.byte
 
 serv:
-	ocamlfind ocamlopt -package lwt,lwt.unix -linkpkg -o server ./server.ml && ./server
+	ocamlbuild -use-ocamlfind -pkgs lwt,lwt.unix server.byte && ./server.byte
