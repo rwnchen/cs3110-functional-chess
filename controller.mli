@@ -1,14 +1,25 @@
-(* open lymp *)
+(* gui_state is the state of the gui represented as a python object*)
+type gui_state = Lymp.pyobj
 
-(* [move_piece (x1,y1) (x2,y2)] is the new gui state after trying to move the
-   piece at (x1,y1) to (x2,y2)
-*)
-(* val move_piece: (int*int) -> (int*int) -> pyobj *)
+(* type position = Board.position
+type move = Board.move *)
+type position = int * int
 
-(* [highlight tile_list] sends [tile_list] as a list of tiles to be highlighted
-   in the gui. Is true iff the operation was successful and false otherwise
+type move = position * position
+
+(* These are basic values that are needed to connect to a python file *)
+val interpreter: string
+val py: Lymp.pycommunication
+val gui: Lymp.pycallable
+
+(* [move_piece state move] performs the [move] in the gui [state]
 *)
-(* val highlight: string list -> bool *)
+val move_piece: Lymp.pyobj ref -> move -> Lymp.pyobj
+
+(* [highlight tile_list] sends [tile_list] as a list of positions to be
+   highlighted in the gui.
+*)
+val highlight: Lymp.pyobj ref -> position list -> Lymp.pyobj
 
 (* [openers opener_list] sends [opener_list] to the gui to display. Is true iff
    the operation was successful and false otherwise
