@@ -1,6 +1,7 @@
 open Str
 open Trie
 open Board
+open Yojson.Basic.Util
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Representation types *)
 
@@ -28,14 +29,23 @@ let init_database = StrTrie.empty (* Empty database *)
 (* Regex used to parse string lines containing the game moves. *)
 let moves_regex = regexp "."
 
+(* *)
+let dir = "openings/"
+let eco_opening_json = dir ^ "eco_openings.json"
+let ficsgames_1 = dir ^ "ficsgames_1.pgn"
 
+let load_png f = None
+
+let init_eco_names f =
+  let js = Yojson.Basic.from_channel (open_in f) in
+  None
 
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Exposed functions *)
 
 let init_openings f =
   let replays = load_png f in
-  let 
+  ()
+
 
 let opening_name o = failwith "opening_name: Unimplemented"
-
