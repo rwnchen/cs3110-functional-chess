@@ -1,5 +1,5 @@
 (* Represents the color of the piece. *)
-type color
+type color = | White | Black
 
 (* Represents the type of the piece *)
 type piece_rank
@@ -12,14 +12,18 @@ type piece
  * 1 and 8, inclusive. *)
 type position = int * int
 
+type move = position * position
+
 (* Represents the movement of a piece from one position to another as a tuple,
  * where the first position is the initial position and the second position is
  * the final position. *)
-type move
+(* type move *)
 
 type move_list
 
 type move_history
+
+val mh: move_history
 
 (* Represents the chessboard as a list of squares on the board and the pieces
  * that occupy them. The first entry in the tuple represents white's pieces

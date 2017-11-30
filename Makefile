@@ -12,3 +12,6 @@ run:
 
 serv:
 	ocamlbuild -use-ocamlfind -pkgs lwt,lwt.unix server.byte && ./server.byte
+
+repl:
+	ocamlbuild -use-ocamlfind application.byte && ./application.byte
