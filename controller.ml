@@ -7,7 +7,7 @@ type position = int * int
 
 type move = position * position
 
-let interpreter = "python"
+let interpreter = "python2"
 let py = init ~exec:interpreter "."
 let gui = get_module py "gui"
 
