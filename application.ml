@@ -36,7 +36,21 @@ let parse_space s =
   let fst_int = Char.code (String.get s 0) - 64 in
   let snd_int = int_of_char (String.get s 1) in
   (fst_int, snd_int)
-  (* Char.code(c) - 64 *)
+(*
+   These two functions convert to and from algebraic chess notation to/from the
+   moves representation currently used by board.
+   Two signatures:
+     move -> (game state sth sth) -> string
+     string -> (game state sth sth) -> move
+
+   The game state is needed because algebraic chess notation is minimalistic, e.g.
+   if only 1 piece can move to a square e5, then the notation will simply be "e5".
+   But if two or more pieces can, then a letter will be prefixed to indicate which
+   piece does the move e.g. (B for bishop) "Be5". This requires knowing what pieces
+   are where and where they can move to.
+*)
+let to_algnotation m g = failwith "to_algnotation unimplemented"
+let from_algnotation m g = failwith "from_algonotation unimplemented"
 
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Exposed functions *)
