@@ -1,5 +1,6 @@
 open Str
 open Board
+open Trie
 open Yojson.Basic.Util
 open String
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
@@ -22,7 +23,16 @@ type openings = ()
 (* Trie database *)
 module StrMap = Map.Make(String)
 module StrTrie = Trie.Make(StrMap)
-let init_openings = StrTrie.empty (* Empty openings database *)
+
+(* Empty openings database *)
+let init_openings = StrTrie.empty
+
+(* Initial metadata for a moveset, with name and ECO category only *)
+let init_meta n c = {
+  w_winrate = 0.0;
+  name = n;
+  category = c;
+}
 
 (* Regex used to parse string lines containing the game moves. *)
 let moves_regex = regexp "."
@@ -44,9 +54,10 @@ let load_png f = None
 (* [parse_eco f]
  * string -> string list list
  * Given the path of a json file [f], parses [f] into a list of ECO chess
- * openings. Each opening in the list is a string list, with at least 2
- * elements. The first (head) element is the name of the opening, and the
- * following elements are the moves associated with that opening. *)
+ * openings. Each opening in the list is a string list, with at least 3
+ * elements. The first element is the ECO categor(ies) of the sequence, e.g.
+ * "A43". The second element is the name of the opening, and the following
+ * elements are the moves associated with that opening. *)
 let parse_eco f =
   let js = Yojson.Basic.from_channel (open_in f) in
   let eco_list_js = js |> member "openings" |> to_list in
