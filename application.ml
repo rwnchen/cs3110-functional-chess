@@ -1,7 +1,7 @@
 open Board
 (* open Replayer *)
 (* open Controller *)
-open Opener
+(* open Opener *)
 
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Representation types *)
@@ -74,12 +74,15 @@ let rec run (b,c) = begin
     (*TODO: parse spaces into positions*)
     let (new_b, check) = make_move b c (pos1,pos2) legal_moves in
     (* give user feedback about move *)
+    let brd = print_board new_b in
     match c with
     | Black ->
-      print_endline "Black Moved";
+      print_endline brd;
+      (* print_endline "Black Moved"; *)
       run (new_b, White)
     | White ->
-      print_endline "White Moved";
+      print_endline brd;
+      (* print_endline "White Moved"; *)
       run (new_b, Black)
 end
 

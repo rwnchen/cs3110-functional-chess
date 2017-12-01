@@ -1,7 +1,7 @@
 open Board
 open Replayer
 (* open Controller *)
-open Opener
+(* open Opener *)
 
 (* Represents any metadata associated with the current chess game
  * See replayer.mli for a list of all non-optional tags that must

@@ -34,6 +34,8 @@ type board
 (* Represents a starting board, set up according to chess convention. *)
 val init_board : board
 
+val print_board : board -> string
+
 type check
 
 (* Represents the end-game state. A game can either end in a checkmate or

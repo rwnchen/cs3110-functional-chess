@@ -66,6 +66,46 @@ and setup_back color rank =
 
 let init_board = ((setup_board Black), (setup_board White))
 
+(*https://github.com/shrumo/chess-engine*)
+let piece_string p color =
+  match p with
+  | Pawn b -> if color = White then "♙" else "♟"
+  | Rook -> if color = White then "♖" else "♜"
+  | Knight -> if color = White then "♘" else "♞"
+  | Bishop -> if color = White then "♗" else "♝"
+  | Queen -> if color = White then "♕" else "♛"
+  | King ->  if color = White then "♔" else "♚"
+
+let board_to_matrix b =
+  let bb = (fst b) @ (snd b) in
+  let rec make brd mat =
+    match brd with
+    | [] -> mat
+    | ((x,y), (c,p))::t ->
+      let p = piece_string p c in
+      let ind = string_of_int x ^ string_of_int y in
+      make t [(ind,p)]@mat
+  in make bb []
+
+let print_board b =
+  let m = board_to_matrix b in
+  let s = ref "" in
+  for y = 1 to 17 do
+    for x = 1 to 17 do
+      let coord = string_of_int (x/2) ^ string_of_int (y/2) in
+      if y mod 2 = 0 then
+        if x mod 2 = 0 then
+          if List.mem_assoc coord m then
+            s := !s ^ (List.assoc coord m)
+          else
+            s := !s ^ " "
+        else s := !s ^ "|"
+      else
+      if x mod 2 = 0 then
+        s := !s ^ "_"
+      else s := !s ^ " "
+    done; s := !s ^ "\n";
+  done; !s
 
 (*************************************************************)
 (************************ GAME LOGIC *************************)
