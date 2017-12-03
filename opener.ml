@@ -3,6 +3,7 @@ open Board
 open Trie
 open Yojson.Basic.Util
 open String
+open Replayer
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Representation types *)
 
@@ -164,6 +165,24 @@ let json_to_trie j =
     (to_list j);
   !trie
 
+(* [white_won r]
+ * Returns true if white won in the replay [r], false if lost or draw *)
+let white_won replay =
+  None != (replay |> tags |> List.find_opt (fun tag -> tag = Result("1-0")))
+
+(* [update_metadata m t w]
+ * Updates (MUTATES) the metadata stored in trie [t] for the move sequence [m]
+ * [w] should be TRUE if white won; false otherwise. In either case, the total_count
+ * field in the metadata record will be incremented. If [w] is true, so will the
+ * white_won field.
+ *
+ * Imperative ru-- *)
+let update_metadata moves trie w_won =
+  let meta = StrTrie.find moves trie in
+  meta.total_count <- meta.total_count + 1;
+  meta.white_wins <- meta.white_wins + (if w_won then 1 else 0);
+  ()
+
 (* [construct_openings ()]
  * This is a one-off function that constructs the initial trie with all ECO openings
  * and names, but NO statistics (white wins, # of occurences, etc.). It then reads the
@@ -179,10 +198,37 @@ let json_to_trie j =
  *   Since the prefix "e4 e5 Nf3 g3" is not in the trie, we move onto the next game.
  * Once the entire replay file has been read, the trie is then stored back onto disk as a
  * json file. Oh my god OCaml yojson is a real pain in the neck... Should've used ATDgen *)
+let breakloop = Failure "Break loop"
 let construct_openings () =
   let op_trie = init_eco eco_opening_json in
 
-  (* TODO: Read the pgn file here *)
+  (* Read the pgn file here *)
+  let replays = load_pgn ficsgames_1 in
+  let rec build_stats op_trie = function
+    | h::t ->
+      begin
+        let moves = moves_list h in
+        let moves_arr = Array.of_list moves in
+        try
+          (* All prefixes that exist in the trie must correspond to a particular
+           * opening sequence, which we update the metadata for.
+           * Behold the horror of imperative programming. y u no have break; *)
+          for i = 1 to List.length(moves) do
+            let prefix = i |> Array.sub moves_arr 0 |> Array.to_list in
+            Printf.printf "Prefix head: %s\t" (List.hd prefix);
+            if StrTrie.mem prefix op_trie then
+              begin
+                update_metadata prefix op_trie (white_won h);
+              end
+            else
+              raise breakloop;
+          done;
+        with _ ->
+          build_stats op_trie t
+      end
+    | [] -> ()
+  in
+  build_stats op_trie replays;
 
   (* Finally, converts the trie to a json file and saves it to [eco_opening_data] *)
   let oc = open_out_gen [Open_append; Open_trunc; Open_creat] 0 eco_opening_data in
