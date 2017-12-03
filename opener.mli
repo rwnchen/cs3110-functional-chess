@@ -4,7 +4,7 @@ type opmetadata
 
 (* Represents an actual opening move SEQUENCE
  * TODO: replace string with the representation for moves. *)
-type opmoves
+(* type opmoves *)
 
 (* Represents the database of stored openings
  *
@@ -19,4 +19,4 @@ val init_openings : string -> openings
 
 (* [opening_name o]
  * Returns the name of the opening move sequence represented by [o] *)
-val opening_name : opmoves -> string
+(* val opening_name : opmoves -> string *)

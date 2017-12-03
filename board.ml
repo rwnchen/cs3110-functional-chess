@@ -387,7 +387,7 @@ and update_board b last_move c m =
     | c, King _ -> (c, King true)
     | c, Rook _ -> (c, Rook true)
     | c, Pawn _ ->
-      if abs ((snd i_pos) (snd f_pos)) = 2
+      if abs ((snd i_pos) - (snd f_pos)) = 2
       then (c, Pawn true)
       else (c, Pawn false)
     | _ -> piece in
