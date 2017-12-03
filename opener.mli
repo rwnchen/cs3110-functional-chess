@@ -10,10 +10,17 @@ type openings
 
 (* [init_openings s]
  * Given the path to the openings database on disk [s], loads and returns the
- * database. *)
+ * database *)
 val init_openings : string -> openings
 
-(* [opening_name o]
- * Returns the name of the opening move sequence represented by [o]
+(* [opening_name d o]
+ * Returns the name of the opening move sequence represented by [o] in
+ * the openings database [d]
  * an example [o]: ["g3"; "e5"; "Nf3"] *)
-val opening_name : string list -> string
+val opening_name : openings -> string list -> string
+
+(* [white_winrate d o]
+ * Returns WHITE's winrate of the opening move sequence represented by [o]
+ * in the openings database [d]
+ * an example [o]: ["g3"; "e5"; "Nf3"] *)
+val white_winrate : openings -> string list -> float

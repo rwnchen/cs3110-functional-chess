@@ -27,7 +27,7 @@ type openings = opmetadata StrTrie.t
 
 
 (* Empty openings database *)
-let initial_op_trie = StrTrie.empty
+let initial_op_trie () = StrTrie.empty
 
 (* Initial metadata for a moveset, with name and ECO category only *)
 let init_meta n c = {
@@ -44,6 +44,7 @@ let moves_regex = regexp "."
 let dir = "openings/"
 let eco_opening_json = dir ^ "eco_openings.json"
 let ficsgames_1 = dir ^ "ficsgames_1.pgn"
+let eco_opening_data = dir ^ "eco_openings"
 
 (* Ported from a2 - helper function to parse all elements
  * in a Yojson String list to an actual string list *)
@@ -79,13 +80,6 @@ let parse_eco f =
   (*let eco = to_eco_list eco_list_js [] in
   List.iter (fun l -> List.iter (fun x -> Printf.printf "%s\t" x) l) eco'*)
 
-(* [split_op e]
- * splits *)
-let split_op e =
-  match e with
-  | category::name::moves -> (category, name, moves)
-  | _ -> failwith "split_op: Invalid opening supplied!"
-
 (* [init_eco f]
  * string -> openings
  * Constructs the openings trie given a json file [f] with all openings and
@@ -108,9 +102,69 @@ let init_eco f =
         | _ -> failwith "init_eco: Invalid opening supplied!"
       end
   in
-  add_all eco_list initial_op_trie
+  add_all eco_list (initial_op_trie ())
 
-(* [construct_openings]
+(* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
+(* ***** ***** ***** * Json Parsing (trie or metadata) * ***** ***** ***** *)
+(* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
+(* [meta_to_json m]
+ * Converts opmetadata [m] into a basic Yojson association list. *)
+let meta_to_json m =
+  `Assoc [ ("total_count", `Int m.total_count);
+           ("white_wins", `Int m.white_wins);
+           ("name", `String m.name);
+           ("category", `String m.category); ]
+
+(* [json_to_meta j]
+ * Does the reverse of [meta_to_json] above, returning the metadata from json assoc list *)
+let json_to_meta j =
+  let tc = j |> member "total_count" |> to_int in
+  let ww = j |> member "white_wins" |> to_int in
+  let n = j |> member "name" |> to_string in
+  let c = j |> member "category" |> to_string in
+  let meta = init_meta n c in
+  meta.total_count <- tc;
+  meta.white_wins <- ww;
+  meta
+
+(* [move_to_json m]
+ * Converts a list of moves e.g. ["e5"; "c5"; "Nf3"] into a json list of strings
+ * Order is preserved. *)
+let move_to_json m =
+  `List (List.map (fun move -> `String move) m)
+
+(* [json_to_move j]
+ * Reverses the above. See notes above. *)
+let json_to_move j =
+  convert_each (fun move -> move |> to_string) j
+
+(* [open_to_json t]
+ * Converts the entire opening database trie [t] into a json object (NO side effects) *)
+let trie_to_json op_trie =
+  let json_assoc = ref [] in
+  StrTrie.iter
+    (fun k v ->
+       let json =
+         `Assoc[ ("metadata", meta_to_json v);
+                 ("moves_list", move_to_json k); ]
+       in
+       json_assoc := json::(!json_assoc);) (* Imperative rules functional drools *)
+    op_trie;
+  `List (!json_assoc)
+
+(* [json_to_open j]
+ * Reverses the above, reading the json object and returning a new [openings] trie *)
+let json_to_trie j =
+  let trie = ref (initial_op_trie ()) in
+  List.iter
+    (fun move ->
+       let metadata = move |> member "metadata" |> json_to_meta in
+       let moves_list = move |> member "moves_list" |> json_to_move in
+       trie := StrTrie.add moves_list metadata !trie; ())  (* Imperative rules functional drools *)
+    (to_list j);
+  !trie
+
+(* [construct_openings ()]
  * This is a one-off function that constructs the initial trie with all ECO openings
  * and names, but NO statistics (white wins, # of occurences, etc.). It then reads the
  * FICS replay file (specified in the directory above), and uses those replays to BUILD UP
@@ -124,16 +178,30 @@ let init_eco f =
  *   then three opmetadata in the trie will be updated to reflect the results of the matchs.
  *   Since the prefix "e4 e5 Nf3 g3" is not in the trie, we move onto the next game.
  * Once the entire replay file has been read, the trie is then stored back onto disk as a
- * json file. *)
-let construct_openings =
+ * json file. Oh my god OCaml yojson is a real pain in the neck... Should've used ATDgen *)
+let construct_openings () =
   let op_trie = init_eco eco_opening_json in
-  ()
+
+  (* TODO: Read the pgn file here *)
+
+  (* Finally, converts the trie to a json file and saves it to [eco_opening_data] *)
+  let oc = open_out_gen [Open_append; Open_trunc; Open_creat] 0 eco_opening_data in
+  let trie_json = trie_to_json op_trie in
+  Yojson.Basic.to_channel oc trie_json;
+  close_out oc
 
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Exposed functions *)
 
 let init_openings f =
-  init_eco eco_opening_json (* replace later *)
+  let in_channel = open_in eco_opening_data in
+  let trie_json = Yojson.Basic.from_channel in_channel in
+  json_to_trie trie_json
 
+let opening_name trie moves = (StrTrie.find moves trie).name
 
-let opening_name o = failwith "opening_name: Unimplemented"
+let white_winrate trie moves =
+  let metadata = StrTrie.find moves trie in
+  try
+    (metadata.white_wins |> float_of_int) /. (metadata.total_count |> float_of_int)
+  with _ -> 0.0
