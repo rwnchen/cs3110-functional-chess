@@ -1,3 +1,4 @@
+open Format
 open Board
 (* open Replayer *)
 (* open Controller *)
@@ -34,7 +35,7 @@ let extract_tags m = failwith "extract_tags unimplemented"
 (* TODO: *)
 let parse_space s =
   let fst_int = Char.code (String.get s 0) - 64 in
-  let snd_int = int_of_char (String.get s 1) in
+  let snd_int = int_of_char (String.get s 1) - 48 in
   (fst_int, snd_int)
 (*
    These two functions convert to and from algebraic chess notation to/from the
@@ -61,6 +62,9 @@ let suggest_moveset o g = []
 let suggest_move o g = None
 
 (* let to_replay = failwith "to_replay unimplemented" *)
+
+let print_tup ppf (a,b) =
+  Format.fprintf ppf "(%d,%d)" a b
 
 let rec run (b,c,lm) =
   let legal_moves = legal_moves b lm c in
@@ -92,11 +96,13 @@ let rec run (b,c,lm) =
       begin
          match c with
         | Black ->
+          Format.printf "%a\n" print_tup pos1;
           print_endline (print_board b);
           print_endline "No piece selected.";
           (* print_endline "Black Moved"; *)
           run (b, Black, lm)
         | White ->
+          Format.printf "%a\n" print_tup pos1;
           print_endline (print_board b);
           print_endline "No piece selected.";
           (* print_endline "White Moved"; *)

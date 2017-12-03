@@ -71,12 +71,12 @@ let init_board = ((setup_board Black), (setup_board White))
 (*https://github.com/shrumo/chess-engine*)
 let piece_string p color =
   match p with
-  | Pawn b -> if color = White then "♙" else "♟"
-  | Rook b -> if color = White then "♖" else "♜"
-  | Knight -> if color = White then "♘" else "♞"
-  | Bishop -> if color = White then "♗" else "♝"
-  | Queen -> if color = White then "♕" else "♛"
-  | King b ->  if color = White then "♔" else "♚"
+  | Pawn b -> if color = Black then "♙" else "♟"
+  | Rook b -> if color = Black then "♖" else "♜"
+  | Knight -> if color = Black then "♘" else "♞"
+  | Bishop -> if color = Black then "♗" else "♝"
+  | Queen -> if color = Black then "♕" else "♛"
+  | King b ->  if color = Black then "♔" else "♚"
 
 let board_to_matrix b =
   let bb = (fst b) @ (snd b) in
@@ -92,8 +92,9 @@ let board_to_matrix b =
 let print_board b =
   let m = board_to_matrix b in
   let s = ref "" in
-  for y = 1 to 17 do
+  for y2 = 1 to 17 do
     for x = 1 to 17 do
+      let y = (y2 -18) * -1 in
       let coord = string_of_int (x/2) ^ string_of_int (y/2) in
       if y mod 2 = 0 then
         if x mod 2 = 0 then
