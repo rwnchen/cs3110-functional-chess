@@ -70,11 +70,11 @@ let init_board = ((setup_board Black), (setup_board White))
 let piece_string p color =
   match p with
   | Pawn b -> if color = White then "♙" else "♟"
-  | Rook -> if color = White then "♖" else "♜"
+  | Rook b -> if color = White then "♖" else "♜"
   | Knight -> if color = White then "♘" else "♞"
   | Bishop -> if color = White then "♗" else "♝"
   | Queen -> if color = White then "♕" else "♛"
-  | King ->  if color = White then "♔" else "♚"
+  | King b ->  if color = White then "♔" else "♚"
 
 let board_to_matrix b =
   let bb = (fst b) @ (snd b) in
