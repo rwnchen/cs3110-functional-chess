@@ -9,7 +9,7 @@ type metadata = tag_pair list
 
 type game = board * metadata * bool
 
-type state = int (* TODO *)
+type state = board * color * (piece * move)
 
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Helper functions/states *)
@@ -38,3 +38,7 @@ let suggest_move o g = None
 let to_replay = failwith "to_replay unimplemented"
 
 let run s = ()
+  (*
+
+
+   *)

@@ -29,8 +29,6 @@ let history move_list =
   failwith "Unimplemented"
 
 
-
-
 (* let rec update t = *)
 let () =
   let game = ref (Pyref (get_ref gui "start_game" [])) in
