@@ -32,11 +32,22 @@ class GameBoard(tk.Frame):
             self.images[b] = ImageTk.PhotoImage(image)
 
             for i in range(4):
-                self.pieces[piece_names[i]+"w0"] = (i,wrow)
-                self.pieces[piece_names[i]+"b0"] = (i,brow)
-                self.pieces[piece_names[i]+"w1"] = (7-i,wrow)
-                self.pieces[piece_names[i]+"b1"] = (7-i,brow)
-
+                if i != 3:
+                    self.pieces[piece_names[i]+"w0"] = (i,wrow)
+                    self.pieces[piece_names[i]+"b0"] = (i,brow)
+                    self.pieces[piece_names[i]+"w1"] = (7-i,wrow)
+                    self.pieces[piece_names[i]+"b1"] = (7-i,brow)
+                else:
+                    if is_white:
+                        self.pieces["queenw0"] = (i,wrow)
+                        self.pieces["queenb0"] = (i,brow)
+                        self.pieces["kingw0"] = (7-i,wrow)
+                        self.pieces["kingb0"] = (7-i,brow)
+                    else:
+                        self.pieces["kingw0"] = (i,wrow)
+                        self.pieces["kingb0"] = (i,brow)
+                        self.pieces["queenw0"] = (7-i,wrow)
+                        self.pieces["queenb0"] = (7-i,brow)
 
                 self.pieces["pawnw" + str(i)] = (i,pwrow)
                 self.pieces["pawnb" + str(i)] = (i,pbrow)
