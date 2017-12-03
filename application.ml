@@ -1,3 +1,4 @@
+open Format
 open Board
 (* open Replayer *)
 (* open Controller *)
@@ -9,7 +10,7 @@ open Board
 
 type game = board * metadata * bool *)
 
-type state = (board * color)
+type state = board * color * ((piece * move) option)
 
 type position = int * int
 
@@ -34,7 +35,7 @@ let extract_tags m = failwith "extract_tags unimplemented"
 (* TODO: *)
 let parse_space s =
   let fst_int = Char.code (String.get s 0) - 64 in
-  let snd_int = int_of_char (String.get s 1) in
+  let snd_int = int_of_char (String.get s 1) - 48 in
   (fst_int, snd_int)
 (*
    These two functions convert to and from algebraic chess notation to/from the
@@ -62,8 +63,11 @@ let suggest_move o g = None
 
 (* let to_replay = failwith "to_replay unimplemented" *)
 
-let rec run (b,c) = begin
-  let legal_moves = legal_moves b Board.mh c in
+let print_tup ppf (a,b) =
+  Format.fprintf ppf "(%d,%d)" a b
+
+let rec run (b,c,lm) =
+  let legal_moves = legal_moves b lm c in
   match legal_moves with
   | [] -> () (*CHECK ENDGAME*)
   | _ ->
@@ -71,22 +75,42 @@ let rec run (b,c) = begin
     let spaces = (String.split_on_char ' ' input) in
     let pos1 = parse_space (List.nth spaces 0) in
     let pos2 = parse_space (List.nth spaces 1) in
+    match get_piece b pos1 with
+    | Some p ->
+      begin
+        let (new_b, check) = make_move b lm c (pos1,pos2) legal_moves in
+        (* give user feedback about move *)
+        let brd = print_board new_b in
+        let newlm = Some (p, (pos1,pos2)) in
+        match c with
+        | Black ->
+          print_endline brd;
+          (* print_endline "Black Moved"; *)
+          run (new_b, White, newlm)
+        | White ->
+          print_endline brd;
+          (* print_endline "White Moved"; *)
+          run (new_b, Black, newlm)
+      end
+    | None ->
+      begin
+         match c with
+        | Black ->
+          Format.printf "%a\n" print_tup pos1;
+          print_endline (print_board b);
+          print_endline "No piece selected.";
+          (* print_endline "Black Moved"; *)
+          run (b, Black, lm)
+        | White ->
+          Format.printf "%a\n" print_tup pos1;
+          print_endline (print_board b);
+          print_endline "No piece selected.";
+          (* print_endline "White Moved"; *)
+          run (b, White, lm)
+      end
     (*TODO: parse spaces into positions*)
-    let (new_b, check) = make_move b c (pos1,pos2) legal_moves in
-    (* give user feedback about move *)
-    let brd = print_board new_b in
-    match c with
-    | Black ->
-      print_endline brd;
-      (* print_endline "Black Moved"; *)
-      run (new_b, White)
-    | White ->
-      print_endline brd;
-      (* print_endline "White Moved"; *)
-      run (new_b, Black)
-end
 
 let () =
   let b = init_board in
   let c = White in
-  run (b,c)
+  run (b,c, None)
