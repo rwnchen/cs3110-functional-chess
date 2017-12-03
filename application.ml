@@ -9,15 +9,13 @@ open Board
 
 type game = board * metadata * bool *)
 
-<<<<<<< HEAD
-type state = board * color * (piece * move)
-=======
+(* type state = board * color * (piece * move) *)
+
 type state = (board * color)
 
 type position = int * int
 
 type move = position * position
->>>>>>> a68df067e05aa64cb5392b9ad6c05c18eb6affbd
 
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Helper functions/states *)
