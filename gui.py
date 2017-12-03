@@ -32,15 +32,16 @@ class GameBoard(tk.Frame):
             self.images[b] = ImageTk.PhotoImage(image)
 
             for i in range(4):
-                self.pieces[piece_names[i]+"w0"] = (wrow,i)
-                self.pieces[piece_names[i]+"b0"] = (brow,i)
-                self.pieces[piece_names[i]+"w1"] = (wrow,7-i)
-                self.pieces[piece_names[i]+"b1"] = (brow,7-i)
+                self.pieces[piece_names[i]+"w0"] = (i,wrow)
+                self.pieces[piece_names[i]+"b0"] = (i,brow)
+                self.pieces[piece_names[i]+"w1"] = (7-i,wrow)
+                self.pieces[piece_names[i]+"b1"] = (7-i,brow)
 
-                self.pieces["pawnw" + str(i)] = (pwrow,i)
-                self.pieces["pawnb" + str(i)] = (pbrow,i)
-                self.pieces["pawnw" + str(7-i)] = (pwrow,7-i)
-                self.pieces["pawnb" + str(7-i)] = (pbrow,7-i)
+
+                self.pieces["pawnw" + str(i)] = (i,pwrow)
+                self.pieces["pawnb" + str(i)] = (i,pbrow)
+                self.pieces["pawnw" + str(7-i)] = (7-i,pwrow)
+                self.pieces["pawnb" + str(7-i)] = (7-i,pbrow)
 
         self.root = parent
         self.root.resizable(0,0)
@@ -94,9 +95,9 @@ class GameBoard(tk.Frame):
     def addpiece(self, name, row=0, column=0):
         '''Add a piece to the playing board'''
         img = self.canvas.create_image(0,0, image=self.images[name[:-1]], tags=name, anchor="c")
-        self.placepiece(name, row, column)
+        self.placepiece(name, column, row)
 
-    def placepiece(self, name, row, column):
+    def placepiece(self, name, column, row):
         '''Place a piece at the given row/column'''
         # self.pieces[name] = (row, column)
         x0 = (column * self.size) + int(self.size/2)
@@ -188,7 +189,8 @@ class GameBoard(tk.Frame):
         self.clicked_space = name
 
 def get_piece(board):
-    return unicode(board.clicked_space)
+    clicked_space = list(board.clicked_space)
+    return [int(clicked_space[0]),int(clicked_space[1])]
 
 def move(board, pos1, pos2):
     board.move(pos1,pos2)
