@@ -21,7 +21,7 @@ type tag_pair =
   | Round of string (* May not be an int (e.g. unfinished, 'N/A') *)
   | White of string (* Name of white player *)
   | Black of string (* Name of black player *)
-  | Result of string         (* TODO: Consider a new type for game state*)
+  | Result of string         (* "1-0" (white won), "0-1" (black won), or "1/2-1/2" (draw) *)
   | Tag of string * string   (* tag name * tag contents *)
 
 type replay =
@@ -32,8 +32,10 @@ type replay =
 
 let tag_rx = regexp "\\[\\|\\]"
 let quote_trim = regexp {|"|}
-let move_rx = regexp "[0-9+]. "
+let move_rx = regexp {| *[0-9]+\. \| +|}
 let delim = regexp {| "|}
+let comment_rx = regexp {|\{.*\}|}
+let result_rx = regexp {|0-1\|1-0\|1/2-1/2|}
 
 (* Helper functions *)
 (* [empty_replay ()]
@@ -78,9 +80,16 @@ let tag_to_string = function
   | Tag(h, t) -> sprintf {|%s "%s"|} h t
 
 (* [parse_moves line]
- * Returns an array of all the white-black move pairs in the line [line] *)
+ * Returns an array of all the white-black move pairs in the line [line]
+ *
+ * All comments {comments} disappear
+ * The game results (e.g. 1-0 0-1 1/2-1/2) also are NOT included *)
 let parse_moves line =
-  line |> split move_rx |> Array.of_list
+  line |>
+  global_replace comment_rx "" |> (* delete comments *)
+  global_replace result_rx "" |>  (* delete result *)
+  split move_rx |>
+  Array.of_list
 
 (* [read_replay c]
  * Tries to read exactly one replay given an input channel for a
@@ -149,5 +158,16 @@ let save_pgn f r =
   for i = 0 to Array.length r.moves - 1 do
     fprintf out_channel "%d. %s" (i+1) r.moves.(i)
   done;
+
+  (* Lastly, save the game result as 1-0 0-1 or 1/2-1/2 *)
+  let rec result tags =
+    match tags with
+    | Result(r)::t -> r
+    | _::t -> result t
+    | _ -> failwith "save_pgn: No result in tags!"
+  in
+  fprintf out_channel "%s" (result r.tags);
+
+  (* Newlines and close channel *)
   fprintf out_channel "\n\n";
   close_out out_channel
