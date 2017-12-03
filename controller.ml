@@ -42,9 +42,13 @@ let () =
     game := List.nth !update 0;
 
     if ((List.nth !update 1) = (Pybool true)) then begin
-    let py_pos = get_list gui "get_piece" [!game] in
+      let py_pos = get_list gui "get_piece" [!game] in
       let (Pyint x) = List.nth py_pos 0 in
       let (Pyint y) = List.nth py_pos 1 in
+      print_int x;
+      print_int y;
+      print_endline "";
+
       game := (highlight game [(x,y)]);
       match (Board.get_piece !board (x+1,y+1)) with
       | Some _ ->
