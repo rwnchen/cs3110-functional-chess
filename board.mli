@@ -14,7 +14,7 @@ type position = int * int
 
 type move = position * position
 
-type last_move = piece * move
+type last_move = (piece * move) option
 
 (* Represents the movement of a piece from one position to another as a tuple,
  * where the first position is the initial position and the second position is

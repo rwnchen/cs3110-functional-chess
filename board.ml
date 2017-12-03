@@ -20,7 +20,7 @@ type move = position * position
 
 type move_list = (piece * move) list
 
-type last_move = piece * move
+type last_move = (piece * move) option
 
 type move_history = {mutable ms : move_list}
 
@@ -229,7 +229,8 @@ and moves_p b last_move c moved (f,r) =
   let two_sq = if moved then [] else [(f,r+2*inc)] in
   let en_pass =
     match last_move with
-    | (p, ((f1,r1),(f2,r2))) ->
+    | None -> []
+    | Some (p, ((f1,r1),(f2,r2))) ->
       if (snd p = Pawn true) && f1 = f2 then
         if r2-r1 = 2 then [(f1,r2-1)]
         else if r1-r2 = 2 then [(f1,r2+1)]
