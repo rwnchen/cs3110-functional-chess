@@ -20,6 +20,8 @@ type move = position * position
 
 type move_list = (piece * move) list
 
+type last_move = piece * move
+
 type move_history = {mutable ms : move_list}
 
 type board = (position * piece) list * (position * piece) list
@@ -70,11 +72,11 @@ let init_board = ((setup_board Black), (setup_board White))
 let piece_string p color =
   match p with
   | Pawn b -> if color = White then "♙" else "♟"
-  | Rook -> if color = White then "♖" else "♜"
+  | Rook b -> if color = White then "♖" else "♜"
   | Knight -> if color = White then "♘" else "♞"
   | Bishop -> if color = White then "♗" else "♝"
   | Queen -> if color = White then "♕" else "♛"
-  | King ->  if color = White then "♔" else "♚"
+  | King b ->  if color = White then "♔" else "♚"
 
 let board_to_matrix b =
   let bb = (fst b) @ (snd b) in
@@ -227,8 +229,7 @@ and moves_p b last_move c moved (f,r) =
   let two_sq = if moved then [] else [(f,r+2*inc)] in
   let en_pass =
     match last_move with
-    | [] -> []
-    | (p, ((f1,r1),(f2,r2)))::t ->
+    | (p, ((f1,r1),(f2,r2))) ->
       if (snd p = Pawn true) && f1 = f2 then
         if r2-r1 = 2 then [(f1,r2-1)]
         else if r1-r2 = 2 then [(f1,r2+1)]
