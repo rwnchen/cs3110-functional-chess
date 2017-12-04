@@ -63,6 +63,7 @@ let () =
   let last_move = ref None in
   let last_click = ref Noclick in
   let c = ref White in
+  let history = ref [] in
 
   while (true) do (*Gameloop. TODO: replace true with endgame check*)
     update := (get_bool gui "update_game" [!guistate; Pybool true]);
@@ -90,8 +91,6 @@ let () =
           board := new_b;
           guistate := move_piece guistate ((x',y'),(x,y));
           last_move := Some (piece,((x',y'),(x,y)));
-          let brd = print_board !board in
-          print_endline brd;
           begin
             match !c with
             | White -> c := Black;

@@ -78,12 +78,10 @@ class GameBoard(tk.Frame):
         scrollbar = Scrollbar(self.openerframe)
         scrollbar.pack(side="right", fill="y")
 
-        listbox = Listbox(self.openerframe, yscrollcommand=scrollbar.set, width=60, height=10, relief="solid")
-        for i in range(1000):
-            listbox.insert(END, str(i) + "\t\tOpener Name\t\t\t\tA1-A2\t50%")
-        listbox.pack(side="left", fill="both")
+        self.openerbox = Listbox(self.openerframe, yscrollcommand=scrollbar.set, width=60, height=10, relief="solid")
+        self.openerbox.pack(side="left", fill="both")
 
-        scrollbar.config(command=listbox.yview)
+        scrollbar.config(command=self.openerbox.yview)
 
         self.buttonframe = Frame(bd=1, relief=SUNKEN, width=canvas_width/2, height=100)
         self.buttonframe.pack(side="left",fill="x", padx=5, pady=5)
@@ -94,12 +92,10 @@ class GameBoard(tk.Frame):
         scrollbar = Scrollbar(self.historyframe)
         scrollbar.pack(side="right", fill="y")
 
-        listbox = Listbox(self.historyframe, yscrollcommand=scrollbar.set, width=20, height=20, relief="solid")
-        for i in range(1000):
-            listbox.insert(END, str(i) + "\t\t\t\tA1-A2")
-        listbox.pack(side="right", fill="both")
+        self.historybox = Listbox(self.historyframe, yscrollcommand=scrollbar.set, width=20, height=20, relief="solid")
+        self.historybox.pack(side="right", fill="both")
 
-        scrollbar.config(command=listbox.yview)
+        scrollbar.config(command=self.historybox.yview)
 
         self.canvas.bind("<Configure>", self.refresh)
 
@@ -246,6 +242,18 @@ def highlight(board, x, y):
         board.highlight_rect(x,y)
     return board
 
+def update_openers(board, s):
+    board.openerbox.delete(0,END);
+    board.openerbox.insert(END, str(0) + "\t\t" + s + "\t\t\t\tA1-A2\t50%")
+    return board
+
+def update_history(board, hist_lst):
+    # Deletes history list and updates with items in hist_lst
+    board.historybox.delete(0,END);
+    # for m in hist_lst:
+    #     board.historybox.insert(END, str(i) + "\t\t\t\t" + m
+    return board
+
 def start_game():
     root = tk.Tk()
     board = GameBoard(root)
@@ -272,4 +280,5 @@ if __name__ == "__main__":
     board.move((6,0),(5,2))
     board.move((5,5),(5,4))
     board.move((4,0),(6,0))
+    update_openers(board, "TEST")
     board.mainloop()
