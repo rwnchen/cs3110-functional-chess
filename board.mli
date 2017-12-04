@@ -8,7 +8,7 @@ type piece_rank =
   | Rook of bool
   | Knight
   | Bishop
-  | Pawn of bool
+  | Pawn of bool * bool
 
 (* Represents a piece in chess. *)
 type piece = color * piece_rank
@@ -59,3 +59,12 @@ val legal_moves : board -> last_move -> color -> (move * board) list
 (* [update_board b m] takes a board [b] and returns an updated board after
  * performing move [m]. If [m] is not a legal move, return the same board. *)
 val make_move : board -> color -> last_move -> move -> (move * board) list-> (board * check)
+
+
+(* The functions below convert moves into "algebraic chess notation"
+ * Details of how they are formatted found here:
+ *   https://en.wikipedia.org/wiki/Portable_Game_Notation#Movetext
+ * *)
+val to_algno : move -> board -> string
+
+val from_algno : string -> board -> move

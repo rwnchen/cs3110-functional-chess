@@ -10,7 +10,7 @@ type piece_rank =
   | Rook of bool
   | Knight
   | Bishop
-  | Pawn of bool
+  | Pawn of bool * bool
 
 type piece = color * piece_rank
 
@@ -52,7 +52,7 @@ and setup_front color rank count lst =
   if count <= 8
   then
     let pos = (count, rank) in
-    setup_front color rank (count+1) ((pos, (color, Pawn (false)))::lst)
+    setup_front color rank (count+1) ((pos, (color, Pawn (false,false)))::lst)
   else lst
 
 and setup_back color rank =
@@ -71,7 +71,7 @@ let init_board = ((setup_board Black), (setup_board White))
 (*https://github.com/shrumo/chess-engine*)
 let piece_string p color =
   match p with
-  | Pawn b -> if color = Black then "♙" else "♟"
+  | Pawn (m,a) -> if color = Black then "♙" else "♟"
   | Rook b -> if color = Black then "♖" else "♜"
   | Knight -> if color = Black then "♘" else "♞"
   | Bishop -> if color = Black then "♗" else "♝"
@@ -240,7 +240,7 @@ and moves b last_move p (f,r) =
   | Rook _ -> moves_r b (fst p) (f,r)
   | Knight -> moves_n b (fst p) (f,r)
   | Bishop -> moves_b b (fst p) (f,r)
-  | Pawn moved -> moves_p b last_move (fst p) moved (f,r)
+  | Pawn (moved,advanced) -> moves_p b last_move (fst p) (moved,advanced) (f,r)
 
 and in_bounds (f,r) = 1<=f && f<=8 && 1<=r && r<=8
 
@@ -341,7 +341,7 @@ and moves_n b c (f,r) =
       end in
   loop (f,r) dxy []
 
-and moves_p b last_move c moved (f,r) =
+and moves_p b last_move c (m,a) (f,r) =
   let inc =
     if c = Black then -1 else 1 in
 
@@ -358,19 +358,19 @@ and moves_p b last_move c moved (f,r) =
     | Some color -> if color = oppc c then [(f+1,r+inc)] else []
     | _ -> [] in
 
-  let two_sq = if moved then [] else [(f,r+2*inc)] in
+  let two_sq = if m || a then [] else [(f,r+2*inc)] in
   let en_pass =
     match last_move with
-    | None -> []
-    | Some (p, ((f1,r1),(f2,r2))) ->
-      if (snd p = Pawn true) && f1 = f2 && f1 = f then
-        if r2-r1 = 2 then [(f1,r2-1)]
-        else if r1-r2 = 2 then [(f1,r2+1)]
-        else []
-      else [] in
+    | None -> [(1,1)]
+    | Some lm -> enpass_valid lm (f,r) inc in
   forward @ forward_left @ forward_right @ two_sq @ en_pass
 
-
+and enpass_valid (p, ((f1,r1),(f2,r2))) (f,r) inc =
+  match snd p with
+  | Pawn (_, true) ->
+      if true (* (abs (r2-r1) = 2) && (r2 = r) && ((abs (f-f2) = 1)) *) then [(f2,r+inc)]
+      else []
+  | _ -> [(f2,r+inc)]
 
 (********************* BOARD UPDATE LOGIC **********************)
 
@@ -411,7 +411,6 @@ let rec legal_moves b last_move c =
     | [] -> legal_lst
     | move::t ->
       begin
-        (* TODO: CASTLE *)
         let b' = update_board b last_move c move in
         if is_check b' last_move c = getcheck c
         then loop t legal_lst
@@ -433,6 +432,7 @@ and update_board b last_move c m =
   let ps' = List.remove_assoc i_pos ps in
   let ps'' = (f_pos,piece')::ps' in
 
+  (* TODO: UPDATE CASTLING BOARD *)
   (* en passant capture *)
   let opps' = update_capture opps piece' c i_pos f_pos last_move in
   if c = Black
@@ -445,8 +445,8 @@ and update_piece_bool piece i_pos f_pos =
     | c, Rook _ -> (c, Rook true)
     | c, Pawn _ ->
       if abs ((snd i_pos) - (snd f_pos)) = 2
-      then (c, Pawn true)
-      else (c, Pawn false)
+      then (c, Pawn (true, true))
+      else (c, Pawn (true, false))
     | _ -> piece
 
 and update_capture opps piece c i_pos f_pos last_move =
@@ -456,13 +456,17 @@ and update_capture opps piece c i_pos f_pos last_move =
     if (fst i_pos)+inc = (fst f_pos) && (abs ((snd f_pos)-(snd i_pos))) = 1
     then match last_move with
       | None -> []
-      | Some (p, ((f1,r1),(f2,r2))) ->
-        if (snd p = Pawn true) && f1 = f2 && f1 = fst i_pos
-            && abs (r2-r1) = 2
-        then List.remove_assoc (fst i_pos, snd f_pos) opps
-        else List.remove_assoc f_pos opps
+      | Some lm -> enpass_capture lm i_pos f_pos opps
     else opps
   | _ -> List.remove_assoc f_pos opps
+
+and enpass_capture (p, ((f1,r1),(f2,r2))) i_pos f_pos opps =
+  match snd p with
+  | Pawn (_,true) ->
+    if (abs (r2-r1) = 2) && r2 = (snd i_pos)
+    then List.remove_assoc (f2,r2) opps
+    else List.remove_assoc f_pos opps
+  | _ -> opps
 
 let make_move b c last_move (m:move) (leg_mves:((move * board) list)) =
   try
@@ -488,3 +492,13 @@ let promote b c last_move file newp =
     | White -> getpcs b (oppc c), (((file,endrank), piece')::pcs') in
   let check = is_check b' last_move (oppc c) in
   (b, check)
+
+
+(*************************************************************)
+(**********************ALGEBRAIC NOTATION*********************)
+(*************************************************************)
+let to_algno m b =
+  failwith "todo"
+
+let from_algno s b =
+  failwith "todo"
