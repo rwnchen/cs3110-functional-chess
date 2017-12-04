@@ -488,3 +488,13 @@ let promote b c last_move file newp =
     | White -> getpcs b (oppc c), (((file,endrank), piece')::pcs') in
   let check = is_check b' last_move (oppc c) in
   (b, check)
+
+
+(*************************************************************)
+(**********************ALGEBRAIC NOTATION*********************)
+(*************************************************************)
+let to_algno m b =
+  failwith "todo"
+
+let from_algno s b =
+  failwith "todo"

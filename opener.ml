@@ -38,14 +38,11 @@ let init_meta n c = {
   category = c;
 }
 
-(* Regex used to parse string lines containing the game moves. *)
-let moves_regex = regexp "."
-
-(* *)
+(* Some default directory files. Useful *)
 let dir = "openings/"
-let eco_opening_json = dir ^ "eco_openings.json"
-let ficsgames_1 = dir ^ "ficsgames_1.pgn"
-let eco_opening_data = dir ^ "eco_openings"
+let eco_opening_json = dir ^ "eco_openings.json" (* list of openings names and sequences *)
+let ficsgames_1 = dir ^ "ficsgames_1.pgn"        (* High quality games for statistics *)
+let eco_opening_data = dir ^ "eco_openings"      (* openings database stored here *)
 
 (* Ported from a2 - helper function to parse all elements
  * in a Yojson String list to an actual string list *)
@@ -62,7 +59,7 @@ let rec json_to_string_list = function
  * "A43". The second element is the name of the opening, and the following
  * elements are the moves associated with that opening.
  *
- * e.g. ["A42", "King's Random Opening", "e5 f3", "c5, a1"] *)
+ * e.g. [...["A42"; "King's Random Opening"; "e5"; f3"; "c5"; a1"]...] *)
 let parse_eco f =
   let js = Yojson.Basic.from_channel (open_in f) in
   let eco_list_js = js |> member "openings" |> to_list in
@@ -197,11 +194,15 @@ let prefix i lst =
   in
   prefix' i lst []
 
-(* [construct_openings ()]
- * This is a one-off function that constructs the initial trie with all ECO openings
- * and names, but NO statistics (white wins, # of occurences, etc.). It then reads the
- * FICS replay file (specified in the directory above), and uses those replays to BUILD UP
- * the statistics associated with different openings.
+(* [construct_openings ?trie games]
+ * Arguments:
+ *   - trie - an [openings] trie. If not supplied, will be initialized to the default
+ *            empty trie. Supply this argument in order to further update the openings
+ *            database
+ *   - games - a string to the PGN file of the games to be analyzed
+ *
+ * This function reads the replay file specified by [games] and uses the replay file to update
+ * the statistics in [trie].
  * How it does this:
  *   for each match in the replay file, it looks at the sequence of moves made by the players,
  *   and considers progressively longer prefixes of the move sequence. Each prefix is treated
@@ -212,11 +213,9 @@ let prefix i lst =
  *   Since the prefix "e4 e5 Nf3 g3" is not in the trie, we move onto the next game.
  * Once the entire replay file has been read, the trie is then stored back onto disk as a
  * json file. Oh my god OCaml yojson is a real pain in the neck... Should've used ATDgen *)
-let construct_openings () =
-  let op_trie = init_eco eco_opening_json in
-
+let construct_openings ?trie:(op_trie = init_eco eco_opening_json) games =
   (* Read the pgn file here *)
-  let replays = load_pgn ficsgames_1 in
+  let replays = load_pgn games in
   let rec build_stats op_trie replay_list =
     match replay_list with
     | r::t ->
@@ -245,21 +244,6 @@ let construct_openings () =
         build_stats op_trie t
       end
     | [] -> ()
-(*
-          for i = 1 to List.length (moves) do
-            let prefix = i |> Array.sub moves_arr 0 |> Array.to_list in
-            Printf.printf "Prefix head: %s\t" (List.hd prefix);
-            if StrTrie.mem prefix op_trie then
-              begin
-                update_metadata prefix op_trie (white_won h);
-              end
-            else
-              raise breakloop;
-          done;
-        with _ ->
-          build_stats op_trie t
-      end
-*)
   in
   build_stats op_trie replays;
 
@@ -272,24 +256,31 @@ let construct_openings () =
 
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Debugging functions *)
+(* Call [print_trie t] on the opening trie [t] to see all the move
+ * sequences in [t] and their respective metadata *)
+
 let strip str =
   let str = replace_first (regexp "^ +") "" str in
   replace_first (regexp "; +$") "" str
 
-let list_to_string lst =
+let moves_to_string lst =
   let output_str = ref "[" in
   List.iter (fun i -> output_str := !output_str ^ i ^ "; ") lst;
   (strip (!output_str)) ^ "]"
 
 let meta_to_string meta =
-  "{" ^ "total_count: " ^ string_of_int meta.total_count
-      ^ "\twhite_wins: " ^ string_of_int meta.white_wins
-      ^ "\tname: " ^ meta.name
-      ^ "\tcategory: " ^ meta.category
-      ^ "}"
+  "{ " ^ "total_count: " ^ string_of_int meta.total_count
+       ^ "\twhite_wins: " ^ string_of_int meta.white_wins
+       ^ "\tname: " ^ meta.name
+       ^ "\tcategory: " ^ meta.category
+       ^ " }"
 
-let print_keys op_trie =
-  StrTrie.iter (fun k v -> Printf.printf "*********************\nKey: %s\nValue: %s\n" (list_to_string k) (meta_to_string v)) op_trie
+let print_trie op_trie =
+  StrTrie.iter
+    (fun k v ->
+      Printf.printf "*********************\nMoves: %s\nMeta: %s\n"
+        (moves_to_string k) (meta_to_string v))
+    op_trie
 
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Exposed functions *)
