@@ -2,10 +2,6 @@
  * winrates, opening name, etc. *)
 type opmetadata
 
-(* Represents an actual opening move SEQUENCE
- * TODO: replace string with the representation for moves. *)
-(* type opmoves *)
-
 (* Represents the database of stored openings
  *
  * We will have to find some way of saving this database beforehand and loading
@@ -14,9 +10,17 @@ type openings
 
 (* [init_openings s]
  * Given the path to the openings database on disk [s], loads and returns the
- * database. *)
+ * database *)
 val init_openings : string -> openings
 
-(* [opening_name o]
- * Returns the name of the opening move sequence represented by [o] *)
-(* val opening_name : opmoves -> string *)
+(* [opening_name d o]
+ * Returns the name of the opening move sequence represented by [o] in
+ * the openings database [d]
+ * an example [o]: ["g3"; "e5"; "Nf3"] *)
+val opening_name : openings -> string list -> string
+
+(* [white_winrate d o]
+ * Returns WHITE's winrate of the opening move sequence represented by [o]
+ * in the openings database [d]
+ * an example [o]: ["g3"; "e5"; "Nf3"] *)
+val white_winrate : openings -> string list -> float

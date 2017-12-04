@@ -16,10 +16,10 @@ class GameBoard(tk.Frame):
         self.pieces = {}
         self.images = {}
 
-        wrow = 7 if is_white else 0
-        brow = 0 if is_white else 7
-        pwrow = 6 if is_white else 1
-        pbrow = 1 if is_white else 6
+        brow = 7 if is_white else 0
+        wrow = 0 if is_white else 7
+        pbrow = 6 if is_white else 1
+        pwrow = 1 if is_white else 6
 
         for piece in piece_names:
             w = piece+"w"
@@ -32,11 +32,22 @@ class GameBoard(tk.Frame):
             self.images[b] = ImageTk.PhotoImage(image)
 
             for i in range(4):
-                self.pieces[piece_names[i]+"w0"] = (i,wrow)
-                self.pieces[piece_names[i]+"b0"] = (i,brow)
-                self.pieces[piece_names[i]+"w1"] = (7-i,wrow)
-                self.pieces[piece_names[i]+"b1"] = (7-i,brow)
-
+                if i != 3:
+                    self.pieces[piece_names[i]+"w0"] = (i,wrow)
+                    self.pieces[piece_names[i]+"b0"] = (i,brow)
+                    self.pieces[piece_names[i]+"w1"] = (7-i,wrow)
+                    self.pieces[piece_names[i]+"b1"] = (7-i,brow)
+                else:
+                    if is_white:
+                        self.pieces["queenw0"] = (i,wrow)
+                        self.pieces["queenb0"] = (i,brow)
+                        self.pieces["kingw0"] = (7-i,wrow)
+                        self.pieces["kingb0"] = (7-i,brow)
+                    else:
+                        self.pieces["kingw0"] = (i,wrow)
+                        self.pieces["kingb0"] = (i,brow)
+                        self.pieces["queenw0"] = (7-i,wrow)
+                        self.pieces["queenb0"] = (7-i,brow)
 
                 self.pieces["pawnw" + str(i)] = (i,pwrow)
                 self.pieces["pawnb" + str(i)] = (i,pbrow)
@@ -101,7 +112,7 @@ class GameBoard(tk.Frame):
         '''Place a piece at the given row/column'''
         # self.pieces[name] = (row, column)
         x0 = (column * self.size) + int(self.size/2)
-        y0 = (row * self.size) + int(self.size/2)
+        y0 = ((row-7) * -1 * self.size) + int(self.size/2)
         # print self.pieces, x0,y0
         self.canvas.coords(name, x0, y0)
         self.canvas.tag_bind(name,'<ButtonPress-1>',self.callback)
@@ -117,7 +128,7 @@ class GameBoard(tk.Frame):
             color = self.color1 if color == self.color2 else self.color2
             for col in range(self.columns):
                 x1 = (col * self.size)
-                y1 = (row * self.size)
+                y1 = ((row-7) * -1 * self.size)
                 x2 = x1 + self.size
                 y2 = y1 + self.size
                 rect = self.canvas.create_rectangle(x1, y1, x2, y2, outline="black", fill=color, tags=["square",str(col)+str(row)])
@@ -131,7 +142,7 @@ class GameBoard(tk.Frame):
     def highlight_rect(self, x, y):
         """adds a rectangle with center at x,y that is the size of the game square."""
         x1 = (x * self.size)
-        y1 = (y * self.size)
+        y1 = ((y-7)*-1 * self.size)
         x2 = x1 + self.size
         y2 = y1 + self.size
         color = "lightgreen"
@@ -163,40 +174,62 @@ class GameBoard(tk.Frame):
 
     def move(self, pos1, pos2):
         piece = self.getpieceatpos(pos1)
+        removed_piece = self.getpieceatpos(pos2)
+        print piece
         if piece is not None:
             origin = self.pieces[piece]
-            dx = pos2[0] - pos1[0]
-            dy = pos2[1] - pos1[1]
-            self.canvas.move(piece, dy*self.size, dx*self.size)
+            dx = -(pos1[0] - pos2[0])
+            dy = pos1[1] - pos2[1]
+            self.canvas.move(piece, dx*self.size, dy*self.size)
             self.pieces[piece] = (pos2[0],pos2[1])
+
+            if removed_piece is not None:
+                self.canvas.delete(removed_piece)
+                del self.pieces[removed_piece]
+
             return piece
         else:
             return "none"
 
     def callback(self, event):
-        #clear highlighted squars after every click
+        #clear highlighted squares after every click
         item = event.widget.find_withtag("current")
         tags = self.canvas.itemcget(item, "tags").split(" ")
-        name = tags[0]
-        if ("square" in tags or "highlighted" in tags):
-            name = tags[1]
-        elif (name in self.pieces):
-            pos = self.pieces[name]
-            name = str(pos[0]) + str(pos[1])
+        name = []
+        if ("square" in tags):
+            name = [u"empty",tags[1]]
+        elif ("highlighted" in tags):
+            name = [u"highlight",tags[1]]
+        elif (tags[0] in self.pieces):
+            pos = self.pieces[tags[0]]
+            name = [u"piece",str(pos[0]) + str(pos[1])]
+            if (int(pos[0]),int(pos[1])) in self.highlighted:
+                name = [u"highlight",str(pos[0]) + str(pos[1])]
+        else:
+            name = [u"none","99"]
         self.canvas.delete("highlighted")
         self.highlighted = []
         self.was_click = True
         self.clicked_space = name
 
-def get_piece(board):
+def get_click(board):
     clicked_space = list(board.clicked_space)
-    return [int(clicked_space[0]),int(clicked_space[1])]
+    click_type = clicked_space[0]
+    if click_type != u"none":
+        click_pos = [int(clicked_space[1][0])+1,int(clicked_space[1][1])+1]
+    else:
+        click_pos = [-1,-1]
+    return [unicode(click_type),click_pos]
 
 def move(board, pos1, pos2):
+    pos1 = (pos1[0]-1,pos1[1]-1)
+    pos2 = (pos2[0]-1,pos2[1]-1)
     board.move(pos1,pos2)
     return board
 
 def highlight(board, x, y):
+    x -= 1
+    y -= 1
     if ((x,y) not in board.highlighted):
         board.highlight_rect(x,y)
     return board
@@ -215,9 +248,14 @@ def update_game(board, update):
     board.root.update()
     click = board.was_click
     board.was_click = False
-    return [board, click]
+    return click
 
 
 if __name__ == "__main__":
     board = start_game()
+    board.move((3,1),(3,3))
+    board.move((4,6),(4,4))
+    board.move((3,3),(4,4))
+    board.move((5,6),(5,5))
+    board.move((4,4),(5,5))
     board.mainloop()
