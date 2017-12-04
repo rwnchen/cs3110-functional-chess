@@ -30,8 +30,14 @@ let rec highlight state tiles =
 let openers opener_list =
   failwith "Unimplemented"
 
-let history move_list =
-  failwith "Unimplemented"
+let update_history state history =
+  let rec build_hist_list m_list acc =
+    match m_list with
+    | [] -> acc
+    | (h,b)::t -> build_hist_list t ((Pystr h)::acc) in
+  let hist_list = build_hist_list history [] in
+  state := Pyref(get_ref gui "update_history" [!state; Pylist hist_list]);
+  !state
 
 let rec highlight_from_legal_moves legal_moves (x,y) acc =
   match legal_moves with
@@ -75,7 +81,8 @@ let () =
         let highlights = highlight_from_legal_moves leg_moves (x,y) [] in
         guistate := highlight guistate highlights;
         last_click := click;
-      | Highlight (x,y) -> begin
+      | Highlight (x,y) ->
+        begin
           match !last_click with
           | Piece (x',y') ->
             let leg_moves = legal_moves !board !last_move !c in
@@ -96,14 +103,21 @@ let () =
                   let ps = piece_string (snd p) (fst p) in
                   match m with
                   | ((i,j),(i',j')) ->
-                    ps ^ (string_of_int i) ^ (string_of_int j) ^ " to " ^ (string_of_int i') ^ (string_of_int j')
+                    let ps1 = String.make 1 (Char.chr(i+64)) in
+                    let ps2 = String.make 1 (Char.chr(i'+64)) in
+                    ps ^ ": " ^ ps1 ^ (string_of_int j) ^ " to " ^ ps2 ^ (string_of_int j')
                   | _ -> ps ^ "()" in
 
               print_endline lst_move;
+              history := (lst_move,new_b)::(!history);
+
+
               (* print_int x'; print_int y'; print_string " moved to ";
               print_int x; print_int y; print_endline ""; *)
               board := new_b;
               guistate := move_piece guistate ((x',y'),(x,y));
+              guistate := update_history guistate !history;
+
               begin
                 match !c with
                 | White -> c := Black;

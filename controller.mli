@@ -33,4 +33,4 @@ val openers: string list -> bool
    TODO: will probably want to change to something like "move list" or
    something once we get that far.
 *)
-val history: string list -> bool
+val update_history: Lymp.pyobj ref -> (string*Board.board) list  -> Lymp.pyobj

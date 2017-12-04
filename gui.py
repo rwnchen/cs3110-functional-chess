@@ -268,8 +268,9 @@ def update_openers(board, s):
 def update_history(board, hist_lst):
     # Deletes history list and updates with items in hist_lst
     board.historybox.delete(0,END);
-    # for m in hist_lst:
-    #     board.historybox.insert(END, str(i) + "\t\t\t\t" + m
+    total_len = len(hist_lst)
+    for i,h in enumerate(hist_lst):
+        board.historybox.insert(END, str(i) + "\t\t\t" + h)
     return board
 
 def start_game():
