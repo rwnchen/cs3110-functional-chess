@@ -475,8 +475,9 @@ and pawn_capture b c opps i_pos f_pos =
     then List.remove_assoc (f2,r2) opps
     else List.remove_assoc f_pos opps
   | _ -> opps *)
+  let inc = match c with | Black -> -1 | White -> 1 in
   if is_occupied b f_pos = None
-  then List.remove_assoc ((fst f_pos), (snd f_pos)-1) opps
+  then List.remove_assoc ((fst f_pos), (snd f_pos)-inc) opps
   else List.remove_assoc f_pos opps
 (*   if snd p = (Pawn (true,true)) && (abs ()) *)
 
