@@ -2,7 +2,14 @@ open Lwt
 open Board
 
 (* Code based off example http://www.baturin.org/code/lwt-counter-server/ *)
-let listen_address = Unix.inet_addr_loopback
+(* let listen_address = Unix.inet_addr_loopback *)
+let listen_address =
+  if Array.length Sys.argv < 2
+    then
+      (Printf.printf "usage : server port\n"; exit 2)
+    else
+      Unix.inet_addr_of_string (Sys.argv.(1))
+
 let port = 9000
 let backlog = 10
 
@@ -80,7 +87,7 @@ let rec handle_connection ic oc ind () =
             (Lwt_io.write_line oc "Not enough users" >>= handle_connection ic oc ind)
           else
           if is_text then
-            ((broadcast !outs rep oc ind); interact)
+            ((broadcast !outs rep oc ind);  interact)
           else
             if ind <> !current_user then
               (Lwt_io.write_line oc "Not your turn" >>= handle_connection ic oc ind)

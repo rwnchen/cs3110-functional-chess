@@ -79,7 +79,7 @@ let print_lastm ppf (lastm:Board.last_move) =
         | Bishop -> "Bishop"
         | Knight -> "Knight"
         | Rook m -> "Rook: " ^ (string_of_bool m)
-        | Pawn (m,a) -> "Pawn: " ^ (string_of_bool m) ^ ", " ^ (string_of_bool a) in
+        | Pawn m -> "Pawn: " ^ (string_of_bool m) in
     Format.fprintf ppf "Last Move: (%s // (%d,%d) to (%d,%d))" piece (fst i) (snd i) (fst f) (snd f)
   | None -> ()
 (*   match lastm with
