@@ -8,7 +8,7 @@ type piece_rank =
   | Rook of bool
   | Knight
   | Bishop
-  | Pawn of bool
+  | Pawn of bool * bool
 
 (* Represents a piece in chess. *)
 type piece = color * piece_rank
