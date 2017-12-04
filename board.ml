@@ -355,7 +355,7 @@ and moves_p b last_move c (m,a) (f,r) =
     | Some color -> if color = oppc c then [(f+1,r+inc)] else []
     | _ -> [] in
 
-  let two_sq = if not (m || a) then [] else moveable_space b c (f,r+2*inc) in
+  let two_sq = if m || a then [] else moveable_space b c (f,r+2*inc) in
   let en_pass =
     match last_move with
     | None -> []
@@ -430,10 +430,7 @@ and update_board b last_move c m =
   let add_pc = (f_pos,piece')::rm_pc in
   let pcs' = update_castle piece' add_pc i_pos f_pos in
 
-
-  (* TODO: UPDATE CASTLING BOARD *)
-  (* en passant capture *)
-  let opps' = update_capture opps piece' c i_pos f_pos last_move in
+  let opps' = update_capture b opps piece' c i_pos f_pos in
   if c = Black
   then (pcs', opps')
   else (opps', pcs')
@@ -462,24 +459,27 @@ and update_castle p pcs (fi,ri) (ff,rf) =
     else pcs
   | _ -> pcs
 
-and update_capture opps piece c (fi,ri) (ff,rf) last_move =
+and update_capture b opps piece c (fi,ri) (ff,rf) =
   match piece with
   | _, Pawn _ ->
     let inc = match c with | Black -> -1 | White -> 1 in
     if ri+inc = rf && (abs (ff-fi)) = 1
-    then match last_move with
-      | None -> List.remove_assoc (ff,rf) opps
-      | Some lm -> enpass_capture lm (fi,ri) (ff,rf) opps
+    then pawn_capture b c opps (fi,ri) (ff,rf)
     else opps
   | _ -> List.remove_assoc (ff,rf) opps
 
-and enpass_capture (p, ((f1,r1),(f2,r2))) i_pos f_pos opps =
+and pawn_capture b c opps i_pos f_pos =
   (* match snd p with
   | Pawn (_,true) ->
     if (abs (r2-r1) = 2) && r2 = (snd i_pos)
     then List.remove_assoc (f2,r2) opps
     else List.remove_assoc f_pos opps
   | _ -> opps *)
+  let inc = match c with | Black -> -1 | White -> 1 in
+  if is_occupied b f_pos = None
+  then List.remove_assoc ((fst f_pos), (snd f_pos)-inc) opps
+  else List.remove_assoc f_pos opps
+(*   if snd p = (Pawn (true,true)) && (abs ()) *)
 
 let make_move b c last_move (m:move) (leg_mves:((move * board) list)) =
   try
