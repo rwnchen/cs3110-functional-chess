@@ -13,6 +13,13 @@ let interpreter = "python2"
 let py = init ~exec:interpreter "."
 let gui = get_module py "gui"
 
+let print_color c =
+  match c with
+  | Black ->
+    "Black"
+  | White ->
+    "White"
+
 
 let move_piece state ((x1,y1),(x2,y2)) =
   let pos1 = Pytuple [Pyint x1;Pyint y1] in
@@ -101,6 +108,7 @@ let () =
                 | None -> "none"
                 | Some (p,m) ->
                   let ps = piece_string (snd p) (fst p) in
+                  print_endline (print_color (fst p));
                   match m with
                   | ((i,j),(i',j')) ->
                     let ps1 = String.make 1 (Char.chr(i+64)) in
