@@ -45,7 +45,9 @@ let rec highlight_from_legal_moves legal_moves (x,y) acc =
 let parse_click guistate =
   let event = get_list gui "get_click" [guistate] in
   match event with
-  | [Pystr "piece"; Pylist [Pyint x; Pyint y]] -> Piece (x,y)
+  | [Pystr "piece"; Pylist [Pyint x; Pyint y]] ->
+    (* print_int x; print_int y; print_endline "Piece"; *)
+    Piece (x,y)
   | [Pystr "empty"; Pylist [Pyint x; Pyint y]] -> Empty (x,y)
   | [Pystr "highlight"; Pylist [Pyint x; Pyint y]] -> Highlight (x,y)
   | _ ->
@@ -61,6 +63,7 @@ let () =
   let last_move = ref None in
   let last_click = ref Noclick in
   let c = ref White in
+  let history = ref [] in
 
   while (true) do (*Gameloop. TODO: replace true with endgame check*)
     update := (get_bool gui "update_game" [!guistate; Pybool true]);
@@ -77,14 +80,27 @@ let () =
         | Piece (x',y') ->
           let leg_moves = legal_moves !board !last_move !c in
           let (new_b, check) = make_move !board !c !last_move ((x',y'),(x,y)) leg_moves in
-          print_int x'; print_int y'; print_string " moved to ";
-          print_int x; print_int y; print_endline "";
-          board := new_b;
-          guistate := move_piece guistate ((x',y'),(x,y));
-          begin
-            match !c with
-            | White -> c := Black;
-            | Black -> c := White;
+          if new_b <> !board then begin
+            let piece =
+              match get_piece !board (x',y') with
+              | Some p -> p
+              | None -> (White,Queen) (*This will never happen we just need it
+                                      so it type checks*)
+            in
+            print_endline (piece_string (snd piece) (fst piece));
+            last_move := Some (piece,((x',y'),(x,y)));
+            (* print_int x'; print_int y'; print_string " moved to ";
+            print_int x; print_int y; print_endline ""; *)
+            board := new_b;
+            guistate := move_piece guistate ((x',y'),(x,y));
+            begin
+              match !c with
+              | White -> c := Black;
+              | Black -> c := White;
+            end
+          end
+          else begin
+            print_endline "Not a legal move";
           end
         | _ -> guistate := !guistate end
       | _ -> guistate := !guistate

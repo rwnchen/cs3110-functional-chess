@@ -52,6 +52,8 @@ val get_piece : board -> position -> piece option
 
 val oppc : color -> color
 
+val piece_string: piece_rank -> color -> string
+
 (* [legal_moves b c] returns a list of legal moves by player [c] given
  * board [b]. *)
 val legal_moves : board -> last_move -> color -> (move * board) list
