@@ -77,6 +77,8 @@ let () =
         | Piece (x',y') ->
           let leg_moves = legal_moves !board !last_move !c in
           let (new_b, check) = make_move !board !last_move !c ((x',y'),(x,y)) leg_moves in
+          print_int x'; print_int y'; print_string " moved to ";
+          print_int x; print_int y; print_endline "";
           board := new_b;
           guistate := move_piece guistate ((x',y'),(x,y));
           begin

@@ -142,7 +142,7 @@ class GameBoard(tk.Frame):
     def highlight_rect(self, x, y):
         """adds a rectangle with center at x,y that is the size of the game square."""
         x1 = (x * self.size)
-        y1 = (y * self.size)
+        y1 = ((y-7)*-1 * self.size)
         x2 = x1 + self.size
         y2 = y1 + self.size
         color = "lightgreen"
@@ -150,7 +150,7 @@ class GameBoard(tk.Frame):
         if (x%2 == 0 and y%2 == 1) or (x%2 == 1 and y%2 == 0):
             color = "darkgreen"
 
-        rect = self.canvas.create_rectangle(x1, y1, x2, y2, outline=None, fill=color, tags=["highlighted",str(x)+str((y-7)*-1)])
+        rect = self.canvas.create_rectangle(x1, y1, x2, y2, outline=None, fill=color, tags=["highlighted",str(x)+str(y)])
         self.canvas.tag_bind(rect,'<ButtonPress-1>',self.callback)
 
         self.highlighted.append((x,y))
@@ -174,12 +174,19 @@ class GameBoard(tk.Frame):
 
     def move(self, pos1, pos2):
         piece = self.getpieceatpos(pos1)
+        removed_piece = self.getpieceatpos(pos2)
+        print piece
         if piece is not None:
             origin = self.pieces[piece]
-            dy = pos1[0] - pos2[0]
-            dx = pos1[1] - pos2[1]
-            self.canvas.move(piece, dy*self.size, dx*self.size)
+            dx = -(pos1[0] - pos2[0])
+            dy = pos1[1] - pos2[1]
+            self.canvas.move(piece, dx*self.size, dy*self.size)
             self.pieces[piece] = (pos2[0],pos2[1])
+
+            if removed_piece is not None:
+                self.canvas.delete(removed_piece)
+                del self.pieces[removed_piece]
+
             return piece
         else:
             return "none"
@@ -196,6 +203,8 @@ class GameBoard(tk.Frame):
         elif (tags[0] in self.pieces):
             pos = self.pieces[tags[0]]
             name = [u"piece",str(pos[0]) + str(pos[1])]
+            if (int(pos[0]),int(pos[1])) in self.highlighted:
+                name = [u"highlight",str(pos[0]) + str(pos[1])]
         else:
             name = [u"none","99"]
         self.canvas.delete("highlighted")
@@ -222,7 +231,7 @@ def highlight(board, x, y):
     x -= 1
     y -= 1
     if ((x,y) not in board.highlighted):
-        board.highlight_rect(x,(y-7)*-1)
+        board.highlight_rect(x,y)
     return board
 
 def start_game():
@@ -244,4 +253,9 @@ def update_game(board, update):
 
 if __name__ == "__main__":
     board = start_game()
+    board.move((3,1),(3,3))
+    board.move((4,6),(4,4))
+    board.move((3,3),(4,4))
+    board.move((5,6),(5,5))
+    board.move((4,4),(5,5))
     board.mainloop()
