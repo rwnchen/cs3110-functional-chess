@@ -361,16 +361,16 @@ and moves_p b last_move c (m,a) (f,r) =
   let two_sq = if m || a then [] else [(f,r+2*inc)] in
   let en_pass =
     match last_move with
-    | None -> [(1,1)]
+    | None -> []
     | Some lm -> enpass_valid lm (f,r) inc in
   forward @ forward_left @ forward_right @ two_sq @ en_pass
 
 and enpass_valid (p, ((f1,r1),(f2,r2))) (f,r) inc =
   match snd p with
   | Pawn (_, true) ->
-      if true (* (abs (r2-r1) = 2) && (r2 = r) && ((abs (f-f2) = 1)) *) then [(f2,r+inc)]
+      if (abs (r2-r1) = 2) && (r2 = r) && ((abs (f-f2) = 1)) then [(f2,r+inc)]
       else []
-  | _ -> [(f2,r+inc)]
+  | _ -> []
 
 (********************* BOARD UPDATE LOGIC **********************)
 
@@ -429,15 +429,17 @@ and update_board b last_move c m =
     | White -> List.assoc i_pos (snd b) in
 
   let piece' = update_piece_bool piece i_pos f_pos in
-  let ps' = List.remove_assoc i_pos ps in
-  let ps'' = (f_pos,piece')::ps' in
+  let rm_pc = List.remove_assoc i_pos ps in
+  let add_pc = (f_pos,piece')::rm_pc in
+  let pcs' = update_castle piece' add_pc i_pos f_pos in
+
 
   (* TODO: UPDATE CASTLING BOARD *)
   (* en passant capture *)
   let opps' = update_capture opps piece' c i_pos f_pos last_move in
   if c = Black
-  then (ps'', opps')
-  else (opps', ps'')
+  then (pcs', opps')
+  else (opps', pcs')
 
 and update_piece_bool piece i_pos f_pos =
   match piece with
@@ -449,16 +451,30 @@ and update_piece_bool piece i_pos f_pos =
       else (c, Pawn (true, false))
     | _ -> piece
 
-and update_capture opps piece c i_pos f_pos last_move =
+and update_castle p pcs (fi,ri) (ff,rf) =
+  match p with
+  | _, King _ ->
+    if ff-fi = 2
+    then
+      let rm_rk = List.remove_assoc (8,ri) pcs in
+      ((ff-1,ri),(fst p, Rook true))::rm_rk
+    else if ff-fi = -2
+    then
+      let rm_rk = List.remove_assoc (1,ri) pcs in
+      ((ff+1,ri),(fst p, Rook true))::rm_rk
+    else pcs
+  | _ -> pcs
+
+and update_capture opps piece c (fi,ri) (ff,rf) last_move =
   match piece with
   | _, Pawn _ ->
     let inc = match c with | Black -> -1 | White -> 1 in
-    if (fst i_pos)+inc = (fst f_pos) && (abs ((snd f_pos)-(snd i_pos))) = 1
+    if ri+inc = rf && (abs (ff-fi)) = 1
     then match last_move with
       | None -> []
-      | Some lm -> enpass_capture lm i_pos f_pos opps
+      | Some lm -> enpass_capture lm (fi,ri) (ff,rf) opps
     else opps
-  | _ -> List.remove_assoc f_pos opps
+  | _ -> List.remove_assoc (ff,rf) opps
 
 and enpass_capture (p, ((f1,r1),(f2,r2))) i_pos f_pos opps =
   match snd p with
