@@ -107,8 +107,13 @@ let () =
                 match !last_move with
                 | None -> "none"
                 | Some (p,m) ->
-                  let ps = piece_string (snd p) (fst p) in
-                  print_endline (print_color (fst p));
+
+                  (* We have to invert the colors because for some reason the
+                    gui's codes are flipped. *)
+                  let ps =
+                    match (fst p) with
+                    | White -> piece_string (snd p) Black
+                    | Black -> piece_string (snd p) White in
                   match m with
                   | ((i,j),(i',j')) ->
                     let ps1 = String.make 1 (Char.chr(i+64)) in

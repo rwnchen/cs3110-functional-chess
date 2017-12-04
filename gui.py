@@ -269,8 +269,9 @@ def update_history(board, hist_lst):
     # Deletes history list and updates with items in hist_lst
     board.historybox.delete(0,END);
     total_len = len(hist_lst)
+    hist_lst.reverse()
     for i,h in enumerate(hist_lst):
-        board.historybox.insert(END, str(i) + "\t\t\t" + h)
+        board.historybox.insert(END, str((i-total_len+1)*-1) + "\t\t\t" + h)
     return board
 
 def start_game():
@@ -297,5 +298,4 @@ if __name__ == "__main__":
     board.move((3,3),(3,4))
     board.move((4,6),(4,4))
     board.move((3,4),(4,5))
-    update_openers(board, "TEST")
     board.mainloop()
