@@ -38,14 +38,11 @@ let init_meta n c = {
   category = c;
 }
 
-(* Regex used to parse string lines containing the game moves. *)
-let moves_regex = regexp "."
-
-(* *)
+(* Some default directory files. Useful *)
 let dir = "openings/"
-let eco_opening_json = dir ^ "eco_openings.json"
-let ficsgames_1 = dir ^ "ficsgames_1.pgn"
-let eco_opening_data = dir ^ "eco_openings"
+let eco_opening_json = dir ^ "eco_openings.json" (* list of openings names and sequences *)
+let ficsgames_1 = dir ^ "ficsgames_1.pgn"        (* High quality games for statistics *)
+let eco_opening_data = dir ^ "eco_openings"      (* openings database stored here *)
 
 (* Ported from a2 - helper function to parse all elements
  * in a Yojson String list to an actual string list *)
@@ -62,7 +59,7 @@ let rec json_to_string_list = function
  * "A43". The second element is the name of the opening, and the following
  * elements are the moves associated with that opening.
  *
- * e.g. ["A42", "King's Random Opening", "e5 f3", "c5, a1"] *)
+ * e.g. [...["A42"; "King's Random Opening"; "e5"; f3"; "c5"; a1"]...] *)
 let parse_eco f =
   let js = Yojson.Basic.from_channel (open_in f) in
   let eco_list_js = js |> member "openings" |> to_list in
@@ -165,29 +162,47 @@ let json_to_trie j =
     (to_list j);
   !trie
 
-(* [white_won r]
- * Returns true if white won in the replay [r], false if lost or draw *)
-let white_won replay =
-  None != (replay |> tags |> List.find_opt (fun tag -> tag = Result("1-0")))
+(* [tag_result t]
+ * Returns the string in Result(...) in the tag set [t].
+ * NOTE: The invariant for tag_pairs say that all tags must have a result! *)
+let rec tag_result tags =
+  match tags with
+  | Result(r)::t -> r
+  | h::t -> tag_result t
+  | [] -> failwith "tag_result: invalid tag format!"
 
-(* [update_metadata m t w]
- * Updates (MUTATES) the metadata stored in trie [t] for the move sequence [m]
- * [w] should be TRUE if white won; false otherwise. In either case, the total_count
- * field in the metadata record will be incremented. If [w] is true, so will the
- * white_won field.
+(* [update_metadata m t]
+ * Updates (MUTATES) the metadata [m] given a tags_pair list [t]
  *
  * Imperative ru-- *)
-let update_metadata moves trie w_won =
-  let meta = StrTrie.find moves trie in
+let update_metadata meta tags =
+  let w_won = "1-0" = (tags |> tag_result) in
   meta.total_count <- meta.total_count + 1;
-  meta.white_wins <- meta.white_wins + (if w_won then 1 else 0);
-  ()
+  meta.white_wins <- meta.white_wins + (if w_won then 1 else 0)
 
-(* [construct_openings ()]
- * This is a one-off function that constructs the initial trie with all ECO openings
- * and names, but NO statistics (white wins, # of occurences, etc.). It then reads the
- * FICS replay file (specified in the directory above), and uses those replays to BUILD UP
- * the statistics associated with different openings.
+(* Helper function to [construct_openings] *)
+(* [prefix i lst]
+ * Returns the first [i] elements of [lst] (the prefix of [lst]) in order head->tail
+ * Requires 0 <= i <= List.length lst. Throws an exception otherwise *)
+let prefix i lst =
+  let rec prefix' i lst ret =
+    if i = 0 then List.rev ret
+    else
+      match lst with
+      | h::t -> prefix' (i-1) t (h::ret)
+      | [] -> failwith "prefix: Invalid i"
+  in
+  prefix' i lst []
+
+(* [construct_openings ?trie games]
+ * Arguments:
+ *   - trie - an [openings] trie. If not supplied, will be initialized to the default
+ *            empty trie. Supply this argument in order to further update the openings
+ *            database
+ *   - games - a string to the PGN file of the games to be analyzed
+ *
+ * This function reads the replay file specified by [games] and uses the replay file to update
+ * the statistics in [trie].
  * How it does this:
  *   for each match in the replay file, it looks at the sequence of moves made by the players,
  *   and considers progressively longer prefixes of the move sequence. Each prefix is treated
@@ -198,33 +213,35 @@ let update_metadata moves trie w_won =
  *   Since the prefix "e4 e5 Nf3 g3" is not in the trie, we move onto the next game.
  * Once the entire replay file has been read, the trie is then stored back onto disk as a
  * json file. Oh my god OCaml yojson is a real pain in the neck... Should've used ATDgen *)
-let breakloop = Failure "Break loop"
-let construct_openings () =
-  let op_trie = init_eco eco_opening_json in
-
+let construct_openings ?trie:(op_trie = init_eco eco_opening_json) games =
   (* Read the pgn file here *)
-  let replays = load_pgn ficsgames_1 in
-  let rec build_stats op_trie = function
-    | h::t ->
+  let replays = load_pgn games in
+  let rec build_stats op_trie replay_list =
+    match replay_list with
+    | r::t ->
       begin
-        let moves = moves_list h in
-        let moves_arr = Array.of_list moves in
-        try
-          (* All prefixes that exist in the trie must correspond to a particular
-           * opening sequence, which we update the metadata for.
-           * Behold the horror of imperative programming. y u no have break; *)
-          for i = 1 to List.length(moves) do
-            let prefix = i |> Array.sub moves_arr 0 |> Array.to_list in
-            Printf.printf "Prefix head: %s\t" (List.hd prefix);
-            if StrTrie.mem prefix op_trie then
+        (* Examine replay [r] and update all metadata in [op_trie] as necessary *)
+        let moves = moves_list r in
+        let tag_pairs = tags r in
+        let prefix_in = ref true in
+        let i = ref 1 in
+        while (!prefix_in) do
+          if List.length moves < !i then
+            prefix_in := false
+          else
+            let prefix_i = prefix (!i) moves in         (* prefix of moves *)
+            if StrTrie.mem prefix_i op_trie then
               begin
-                update_metadata prefix op_trie (white_won h);
+                let meta = StrTrie.find prefix_i op_trie in
+                update_metadata meta tag_pairs          (* mutates [meta] *)
               end
             else
-              raise breakloop;
-          done;
-        with _ ->
-          build_stats op_trie t
+              prefix_in := false;
+            i := !i + 1
+        done;
+
+        (* recurse on the remaining replays *)
+        build_stats op_trie t
       end
     | [] -> ()
   in
@@ -235,6 +252,35 @@ let construct_openings () =
   let trie_json = trie_to_json op_trie in
   Yojson.Basic.to_channel oc trie_json;
   close_out oc
+
+
+(* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
+(* Debugging functions *)
+(* Call [print_trie t] on the opening trie [t] to see all the move
+ * sequences in [t] and their respective metadata *)
+
+let strip str =
+  let str = replace_first (regexp "^ +") "" str in
+  replace_first (regexp "; +$") "" str
+
+let moves_to_string lst =
+  let output_str = ref "[" in
+  List.iter (fun i -> output_str := !output_str ^ i ^ "; ") lst;
+  (strip (!output_str)) ^ "]"
+
+let meta_to_string meta =
+  "{ " ^ "total_count: " ^ string_of_int meta.total_count
+       ^ "\twhite_wins: " ^ string_of_int meta.white_wins
+       ^ "\tname: " ^ meta.name
+       ^ "\tcategory: " ^ meta.category
+       ^ " }"
+
+let print_trie op_trie =
+  StrTrie.iter
+    (fun k v ->
+      Printf.printf "*********************\nMoves: %s\nMeta: %s\n"
+        (moves_to_string k) (meta_to_string v))
+    op_trie
 
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Exposed functions *)

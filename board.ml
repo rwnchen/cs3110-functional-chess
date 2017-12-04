@@ -89,25 +89,52 @@ let board_to_matrix b =
       make t [(ind,p)]@mat
   in make bb []
 
+
+let get_axis coord =
+  match coord with
+  |(3,0) -> "A"
+  |(5,0) -> "B"
+  |(7,0) -> "C"
+  |(9,0) -> "D"
+  |(11,0) -> "E"
+  |(13,0) -> "F"
+  |(15,0) -> "G"
+  |(17,0) -> "H"
+  |(0,2) -> "8 "
+  |(0,4) -> "7 "
+  |(0,6) -> "6 "
+  |(0,8) -> "5 "
+  |(0,10) -> "4 "
+  |(0,12) -> "3 "
+  |(0,14) -> "2 "
+  |(0,16) -> "1 "
+  | _ -> ""
+
 let print_board b =
   let m = board_to_matrix b in
   let s = ref "" in
-  for y2 = 1 to 17 do
-    for x = 1 to 17 do
-      let y = (y2 -18) * -1 in
-      let coord = string_of_int (x/2) ^ string_of_int (y/2) in
-      if y mod 2 = 0 then
-        if x mod 2 = 0 then
-          if List.mem_assoc coord m then
-            s := !s ^ (List.assoc coord m)
-          else
-            s := !s ^ " "
-        else s := !s ^ "|"
+  for y2 = 0 to 18 do
+    for x = 0 to 18 do
+      let a = get_axis (x,y2) in
+      if a <> "" then
+        s := !s ^ a
       else
-      if x mod 2 = 0 then
-        s := !s ^ "_"
+      if x <> 0 && y2 <> 0 then
+        let y = (y2 -18) * -1 in
+        let coord = string_of_int (x/2) ^ string_of_int (y/2) in
+        if y mod 2 = 0 then
+          if x mod 2 = 0 then
+            if List.mem_assoc coord m then
+              s := !s ^ (List.assoc coord m)
+            else
+              s := !s ^ " "
+          else if y2 <> 18 then s := !s ^ "|" else s:= !s
+        else
+        if x mod 2 = 0 then
+          s := !s ^ "_"
+        else s := !s ^ " "
       else s := !s ^ " "
-    done; s := !s ^ "\n";
+      done; s := !s ^ "\n";
   done; !s
 
 (*************************************************************)
@@ -334,16 +361,16 @@ and moves_p b last_move c (m,a) (f,r) =
   let two_sq = if m || a then [] else [(f,r+2*inc)] in
   let en_pass =
     match last_move with
-    | None -> []
-    | Some lm -> enpass_valid lm r inc in
+    | None -> [(1,1)]
+    | Some lm -> enpass_valid lm (f,r) inc in
   forward @ forward_left @ forward_right @ two_sq @ en_pass
 
-and enpass_valid (p, ((f1,r1),(f2,r2))) r inc =
+and enpass_valid (p, ((f1,r1),(f2,r2))) (f,r) inc =
   match snd p with
   | Pawn (_, true) ->
-      if (abs (r2-r1) = 2) && r2 = r then [(f2,r+inc)]
+      if true (* (abs (r2-r1) = 2) && (r2 = r) && ((abs (f-f2) = 1)) *) then [(f2,r+inc)]
       else []
-  | _ -> []
+  | _ -> [(f2,r+inc)]
 
 (********************* BOARD UPDATE LOGIC **********************)
 
@@ -439,7 +466,7 @@ and enpass_capture (p, ((f1,r1),(f2,r2))) i_pos f_pos opps =
     if (abs (r2-r1) = 2) && r2 = (snd i_pos)
     then List.remove_assoc (f2,r2) opps
     else List.remove_assoc f_pos opps
-  | _ -> failwith "Not empass"
+  | _ -> opps
 
 let make_move b c last_move (m:move) (leg_mves:((move * board) list)) =
   try
@@ -465,3 +492,13 @@ let promote b c last_move file newp =
     | White -> getpcs b (oppc c), (((file,endrank), piece')::pcs') in
   let check = is_check b' last_move (oppc c) in
   (b, check)
+
+
+(*************************************************************)
+(**********************ALGEBRAIC NOTATION*********************)
+(*************************************************************)
+let to_algno m b =
+  failwith "todo"
+
+let from_algno s b =
+  failwith "todo"
