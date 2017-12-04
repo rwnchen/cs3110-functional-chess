@@ -29,7 +29,6 @@ let process_command s =
   let snd_int = int_of_char (String.get s 1) - 48 in
   string_of_int(fst_int) ^","^ string_of_int(snd_int)
 
-
 let get_command s =
   let coms = (String.split_on_char ' ' s) in
   let (p1,p2) =  ((List.nth coms 0),(List.nth coms 1)) in
@@ -39,10 +38,16 @@ let get_command s =
   let pos2 = (int_of_string(List.nth pp2 0),int_of_string(List.nth pp2 1)) in
   (pos1,pos2)
 
+let rec convert_text te s ind =
+  match te with
+  | [] -> s
+  | h::t -> if ind <> 0 then convert_text t (s^h^" ") (ind+1)
+    else convert_text t s (ind+1)
+
 let handle_message t =
   let spaces = (String.split_on_char ' ' t) in
   let (pos1,pos2) =  ((List.nth spaces 0),(List.nth spaces 1)) in
-  if pos1 = "text" then (true,pos2)
+  if pos1 = "text" then (true,convert_text spaces "" 0)
   else
     (false, process_command pos1 ^ " " ^ process_command pos2)
 
@@ -53,17 +58,18 @@ let do_move pos1 pos2 =
   let b = !board in
   let lm = !last_move in
   let c = get_color in
-  let legal_moves = legal_moves b lm c in
+  let leg_move = legal_moves b lm c in
   match get_piece b pos1 with
   | Some p ->
-    let (new_b, check) = make_move b lm c (pos1,pos2) legal_moves in
+    let (new_b, check) = make_move b c lm (pos1,pos2) leg_move in
     let brd = print_board new_b in
     let newlm = Some (p, (pos1,pos2)) in
     board := new_b;
-    last_move := newlm; brd
+    last_move := newlm;
+    brd
   | None -> "No piece selected."
 
-let rec handle_connection ic oc ind lm () =
+let rec handle_connection ic oc ind () =
   Lwt_io.read_line_opt ic >>=
      (fun msg ->
         match msg with
@@ -79,18 +85,20 @@ let rec handle_connection ic oc ind lm () =
             ((broadcast !outs rep oc ind); interact)
           else
             if ind <> !current_user then
-              Lwt_io.write_line oc "Not your turn" >>= handle_connection ic oc ind
+              (Lwt_io.write_line oc "Not your turn" >>= handle_connection ic oc ind)
             else
               let (pos1,pos2) = get_command rep in
               let game = do_move pos1 pos2 in
               if game <> "No piece selected." then
                 if !current_user = 1 then
                   ((current_user := 2);
-                  (broadcast !outs rep oc ind); interact)
+                   (broadcast !outs game oc 1);
+                   (broadcast !outs game oc 2); interact)
                 else
                   ((current_user := 1);
-                   (broadcast !outs rep oc ind); interact)
-              else ((broadcast !outs rep oc ind); interact)
+                   (broadcast !outs game oc 1);
+                   (broadcast !outs game oc 2); interact)
+              else ((broadcast !outs game oc ind); interact)
         | None ->
           (* users := !users - 1; *)
           Lwt_log.info "Connection closed" >>= return)
