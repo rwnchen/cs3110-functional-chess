@@ -165,23 +165,37 @@ let json_to_trie j =
     (to_list j);
   !trie
 
-(* [white_won r]
- * Returns true if white won in the replay [r], false if lost or draw *)
-let white_won replay =
-  None != (replay |> tags |> List.find_opt (fun tag -> tag = Result("1-0")))
+(* [tag_result t]
+ * Returns the string in Result(...) in the tag set [t].
+ * NOTE: The invariant for tag_pairs say that all tags must have a result! *)
+let rec tag_result tags =
+  match tags with
+  | Result(r)::t -> r
+  | h::t -> tag_result t
+  | [] -> failwith "tag_result: invalid tag format!"
 
-(* [update_metadata m t w]
- * Updates (MUTATES) the metadata stored in trie [t] for the move sequence [m]
- * [w] should be TRUE if white won; false otherwise. In either case, the total_count
- * field in the metadata record will be incremented. If [w] is true, so will the
- * white_won field.
+(* [update_metadata m t]
+ * Updates (MUTATES) the metadata [m] given a tags_pair list [t]
  *
  * Imperative ru-- *)
-let update_metadata moves trie w_won =
-  let meta = StrTrie.find moves trie in
+let update_metadata meta tags =
+  let w_won = "1-0" = (tags |> tag_result) in
   meta.total_count <- meta.total_count + 1;
-  meta.white_wins <- meta.white_wins + (if w_won then 1 else 0);
-  ()
+  meta.white_wins <- meta.white_wins + (if w_won then 1 else 0)
+
+(* Helper function to [construct_openings] *)
+(* [prefix i lst]
+ * Returns the first [i] elements of [lst] (the prefix of [lst]) in order head->tail
+ * Requires 0 <= i <= List.length lst. Throws an exception otherwise *)
+let prefix i lst =
+  let rec prefix' i lst ret =
+    if i = 0 then List.rev ret
+    else
+      match lst with
+      | h::t -> prefix' (i-1) t (h::ret)
+      | [] -> failwith "prefix: Invalid i"
+  in
+  prefix' i lst []
 
 (* [construct_openings ()]
  * This is a one-off function that constructs the initial trie with all ECO openings
@@ -198,22 +212,41 @@ let update_metadata moves trie w_won =
  *   Since the prefix "e4 e5 Nf3 g3" is not in the trie, we move onto the next game.
  * Once the entire replay file has been read, the trie is then stored back onto disk as a
  * json file. Oh my god OCaml yojson is a real pain in the neck... Should've used ATDgen *)
-let breakloop = Failure "Break loop"
 let construct_openings () =
   let op_trie = init_eco eco_opening_json in
 
   (* Read the pgn file here *)
   let replays = load_pgn ficsgames_1 in
-  let rec build_stats op_trie = function
-    | h::t ->
+  let rec build_stats op_trie replay_list =
+    match replay_list with
+    | r::t ->
       begin
-        let moves = moves_list h in
-        let moves_arr = Array.of_list moves in
-        try
-          (* All prefixes that exist in the trie must correspond to a particular
-           * opening sequence, which we update the metadata for.
-           * Behold the horror of imperative programming. y u no have break; *)
-          for i = 1 to List.length(moves) do
+        (* Examine replay [r] and update all metadata in [op_trie] as necessary *)
+        let moves = moves_list r in
+        let tag_pairs = tags r in
+        let prefix_in = ref true in
+        let i = ref 1 in
+        while (!prefix_in) do
+          if List.length moves < !i then
+            prefix_in := false
+          else
+            let prefix_i = prefix (!i) moves in         (* prefix of moves *)
+            if StrTrie.mem prefix_i op_trie then
+              begin
+                let meta = StrTrie.find prefix_i op_trie in
+                update_metadata meta tag_pairs          (* mutates [meta] *)
+              end
+            else
+              prefix_in := false;
+            i := !i + 1
+        done;
+
+        (* recurse on the remaining replays *)
+        build_stats op_trie t
+      end
+    | [] -> ()
+(*
+          for i = 1 to List.length (moves) do
             let prefix = i |> Array.sub moves_arr 0 |> Array.to_list in
             Printf.printf "Prefix head: %s\t" (List.hd prefix);
             if StrTrie.mem prefix op_trie then
@@ -226,7 +259,7 @@ let construct_openings () =
         with _ ->
           build_stats op_trie t
       end
-    | [] -> ()
+*)
   in
   build_stats op_trie replays;
 
@@ -235,6 +268,28 @@ let construct_openings () =
   let trie_json = trie_to_json op_trie in
   Yojson.Basic.to_channel oc trie_json;
   close_out oc
+
+
+(* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
+(* Debugging functions *)
+let strip str =
+  let str = replace_first (regexp "^ +") "" str in
+  replace_first (regexp "; +$") "" str
+
+let list_to_string lst =
+  let output_str = ref "[" in
+  List.iter (fun i -> output_str := !output_str ^ i ^ "; ") lst;
+  (strip (!output_str)) ^ "]"
+
+let meta_to_string meta =
+  "{" ^ "total_count: " ^ string_of_int meta.total_count
+      ^ "\twhite_wins: " ^ string_of_int meta.white_wins
+      ^ "\tname: " ^ meta.name
+      ^ "\tcategory: " ^ meta.category
+      ^ "}"
+
+let print_keys op_trie =
+  StrTrie.iter (fun k v -> Printf.printf "*********************\nKey: %s\nValue: %s\n" (list_to_string k) (meta_to_string v)) op_trie
 
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Exposed functions *)
