@@ -66,9 +66,40 @@ let suggest_move o g = None
 let print_tup ppf (a,b) =
   Format.fprintf ppf "(%d,%d)" a b
 
+let print_lastm ppf (lastm:Board.last_move) =
+  match lastm with
+  | Some (a,b) ->
+    let p = snd a in
+    let i = fst b in
+    let f = snd b in
+    let piece =
+        match p with
+        | King m -> "King: " ^ (string_of_bool m)
+        | Queen -> "Queen"
+        | Bishop -> "Bishop"
+        | Knight -> "Knight"
+        | Rook m -> "Rook: " ^ (string_of_bool m)
+        | Pawn m -> "Pawn: " ^ (string_of_bool m) in
+    Format.fprintf ppf "Last Move: (%s // (%d,%d) to (%d,%d))" piece (fst i) (snd i) (fst f) (snd f)
+  | None -> ()
+(*   match lastm with
+  | Some (_,p),((i1,i2),(f1,f2)) ->
+    begin
+      let piece =
+        match p with
+        | King m -> "King: " ^ (string_of_bool m)
+        | Queen -> "Queen"
+        | Bishop -> "Bishop"
+        | Knight -> "Knight"
+        | Rook m -> "Rook: " ^ (string_of_bool m)
+        | Pawn m -> "Pawn: " ^ (string_of_bool m) in
+      Format.fprintf ppf "Last Move: (%s // (%d,%d) to (%d,%d))" piece i1 i2 f1 f2
+    end
+  | None -> Format.fprintf ppf "Last Move: None" *)
+
 let rec run (b,c,lm) =
-  let legal_moves = legal_moves b lm c in
-  match legal_moves with
+  let leg_moves = legal_moves b lm c in
+  match leg_moves with
   | [] -> () (*CHECK ENDGAME*)
   | _ ->
     let input = read_line () in
@@ -78,31 +109,41 @@ let rec run (b,c,lm) =
     match get_piece b pos1 with
     | Some p ->
       begin
-        let (new_b, check) = make_move b lm c (pos1,pos2) legal_moves in
+        let (new_b, check) = make_move b c lm (pos1,pos2) leg_moves in
         (* give user feedback about move *)
-        let brd = print_board new_b in
-        let newlm = Some (p, (pos1,pos2)) in
-        match c with
-        | Black ->
-          print_endline brd;
-          (* print_endline "Black Moved"; *)
-          run (new_b, White, newlm)
-        | White ->
-          print_endline brd;
-          (* print_endline "White Moved"; *)
-          run (new_b, Black, newlm)
+        if new_b = b
+        then
+          begin
+            print_endline "Not a valid move.";
+            Format.printf "%a\n" print_lastm lm;
+            run (b, c, lm)
+          end
+        else
+          begin
+            let brd = print_board new_b in
+            let p' =
+              match get_piece new_b pos2 with
+              | Some newp -> newp
+              | None -> failwith "shouldn't be here" in
+            let newlm = Some (p', (pos1,pos2)) in
+            print_endline brd;
+            Format.printf "%a\n" print_lastm lm;
+            run (new_b, (oppc c), newlm)
+          end
       end
     | None ->
       begin
          match c with
         | Black ->
           Format.printf "%a\n" print_tup pos1;
+          Format.printf "%a\n" print_lastm lm;
           print_endline (print_board b);
           print_endline "No piece selected.";
           (* print_endline "Black Moved"; *)
           run (b, Black, lm)
         | White ->
           Format.printf "%a\n" print_tup pos1;
+          Format.printf "%a\n" print_lastm lm;
           print_endline (print_board b);
           print_endline "No piece selected.";
           (* print_endline "White Moved"; *)

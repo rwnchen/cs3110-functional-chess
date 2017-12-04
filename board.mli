@@ -2,10 +2,16 @@
 type color = | White | Black
 
 (* Represents the type of the piece *)
-type piece_rank
+type piece_rank =
+  | King of bool
+  | Queen
+  | Rook of bool
+  | Knight
+  | Bishop
+  | Pawn of bool
 
 (* Represents a piece in chess. *)
-type piece
+type piece = color * piece_rank
 
 (* Represents a square on a chessboard as a tuple, where the first int is the
  * file and the second int represents the rank. Both numbers should be between
@@ -44,10 +50,12 @@ type end_game
 
 val get_piece : board -> position -> piece option
 
+val oppc : color -> color
+
 (* [legal_moves b c] returns a list of legal moves by player [c] given
  * board [b]. *)
 val legal_moves : board -> last_move -> color -> (move * board) list
 
 (* [update_board b m] takes a board [b] and returns an updated board after
  * performing move [m]. If [m] is not a legal move, return the same board. *)
-val make_move : board -> last_move -> color -> move -> (move * board) list-> (board * check)
+val make_move : board -> color -> last_move -> move -> (move * board) list-> (board * check)

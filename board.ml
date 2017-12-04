@@ -115,145 +115,23 @@ let print_board b =
 (*************************************************************)
 
 
-(********************* PSUEDO-MOVE LOGIC *********************)
+(************************** HELPERS **************************)
 
-(* [moves p pos] returns a list positions that piece [p] can move to, given that
- * it is in position [pos] on board [b]. *)
-let rec moves b last_move p (f,r) =
-  match (snd p) with
-  | King moved -> moves_k b (fst p) moved (f,r)
-  | Queen -> moves_q b (fst p) (f,r)
-  | Rook _ -> moves_r b (fst p) (f,r)
-  | Knight -> moves_n b (fst p) (f,r)
-  | Bishop -> moves_b b (fst p) (f,r)
-  | Pawn moved -> moves_p b last_move (fst p) moved (f,r)
-
-and in_bounds (f,r) = 1<=f && f<=8 && 1<=r && r<=8
-
-and is_occupied b (f,r) =
-  if List.mem_assoc (f,r) (fst b) then Some Black
-  else if List.mem_assoc (f,r) (snd b) then Some White
-  else None
-
-and moveable_space b c (f,r) =
-  if in_bounds (f,r)
-  then
-    match is_occupied b (f,r) with
-    | Some color -> if c != color then [(f,r)] else []
-    | None -> [(f,r)]
-  else []
-
-and check_dir b c (f,r) (dx,dy) lst =
-  let new_space = (f+dx,r+dy) in
-  if not (in_bounds new_space) then lst
-  else
-    match is_occupied b new_space with
-    | Some color ->
-      if c = color then lst
-      else new_space::lst
-    | None -> check_dir b c new_space (dx,dy) (new_space::lst)
-
-and moves_k b c moved (f,r) =
-  let e = moveable_space b c (f+1,r) in
-  let w = moveable_space b c (f-1,r) in
-  let n = moveable_space b c (f,r+1) in
-  let s = moveable_space b c (f,r-1) in
-
-  let castle =
-    if moved
-    then []
-    else castling b c moved (f,r) in
-  e @ w @ n @ s @ castle
-
-and castling b c moved (f,r) =
-  let pcs = match c with | Black -> fst b | White -> snd b in
-  let rrook =
-    try Some (List.assoc (f+3,r) pcs)
-    with Not_found -> None in
-  let rcastle =
-    match rrook with
-    | Some (_, Rook false) ->
-      if (is_occupied b (f+1,r)) = None && (is_occupied b (f+2,r)) = None
-      then [(f+2,r)] else []
-    | _ -> [] in
-  let lrook =
-    try Some (List.assoc (f-4,r) pcs)
-    with Not_found -> None in
-  let lcastle =
-    match lrook with
-    | Some (_, Rook false) ->
-      if is_occupied b (f-1,r) = None &&
-         is_occupied b (f-2,r) = None &&
-         is_occupied b (f-3,r) = None
-      then [(f-2,r)] else []
-    | _ -> [] in
-  rcastle @ lcastle
-
-and moves_r b c (f,r) =
-  let n  = check_dir b c (f,r) (1 , 0) [] in
-  let s  = check_dir b c (f,r) (-1, 0) [] in
-  let e  = check_dir b c (f,r) (0 , 1) [] in
-  let w  = check_dir b c (f,r) (0 ,-1) [] in
-  List.fold_left List.rev_append [] [n;s;e;w]
-
-and moves_b b c (f,r) =
-  let nw = check_dir b c (f,r) (-1, 1) [] in
-  let ne = check_dir b c (f,r) ( 1, 1) [] in
-  let sw = check_dir b c (f,r) (-1,-1) [] in
-  let se = check_dir b c (f,r) ( 1,-1) [] in
-  List.fold_left List.rev_append [] [nw;ne;sw;se]
-
-and moves_q b c (f,r) =
-  List.rev_append (moves_r b c (f,r)) (moves_b b c (f,r))
-
-and moves_n b c (f,r) =
-  let dxy = [(2,1);(2,-1);(-2,1);(-2,-1);
-             (1,2);(-1,2);(1,-2);(-1,-2)] in
-  let rec loop (f,r) l acc =
-    match l with
-    | [] -> acc
-    | (dx,dy)::t ->
-      begin
-        let new_space = (f+dx,r+dy) in
-        loop (f,r) t ((moveable_space b c new_space) @ acc)
-      end in
-  loop (f,r) dxy []
-
-and moves_p b last_move c moved (f,r) =
-  let inc =
-    if c = Black then -1 else 1 in
-
-  let forward = moveable_space b c (f,r+inc) in
-  let forward_left = moveable_space b c (f-1,r+inc) in
-  let forward_right = moveable_space b c (f+1,r+inc) in
-
-  let two_sq = if moved then [] else [(f,r+2*inc)] in
-  let en_pass =
-    match last_move with
-    | None -> []
-    | Some (p, ((f1,r1),(f2,r2))) ->
-      if (snd p = Pawn true) && f1 = f2 then
-        if r2-r1 = 2 then [(f1,r2-1)]
-        else if r1-r2 = 2 then [(f1,r2+1)]
-        else []
-      else [] in
-      (* TODO *)
-  forward @ forward_left @ forward_right @ two_sq @ en_pass
+let oppc c = match c with | Black -> White | White -> Black
+let getpcs (b:board) (c:color) = match c with | Black -> fst b | White -> snd b
+let getcheck c = match c with | Black -> Black_Check | White -> White_Check
 
 
 (************************ CHECK LOGIC ************************)
 
 let rec is_check b last_move c =
-  let opp_pieces = match c with | Black -> snd b | White -> fst b in
+  let opp_pieces = getpcs b (oppc c) in
   let k_pos =
     match c with
     | Black -> find_king (fst b)
     | White -> find_king (snd b) in
   if is_attacked b last_move opp_pieces k_pos
-  then
-    match c with
-    | Black -> Black_Check
-    | White -> White_Check
+  then getcheck c
   else No_Check
 
 
@@ -324,6 +202,147 @@ and is_attacked b last_move opp_ps d_pos =
     else is_attacked b last_move t d_pos
 
 
+(********************* PSUEDO-MOVE LOGIC *********************)
+
+(* [moves p pos] returns a list positions that piece [p] can move to, given that
+ * it is in position [pos] on board [b]. *)
+and moves b last_move p (f,r) =
+  match (snd p) with
+  | King moved -> moves_k b last_move (fst p) moved (f,r)
+  | Queen -> moves_q b (fst p) (f,r)
+  | Rook _ -> moves_r b (fst p) (f,r)
+  | Knight -> moves_n b (fst p) (f,r)
+  | Bishop -> moves_b b (fst p) (f,r)
+  | Pawn moved -> moves_p b last_move (fst p) moved (f,r)
+
+and in_bounds (f,r) = 1<=f && f<=8 && 1<=r && r<=8
+
+
+and is_occupied b (f,r) =
+  if List.mem_assoc (f,r) (fst b) then Some Black
+  else if List.mem_assoc (f,r) (snd b) then Some White
+  else None
+
+and moveable_space b c (f,r) =
+  if in_bounds (f,r)
+  then
+    match is_occupied b (f,r) with
+    | Some color -> if c != color then [(f,r)] else []
+    | None -> [(f,r)]
+  else []
+
+and check_dir b c (f,r) (dx,dy) lst =
+  let new_space = (f+dx,r+dy) in
+  if not (in_bounds new_space) then lst
+  else
+    match is_occupied b new_space with
+    | Some color ->
+      if c = color then lst
+      else new_space::lst
+    | None -> check_dir b c new_space (dx,dy) (new_space::lst)
+
+and moves_k b last_move c moved (f,r) =
+  let e = moveable_space b c (f+1,r) in
+  let w = moveable_space b c (f-1,r) in
+  let n = moveable_space b c (f,r+1) in
+  let s = moveable_space b c (f,r-1) in
+
+  let castle =
+    if moved
+    then []
+    else castling b last_move c moved (f,r) in
+  e @ w @ n @ s @ castle
+
+and castling b last_move c moved (f,r) =
+  let pcs = getpcs b c in
+  let oppcs = getpcs b (oppc c) in
+  let rrook =
+    try Some (List.assoc (f+3,r) pcs)
+    with Not_found -> None in
+  let rcastle =
+    match rrook with
+    | Some (_, Rook false) ->
+      if is_occupied b (f+1,r) = None &&
+         not (is_attacked b last_move oppcs (f+1,r)) &&
+         is_occupied b (f+2,r) = None &&
+         not (is_attacked b last_move oppcs (f+2,r))
+      then [(f+2,r)] else []
+    | _ -> [] in
+  let lrook =
+    try Some (List.assoc (f-4,r) pcs)
+    with Not_found -> None in
+  let lcastle =
+    match lrook with
+    | Some (_, Rook false) ->
+      if is_occupied b (f-1,r) = None &&
+         not (is_attacked b last_move oppcs (f-1,r)) &&
+         is_occupied b (f-2,r) = None &&
+         not (is_attacked b last_move oppcs (f-2,r)) &&
+         is_occupied b (f-3,r) = None &&
+         not (is_attacked b last_move oppcs (f-3,r))
+      then [(f-2,r)] else []
+    | _ -> [] in
+  rcastle @ lcastle
+
+and moves_r b c (f,r) =
+  let n  = check_dir b c (f,r) (1 , 0) [] in
+  let s  = check_dir b c (f,r) (-1, 0) [] in
+  let e  = check_dir b c (f,r) (0 , 1) [] in
+  let w  = check_dir b c (f,r) (0 ,-1) [] in
+  List.fold_left List.rev_append [] [n;s;e;w]
+
+and moves_b b c (f,r) =
+  let nw = check_dir b c (f,r) (-1, 1) [] in
+  let ne = check_dir b c (f,r) ( 1, 1) [] in
+  let sw = check_dir b c (f,r) (-1,-1) [] in
+  let se = check_dir b c (f,r) ( 1,-1) [] in
+  List.fold_left List.rev_append [] [nw;ne;sw;se]
+
+and moves_q b c (f,r) =
+  List.rev_append (moves_r b c (f,r)) (moves_b b c (f,r))
+
+and moves_n b c (f,r) =
+  let dxy = [(2,1);(2,-1);(-2,1);(-2,-1);
+             (1,2);(-1,2);(1,-2);(-1,-2)] in
+  let rec loop (f,r) l acc =
+    match l with
+    | [] -> acc
+    | (dx,dy)::t ->
+      begin
+        let new_space = (f+dx,r+dy) in
+        loop (f,r) t ((moveable_space b c new_space) @ acc)
+      end in
+  loop (f,r) dxy []
+
+and moves_p b last_move c moved (f,r) =
+  let inc =
+    if c = Black then -1 else 1 in
+
+  let forward =
+    match is_occupied b (f,r+inc) with
+    | None -> if in_bounds (f,r+inc) then [(f,r+inc)] else []
+    | _ -> [] in
+  let forward_left =
+    match is_occupied b (f-1,r+inc) with
+    | Some color -> if color = oppc c then [(f-1,r+inc)] else []
+    | _ -> [] in
+  let forward_right =
+    match is_occupied b (f+1,r+inc) with
+    | Some color -> if color = oppc c then [(f+1,r+inc)] else []
+    | _ -> [] in
+
+  let two_sq = if moved then [] else [(f,r+2*inc)] in
+  let en_pass =
+    match last_move with
+    | None -> []
+    | Some (p, ((f1,r1),(f2,r2))) ->
+      if (snd p = Pawn true) && f1 = f2 && f1 = f then
+        if r2-r1 = 2 then [(f1,r2-1)]
+        else if r1-r2 = 2 then [(f1,r2+1)]
+        else []
+      else [] in
+  forward @ forward_left @ forward_right @ two_sq @ en_pass
+
 
 
 (********************* BOARD UPDATE LOGIC **********************)
@@ -345,7 +364,7 @@ let get_piece b pos =
   | None -> loop w_ps
 
 let all_moves b last_move c =
-  let ps = match c with | Black -> fst b | White -> snd b in
+  let ps = getpcs b c in
   let rec loop pieces move_lst =
     match pieces with
     | [] -> move_lst
@@ -360,7 +379,6 @@ let all_moves b last_move c =
 
 let rec legal_moves b last_move c =
   let mvs = all_moves b last_move c in
-  let selfcheck = match c with | Black -> Black_Check | White -> White_Check in
   let rec loop move_lst legal_lst =
     match move_lst with
     | [] -> legal_lst
@@ -368,7 +386,7 @@ let rec legal_moves b last_move c =
       begin
         (* TODO: CASTLE *)
         let b' = update_board b last_move c move in
-        if is_check b' last_move c = selfcheck
+        if is_check b' last_move c = getcheck c
         then loop t legal_lst
         else loop t ((move, b')::legal_lst)
       end in
@@ -377,33 +395,69 @@ let rec legal_moves b last_move c =
 and update_board b last_move c m =
   let i_pos = fst m in
   let f_pos = snd m in
-  let bl_ps = fst b in
-  let wh_ps = snd b in
+  let ps = getpcs b c in
+  let opps = getpcs b (oppc c) in
   let piece =
     match c with
-    | Black -> List.assoc i_pos bl_ps
-    | White -> List.assoc i_pos wh_ps in
-  let ps = match c with | Black -> bl_ps | White ->  wh_ps in
+    | Black -> List.assoc i_pos (fst b)
+    | White -> List.assoc i_pos (snd b) in
 
-  let piece' =
-    match piece with
+  let piece' = update_piece_bool piece i_pos f_pos in
+  let ps' = List.remove_assoc i_pos ps in
+  let ps'' = (f_pos,piece')::ps' in
+
+  (* en passant capture *)
+  let opps' = update_capture opps piece' c i_pos f_pos last_move in
+  if c = Black
+  then (ps'', opps')
+  else (opps', ps'')
+
+and update_piece_bool piece i_pos f_pos =
+  match piece with
     | c, King _ -> (c, King true)
     | c, Rook _ -> (c, Rook true)
     | c, Pawn _ ->
       if abs ((snd i_pos) - (snd f_pos)) = 2
       then (c, Pawn true)
       else (c, Pawn false)
-    | _ -> piece in
-  let ps' = (List.remove_assoc i_pos ps) in
-  let ps'' = (f_pos,piece')::ps' in
-  if c = Black then (ps'', wh_ps) else (bl_ps, ps'')
+    | _ -> piece
 
-let make_move b last_move c (m:move) (leg_mves:((move * board) list)) =
+and update_capture opps piece c i_pos f_pos last_move =
+  match piece with
+  | _, Pawn _ ->
+    let inc = match c with | Black -> -1 | White -> 1 in
+    if (fst i_pos)+inc = (fst f_pos) && (abs ((snd f_pos)-(snd i_pos))) = 1
+    then match last_move with
+      | None -> []
+      | Some (p, ((f1,r1),(f2,r2))) ->
+        if (snd p = Pawn true) && f1 = f2 && f1 = fst i_pos
+            && abs (r2-r1) = 2
+        then List.remove_assoc (fst i_pos, snd f_pos) opps
+        else List.remove_assoc f_pos opps
+    else opps
+  | _ -> List.remove_assoc f_pos opps
+
+let make_move b c last_move (m:move) (leg_mves:((move * board) list)) =
   try
     let b' = List.assoc m leg_mves in
-    let oppc = match c with | Black -> White | White -> Black in
-    (b', is_check b' last_move oppc)
+    (b', is_check b' last_move (oppc c))
   with Not_found -> (b, No_Check)
 
 
-let promote b (f,r) = failwith "unimplemented"
+let promote b c last_move file newp =
+  let endrank = match c with | Black -> 1 | White -> 8 in
+  let pcs = getpcs b c in
+  let pcs' = List.remove_assoc (file,endrank) pcs in
+  let piece' =
+    match newp with
+    | "q" -> (c, Queen)
+    | "r" -> (c, Rook true)
+    | "b" -> (c, Bishop)
+    | "n" -> (c, Knight)
+    | _ -> failwith "Passed invalid string to promote." in
+  let b' =
+    match c with
+    | Black -> (((file,endrank), piece')::pcs'), getpcs b (oppc c)
+    | White -> getpcs b (oppc c), (((file,endrank), piece')::pcs') in
+  let check = is_check b' last_move (oppc c) in
+  (b, check)
