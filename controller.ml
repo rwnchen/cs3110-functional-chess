@@ -13,6 +13,13 @@ let interpreter = "python2"
 let py = init ~exec:interpreter "."
 let gui = get_module py "gui"
 
+let print_color c =
+  match c with
+  | Black ->
+    "Black"
+  | White ->
+    "White"
+
 
 let move_piece state ((x1,y1),(x2,y2)) =
   let pos1 = Pytuple [Pyint x1;Pyint y1] in
@@ -30,8 +37,14 @@ let rec highlight state tiles =
 let openers opener_list =
   failwith "Unimplemented"
 
-let history move_list =
-  failwith "Unimplemented"
+let update_history state history =
+  let rec build_hist_list m_list acc =
+    match m_list with
+    | [] -> acc
+    | (h,b)::t -> build_hist_list t ((Pystr h)::acc) in
+  let hist_list = build_hist_list history [] in
+  state := Pyref(get_ref gui "update_history" [!state; Pylist hist_list]);
+  !state
 
 let rec highlight_from_legal_moves legal_moves (x,y) acc =
   match legal_moves with
@@ -45,7 +58,9 @@ let rec highlight_from_legal_moves legal_moves (x,y) acc =
 let parse_click guistate =
   let event = get_list gui "get_click" [guistate] in
   match event with
-  | [Pystr "piece"; Pylist [Pyint x; Pyint y]] -> Piece (x,y)
+  | [Pystr "piece"; Pylist [Pyint x; Pyint y]] ->
+    (* print_int x; print_int y; print_endline "Piece"; *)
+    Piece (x,y)
   | [Pystr "empty"; Pylist [Pyint x; Pyint y]] -> Empty (x,y)
   | [Pystr "highlight"; Pylist [Pyint x; Pyint y]] -> Highlight (x,y)
   | _ ->
@@ -61,6 +76,7 @@ let () =
   let last_move = ref None in
   let last_click = ref Noclick in
   let c = ref White in
+  let history = ref [] in
 
   while (true) do (*Gameloop. TODO: replace true with endgame check*)
     update := (get_bool gui "update_game" [!guistate; Pybool true]);
@@ -72,19 +88,57 @@ let () =
         let highlights = highlight_from_legal_moves leg_moves (x,y) [] in
         guistate := highlight guistate highlights;
         last_click := click;
-      | Highlight (x,y) -> begin
-        match !last_click with
-        | Piece (x',y') ->
-          let leg_moves = legal_moves !board !last_move !c in
-          let (new_b, check) = make_move !board !c !last_move ((x',y'),(x,y)) leg_moves in
-          print_int x'; print_int y'; print_string " moved to ";
-          print_int x; print_int y; print_endline "";
-          board := new_b;
-          guistate := move_piece guistate ((x',y'),(x,y));
-          begin
-            match !c with
-            | White -> c := Black;
-            | Black -> c := White;
+      | Highlight (x,y) ->
+        begin
+          match !last_click with
+          | Piece (x',y') ->
+            let leg_moves = legal_moves !board !last_move !c in
+            let (new_b, check) = make_move !board !c !last_move ((x',y'),(x,y)) leg_moves in
+            if new_b <> !board then begin
+              let piece =
+                match get_piece !board (x',y') with
+                | Some p -> p
+                | None -> (White,Queen) (*This will never happen we just need it
+                                        so it type checks*)
+              in
+              (* print_endline (piece_string (snd piece) (fst piece)); *)
+              last_move := Some (piece,((x',y'),(x,y)));
+              let lst_move =
+                match !last_move with
+                | None -> "none"
+                | Some (p,m) ->
+
+                  (* We have to invert the colors because for some reason the
+                    gui's codes are flipped. *)
+                  let ps =
+                    match (fst p) with
+                    | White -> piece_string (snd p) Black
+                    | Black -> piece_string (snd p) White in
+                  match m with
+                  | ((i,j),(i',j')) ->
+                    let ps1 = String.make 1 (Char.chr(i+64)) in
+                    let ps2 = String.make 1 (Char.chr(i'+64)) in
+                    ps ^ ": " ^ ps1 ^ (string_of_int j) ^ " to " ^ ps2 ^ (string_of_int j')
+                  | _ -> ps ^ "()" in
+
+              print_endline lst_move;
+              history := (lst_move,new_b)::(!history);
+
+
+              (* print_int x'; print_int y'; print_string " moved to ";
+              print_int x; print_int y; print_endline ""; *)
+              board := new_b;
+              guistate := move_piece guistate ((x',y'),(x,y));
+              guistate := update_history guistate !history;
+
+              begin
+                match !c with
+                | White -> c := Black;
+                | Black -> c := White;
+              end
+            end
+          else begin
+            print_endline "Not a legal move";
           end
         | _ -> guistate := !guistate end
       | _ -> guistate := !guistate
