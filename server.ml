@@ -9,6 +9,7 @@ let backlog = 10
 let users = ref 0
 let outs = ref []
 let current_user = ref 1
+let current_color = ref White
 
 let last_move = ref None
 
@@ -51,13 +52,10 @@ let handle_message t =
   else
     (false, process_command pos1 ^ " " ^ process_command pos2)
 
-let get_color =
-  if !current_user = 1 then White else Black
-
 let do_move pos1 pos2 =
   let b = !board in
   let lm = !last_move in
-  let c = get_color in
+  let c = !current_color in
   let leg_move = legal_moves b lm c in
   match get_piece b pos1 with
   | Some p ->
@@ -92,10 +90,12 @@ let rec handle_connection ic oc ind () =
               if game <> "No piece selected." then
                 if !current_user = 1 then
                   ((current_user := 2);
+                   (current_color := Black);
                    (broadcast !outs game oc 1);
                    (broadcast !outs game oc 2); interact)
                 else
                   ((current_user := 1);
+                   (current_color := White);
                    (broadcast !outs game oc 1);
                    (broadcast !outs game oc 2); interact)
               else ((broadcast !outs game oc ind); interact)

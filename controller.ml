@@ -76,29 +76,40 @@ let () =
         guistate := highlight guistate highlights;
         last_click := click;
       | Highlight (x,y) -> begin
-        match !last_click with
-        | Piece (x',y') ->
-          let leg_moves = legal_moves !board !last_move !c in
-          let (new_b, check) = make_move !board !c !last_move ((x',y'),(x,y)) leg_moves in
-          if new_b <> !board then begin
-            let piece =
-              match get_piece !board (x',y') with
-              | Some p -> p
-              | None -> (White,Queen) (*This will never happen we just need it
-                                      so it type checks*)
-            in
-            print_endline (piece_string (snd piece) (fst piece));
-            last_move := Some (piece,((x',y'),(x,y)));
-            (* print_int x'; print_int y'; print_string " moved to ";
-            print_int x; print_int y; print_endline ""; *)
-            board := new_b;
-            guistate := move_piece guistate ((x',y'),(x,y));
-            begin
-              match !c with
-              | White -> c := Black;
-              | Black -> c := White;
+          match !last_click with
+          | Piece (x',y') ->
+            let leg_moves = legal_moves !board !last_move !c in
+            let (new_b, check) = make_move !board !c !last_move ((x',y'),(x,y)) leg_moves in
+            if new_b <> !board then begin
+              let piece =
+                match get_piece !board (x',y') with
+                | Some p -> p
+                | None -> (White,Queen) (*This will never happen we just need it
+                                        so it type checks*)
+              in
+              (* print_endline (piece_string (snd piece) (fst piece)); *)
+              last_move := Some (piece,((x',y'),(x,y)));
+              let lst_move =
+                match !last_move with
+                | None -> "none"
+                | Some (p,m) ->
+                  let ps = piece_string (snd p) (fst p) in
+                  match m with
+                  | ((i,j),(i',j')) ->
+                    ps ^ (string_of_int i) ^ (string_of_int j) ^ " to " ^ (string_of_int i') ^ (string_of_int j')
+                  | _ -> ps ^ "()" in
+
+              print_endline lst_move;
+              (* print_int x'; print_int y'; print_string " moved to ";
+              print_int x; print_int y; print_endline ""; *)
+              board := new_b;
+              guistate := move_piece guistate ((x',y'),(x,y));
+              begin
+                match !c with
+                | White -> c := Black;
+                | Black -> c := White;
+              end
             end
-          end
           else begin
             print_endline "Not a legal move";
           end
