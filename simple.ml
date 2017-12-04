@@ -1,7 +1,7 @@
 open Lymp
 
 (* change "python3" to the name of your interpreter *)
-let interpreter = "python3"
+let interpreter = "python2"
 let py = init ~exec:interpreter "."
 let simple = get_module py "simple"
 

@@ -1,5 +1,5 @@
 def get_message():
-	return "hi there"
+	return u"hi there"
 
 def get_integer():
 	return 42
