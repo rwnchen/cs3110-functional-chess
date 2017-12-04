@@ -60,6 +60,7 @@ class GameBoard(tk.Frame):
         self.was_click = False
         self.space_clicked = ""
         self.highlighted = []
+        self.enpassant = None
 
         canvas_width = columns * size
         canvas_height = rows * size
@@ -171,7 +172,6 @@ class GameBoard(tk.Frame):
     def move(self, pos1, pos2):
         piece = self.getpieceatpos(pos1)
         removed_piece = self.getpieceatpos(pos2)
-        print piece
         if piece is not None:
             origin = self.pieces[piece]
             dx = -(pos1[0] - pos2[0])
@@ -190,6 +190,24 @@ class GameBoard(tk.Frame):
                     rook = "rook" + piece[4] + str(0)
                     (rx,ry) = self.pieces[rook]
                     self.move((rx,ry),(rx+3,ry))
+            if "pawnb" in piece:
+                (x2,y2) = pos2
+                if pos2 == self.enpassant:
+                    removed_piece = self.getpieceatpos((x2,y2+1))
+
+            elif "pawnw" in piece:
+                (x2,y2) = pos2
+                if pos2 == self.enpassant:
+                    removed_piece = self.getpieceatpos((x2,y2-1))
+            # Clear en_passant after checking if the move was an
+            # enpassant capture
+            self.enpassant = None
+            if "pawn" in piece:
+                # Some logic for en passant
+                if dy > 1:
+                    self.enpassant = (pos1[0],pos1[1]-1)
+                elif dy < -1:
+                    self.enpassant = (pos1[0],pos1[1]+1)
 
             if removed_piece is not None:
                 self.canvas.delete(removed_piece)
@@ -273,12 +291,10 @@ def update_game(board, update):
 
 if __name__ == "__main__":
     board = start_game()
-    board.move((4,1),(4,3))
-    board.move((4,6),(4,4))
-    board.move((5,0),(1,4))
+    board.move((3,1),(3,3))
     board.move((5,6),(5,5))
-    board.move((6,0),(5,2))
-    board.move((5,5),(5,4))
-    board.move((4,0),(6,0))
+    board.move((3,3),(3,4))
+    board.move((4,6),(4,4))
+    board.move((3,4),(4,5))
     update_openers(board, "TEST")
     board.mainloop()
