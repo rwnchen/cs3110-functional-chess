@@ -80,21 +80,27 @@ let () =
         | Piece (x',y') ->
           let leg_moves = legal_moves !board !last_move !c in
           let (new_b, check) = make_move !board !c !last_move ((x',y'),(x,y)) leg_moves in
-          let piece =
-            match get_piece !board (x',y') with
-            | Some p -> p
-            | None -> (White,Queen) (*This will never happen we just need it
-                                    so it type checks*)
-          in
-          (* print_int x'; print_int y'; print_string " moved to ";
-          print_int x; print_int y; print_endline ""; *)
-          board := new_b;
-          guistate := move_piece guistate ((x',y'),(x,y));
-          last_move := Some (piece,((x',y'),(x,y)));
-          begin
-            match !c with
-            | White -> c := Black;
-            | Black -> c := White;
+          if new_b <> !board then begin
+            let piece =
+              match get_piece !board (x',y') with
+              | Some p -> p
+              | None -> (White,Queen) (*This will never happen we just need it
+                                      so it type checks*)
+            in
+            print_endline (piece_string (snd piece) (fst piece));
+            last_move := Some (piece,((x',y'),(x,y)));
+            (* print_int x'; print_int y'; print_string " moved to ";
+            print_int x; print_int y; print_endline ""; *)
+            board := new_b;
+            guistate := move_piece guistate ((x',y'),(x,y));
+            begin
+              match !c with
+              | White -> c := Black;
+              | Black -> c := White;
+            end
+          end
+          else begin
+            print_endline "Not a legal move";
           end
         | _ -> guistate := !guistate end
       | _ -> guistate := !guistate
