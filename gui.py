@@ -183,6 +183,18 @@ class GameBoard(tk.Frame):
             self.canvas.move(piece, dx*self.size, dy*self.size)
             self.pieces[piece] = (pos2[0],pos2[1])
 
+            if "king" in piece:
+                # This assumes that the game logic is correct. So no checking
+                # to see if castling is valid occurs
+                if dx > 1:
+                    rook = "rook" + piece[4] + str(1)
+                    (rx,ry) = self.pieces[rook]
+                    self.move((rx,ry),(rx-2,ry))
+                elif dx < -1:
+                    rook = "rook" + piece[4] + str(0)
+                    (rx,ry) = self.pieces[rook]
+                    self.move((rx,ry),(rx+3,ry))
+
             if removed_piece is not None:
                 self.canvas.delete(removed_piece)
                 del self.pieces[removed_piece]
@@ -253,9 +265,11 @@ def update_game(board, update):
 
 if __name__ == "__main__":
     board = start_game()
-    board.move((3,1),(3,3))
+    board.move((4,1),(4,3))
     board.move((4,6),(4,4))
-    board.move((3,3),(4,4))
+    board.move((5,0),(1,4))
     board.move((5,6),(5,5))
-    board.move((4,4),(5,5))
+    board.move((6,0),(5,2))
+    board.move((5,5),(5,4))
+    board.move((4,0),(6,0))
     board.mainloop()

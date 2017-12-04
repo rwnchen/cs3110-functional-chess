@@ -45,7 +45,9 @@ let rec highlight_from_legal_moves legal_moves (x,y) acc =
 let parse_click guistate =
   let event = get_list gui "get_click" [guistate] in
   match event with
-  | [Pystr "piece"; Pylist [Pyint x; Pyint y]] -> Piece (x,y)
+  | [Pystr "piece"; Pylist [Pyint x; Pyint y]] ->
+    (* print_int x; print_int y; print_endline "Piece"; *)
+    Piece (x,y)
   | [Pystr "empty"; Pylist [Pyint x; Pyint y]] -> Empty (x,y)
   | [Pystr "highlight"; Pylist [Pyint x; Pyint y]] -> Highlight (x,y)
   | _ ->
@@ -77,10 +79,19 @@ let () =
         | Piece (x',y') ->
           let leg_moves = legal_moves !board !last_move !c in
           let (new_b, check) = make_move !board !c !last_move ((x',y'),(x,y)) leg_moves in
-          print_int x'; print_int y'; print_string " moved to ";
-          print_int x; print_int y; print_endline "";
+          let piece =
+            match get_piece !board (x',y') with
+            | Some p -> p
+            | None -> (White,Queen) (*This will never happen we just need it
+                                    so it type checks*)
+          in
+          (* print_int x'; print_int y'; print_string " moved to ";
+          print_int x; print_int y; print_endline ""; *)
           board := new_b;
           guistate := move_piece guistate ((x',y'),(x,y));
+          last_move := Some (piece,((x',y'),(x,y)));
+          let brd = print_board !board in
+          print_endline brd;
           begin
             match !c with
             | White -> c := Black;
