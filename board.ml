@@ -345,10 +345,7 @@ and moves_p b last_move c (m,a) (f,r) =
   let inc =
     if c = Black then -1 else 1 in
 
-  let forward =
-    match is_occupied b (f,r+inc) with
-    | None -> if in_bounds (f,r+inc) then [(f,r+inc)] else []
-    | _ -> [] in
+  let forward = moveable_space b c (f,r+inc) in
   let forward_left =
     match is_occupied b (f-1,r+inc) with
     | Some color -> if color = oppc c then [(f-1,r+inc)] else []
@@ -358,7 +355,7 @@ and moves_p b last_move c (m,a) (f,r) =
     | Some color -> if color = oppc c then [(f+1,r+inc)] else []
     | _ -> [] in
 
-  let two_sq = if m || a then [] else [(f,r+2*inc)] in
+  let two_sq = if not (m || a) then [] else moveable_space b c (f,r+2*inc) in
   let en_pass =
     match last_move with
     | None -> []
@@ -471,18 +468,18 @@ and update_capture opps piece c (fi,ri) (ff,rf) last_move =
     let inc = match c with | Black -> -1 | White -> 1 in
     if ri+inc = rf && (abs (ff-fi)) = 1
     then match last_move with
-      | None -> []
+      | None -> List.remove_assoc (ff,rf) opps
       | Some lm -> enpass_capture lm (fi,ri) (ff,rf) opps
     else opps
   | _ -> List.remove_assoc (ff,rf) opps
 
 and enpass_capture (p, ((f1,r1),(f2,r2))) i_pos f_pos opps =
-  match snd p with
+  (* match snd p with
   | Pawn (_,true) ->
     if (abs (r2-r1) = 2) && r2 = (snd i_pos)
     then List.remove_assoc (f2,r2) opps
     else List.remove_assoc f_pos opps
-  | _ -> opps
+  | _ -> opps *)
 
 let make_move b c last_move (m:move) (leg_mves:((move * board) list)) =
   try
