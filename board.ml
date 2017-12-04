@@ -493,8 +493,176 @@ let promote b c last_move file newp =
 (*************************************************************)
 (**********************ALGEBRAIC NOTATION*********************)
 (*************************************************************)
-let to_algno m b =
-  failwith "todo"
+(* Helper functions *)
+(*                  *)
+let rows = [|"a";"b";"c";"d";"e";"f";"g";"h"|]
 
-let from_algno s b =
+let extract = function
+  | Some (x) -> x
+  | _ -> failwith "extract failed! Check Algebraic notation functions."
+
+(* [can_move b lm cpos piece tpos]
+ * Returns True if piece [piece] can move to target position [tpos]
+ * given the state of the board as [b], the last_move as [lm], the
+ * current position of [piece] as [cpos]
+ *
+ * Use in List.filter for converting to_algno *)
+let can_move b lm cpos piece tpos =
+  moves b lm piece cpos |> List.mem tpos
+
+(* Returns the letter abbreviation for a piece rank [prank] *)
+let abbrev prank =
+  match prank with
+  | King(_) -> "K"
+  | Queen -> "Q"
+  | Rook(_) -> "R"
+  | Knight -> "N"
+  | Bishop -> "B"
+  | Pawn(_) -> "" (* Empty abbreviation in SAN movetext *)
+
+(* Returns true if move [m] is a capture given the board state
+ * as [b] and the color of the piece doing move [m] as [c] *)
+let is_capture b c m =
+  match is_occupied b (snd m) with
+  | Some(c) -> true
+  | _ -> false
+
+(* True if move [m] is a castle move, given the piece rank as [m_rank] *)
+let is_castle m m_rank =
+  match m_rank with
+  | King(false) ->
+    let ((sf, sr), (tf, tr)) = m in
+    abs(tf - sf) > 1
+  | _ -> false
+
+(* Assumes: [m] is a move made by a KING piece *)
+let castle_str m =
+  let ((sf, sr), (tf, tr)) = m in
+  if abs(tf - sf) = 2 then "O-O"
+  else "O-O-O"
+
+(* [is_check_bool b lm o_color m]
+ * Returns true if move [m] will result in a check for the other
+ * side, whose color is denoted [o_color]
+ * [b] - board prior [m], lm] - last move, [o_color] - opponent color *)
+let is_check_bool b lm o_color m =
+  let b' = update_board b lm (oppc o_color) m in
+  match is_check b' lm o_color with
+  | No_Check -> false
+  | _ -> true
+
+(* [is_checkmate b lm o_color m]
+ * Returns true if move [m] will result in a checkMATE for the other
+ * side, whose color is denoted [o_color]
+ * [b] - board prior [m], lm] - last move, [o_color] - opponent color *)
+let is_checkmate b lm o_color m =
+  let b' = update_board b lm (oppc o_color) m in
+
+  (* note: is_check_bool already updates its board - do not feed it [b']! *)
+  is_check_bool b lm o_color m &&
+  (List.length (legal_moves b' lm o_color) = 0)
+
+(* [ambiguous pcs m_rank m]
+ * Returns a non-empty list if the move [m], made by piece whose rank is
+ * [m_rank] represents an ambiguous move given that all pieces of the same
+ * color in [pcs] can also move to the same target destination in [snd m]
+ *
+ * The non-empty list will contain those ambiguity-inducing pieces *)
+let ambiguous pcs m_rank m =
+  List.filter
+    (fun (pos, piece) ->
+       (snd piece) = m_rank && pos != (fst m))
+    pcs
+
+(* [disambiguate o_piece_lst m_piece m]
+ * Returns a string to disambiguate moves to [m] that all pieces in [o_piece_lst]
+ * and [m_piece] can make. The rules for disambiguation are as follows...
+ *
+ * In order of preference, provide:
+ *   1) the file letter of [m_piece]
+ *   2) the numerical rank of [m_piece]
+ *   3) the exact file-rank of [m_piece]
+ * as necessary to disambiguate [o_piece_lst] from [m_piece]
+ *
+ * Assumes that there actually IS ambiguity to begin with! That is,
+ * it does NOT check that a pcs in [o_piece_lst] can actually move to [m]! *)
+let disambiguate o_piece_lst m_piece m =
+  let (sf, sr) = m |> fst in
+  let file_unambiguous =
+    List.for_all
+      (fun (pos, _) -> (fst pos) != sf)  (* No files are identical *)
+      o_piece_lst
+  in
+  let rank_unambiguous =
+    List.for_all
+      (fun (pos, _) -> (snd pos) != sr)  (* No ranks are identical *)
+      o_piece_lst
+  in
+
+  (* In order of preference. *)
+  if file_unambiguous then
+    rows.(sf-1)
+  else if rank_unambiguous then
+    string_of_int sr
+  else
+    rows.(sf-1) ^ (string_of_int sr)
+
+
+(* Exposed functions *)
+(*                   *)
+let to_algno lm b m ?promote:(promote = None) =
+  let cpos = m |> fst in
+  let tpos = m |> snd in
+  let (tf, tr) = tpos in
+
+  (* Information about the piece at [cpos] *)
+  let m_piece = cpos |> get_piece b |> extract in
+  let m_color = m_piece |> fst in
+  let o_color = m_color |> oppc in  (* opponent color *)
+  let m_rank = m_piece |> snd in
+
+  (* Check if [m] is a special move-type: Castle *)
+  if is_castle m m_rank then
+    castle_str m
+  else
+    (* Basic common components of the notation string *)
+    let abbrev_str = abbrev m_rank in
+    let tpos_str = rows.(tf-1) ^ (string_of_int tr) in
+    let capture_str = if is_capture b m_color m then "x" else "" in
+    let check_or_mate_str =
+      if is_checkmate b lm o_color m  then "#"
+      else if is_check_bool b lm o_color m then "+"
+      else ""
+    in
+
+    (* Since we're not castling then we actually have to check for
+     * ambiguity. Yes, there may be ambiguity even for promotions... orz *)
+
+    (* Gets a list [other_pcs] of all same-colored pieces that can move to [tpos] *)
+    let pieces_list = m_color |> getpcs b in
+    let other_pcs =
+      List.filter (fun (pos, piece) -> can_move b lm pos piece tpos) pieces_list
+    in
+
+    (* Disambiguation characters *)
+    let ambiguous_pcs = ambiguous other_pcs m_rank m in
+    let disamb_str =
+      if List.length ambiguous_pcs > 0 then disambiguate ambiguous_pcs m_piece m
+      else "" in
+    (* ^^^ disambiguation complete ^^^*)
+
+    (* Check if [m] is a special move-type: promotion *)
+    let promote_str =
+      if promote != None then
+        let promote_type = extract promote in
+        let promote_abbrev = abbrev promote_type in
+        "=" ^ promote_abbrev
+      else
+        ""
+    in
+
+    (* Final string *)
+    abbrev_str ^ disamb_str ^ capture_str ^ tpos_str ^ promote_str ^ check_or_mate_str
+
+let from_algno lm b s =
   failwith "todo"

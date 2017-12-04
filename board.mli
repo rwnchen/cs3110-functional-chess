@@ -65,6 +65,12 @@ val make_move : board -> color -> last_move -> move -> (move * board) list-> (bo
  * Details of how they are formatted found here:
  *   https://en.wikipedia.org/wiki/Portable_Game_Notation#Movetext
  * *)
-val to_algno : move -> board -> string
+(* [to_algno lm b m]
+ * Converts [m] to algebraic notation given that [b] is the state of the board
+ * PRIOR move [m], and [lm] was the last move made. *)
+val to_algno : last_move -> board -> move -> string
 
-val from_algno : string -> board -> move
+(* [from_algno lm b s]
+ * Reverses to_algno.
+ * Requires : [s] is a validly formed and legal given board [b]. fails otherwise *)
+val from_algno : last_move -> board -> string -> move
