@@ -75,7 +75,10 @@ val make_move : board -> color -> last_move -> move -> (move * board) list-> (bo
  * to (piece_rank). [p] can be left out otherwise. *)
 val to_algno : ?promote:piece_rank option -> last_move -> board -> move -> string
 
-(* [from_algno lm b s]
+(* [from_algno pr_target lm b s]
  * Reverses to_algno.
+ *
+ * After calling this function, [pr_target] will contain the target piece_rank of a
+ * promotion move, or None if [s] is not promoting.
  * Requires : [s] is a validly formed and legal given board [b]. fails otherwise *)
 val from_algno : piece_rank option ref -> last_move -> board -> string -> move
