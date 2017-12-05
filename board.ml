@@ -345,7 +345,7 @@ and moves_p b last_move c (m,a) (f,r) =
   let inc =
     if c = Black then -1 else 1 in
 
-  let forward = moveable_space b c (f,r+inc) in
+  let forward = if is_occupied b (f,r+inc) = None then [(f,r+inc)] else [] in
   let forward_left =
     match is_occupied b (f-1,r+inc) with
     | Some color -> if color = oppc c then [(f-1,r+inc)] else []
