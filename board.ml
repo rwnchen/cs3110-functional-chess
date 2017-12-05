@@ -358,16 +358,21 @@ and moves_p b last_move c (m,a) (f,r) =
   let two_sq = if m || a then [] else moveable_space b c (f,r+2*inc) in
   let en_pass =
     match last_move with
-    | None -> []
+    | None -> [(1,1)]
     | Some lm -> enpass_valid lm (f,r) inc in
   forward @ forward_left @ forward_right @ two_sq @ en_pass
 
 and enpass_valid (p, ((f1,r1),(f2,r2))) (f,r) inc =
   match snd p with
   | Pawn (_, true) ->
-      if (abs (r2-r1) = 2) && (r2 = r) && ((abs (f-f2) = 1)) then [(f2,r+inc)]
-      else []
-  | _ -> []
+      if (abs (r2-r1) = 2) && (r2 = r) && ((abs (f-f2) = 1)) then [(1,2)](* [(f2,r+inc)] *)
+      else [(1,3)]
+  | King _ -> [(1,4)]
+  | Queen ->  [(1,5)]
+  | Rook _ -> [(1,6)]
+  | Bishop -> [(1,7)]
+  | Knight -> [(1,8)]
+  | _ -> [(2,1)]
 
 (********************* BOARD UPDATE LOGIC **********************)
 

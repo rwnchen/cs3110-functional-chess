@@ -96,7 +96,7 @@ let () =
             let (new_b, check) = make_move !board !c !last_move ((x',y'),(x,y)) leg_moves in
             if new_b <> !board then begin
               let piece =
-                match get_piece !board (x',y') with
+                match get_piece new_b (x',y') with
                 | Some p -> p
                 | None -> (White,Queen) (*This will never happen we just need it
                                         so it type checks*)
