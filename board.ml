@@ -510,6 +510,27 @@ let promote b c last_move file newp =
 (*************************************************************)
 (**********************ALGEBRAIC NOTATION*********************)
 (*************************************************************)
+(* Debugging functions *)
+let piece_to_string p =
+  let color = match fst p with | White -> "white" | Black -> "black" in
+  let rank =
+    match snd p with
+    | King(_) -> "King"
+    | Queen -> "Queen"
+    | Rook(_) -> "Rook"
+    | Knight -> "Knight"
+    | Bishop -> "Bishop"
+    | Pawn(_) -> "Pawn"
+  in
+  Printf.sprintf "<Color: %s\tRank: %s>" color rank
+
+(* Prints all elements in a (position, piece) list *)
+let print_piecelst lst =
+  List.iter
+    (fun ((f,r), piece) ->
+       Printf.printf "Pos (f,r): (%d,%d)\tPiece: %s\n" f r (piece_to_string piece))
+    lst
+
 (* Helper functions *)
 (*                  *)
 let rows = [|"a";"b";"c";"d";"e";"f";"g";"h"|]
@@ -584,11 +605,12 @@ let is_checkmate b lm o_color m =
  * [m_rank] represents an ambiguous move given that all pieces of the same
  * color in [pcs] can also move to the same target destination in [snd m]
  *
+ * It is considered ambiguous if any piece in [pcs] is the same rank as [m_rank]
  * The non-empty list will contain those ambiguity-inducing pieces *)
 let ambiguous pcs m_rank m =
   List.filter
     (fun (pos, piece) ->
-       (snd piece) = m_rank && pos != (fst m))
+       (snd piece) = m_rank && pos <> (fst m))
     pcs
 
 (* [disambiguate o_piece_lst m_piece m]
@@ -605,14 +627,18 @@ let ambiguous pcs m_rank m =
  * it does NOT check that a pcs in [o_piece_lst] can actually move to [m]! *)
 let disambiguate o_piece_lst m_piece m =
   let (sf, sr) = m |> fst in
+
+  print_piecelst o_piece_lst;
+  Printf.printf "m_piece: %s\t(sf, sr): (%d,%d)\n" (piece_to_string m_piece) sf sr;
+
   let file_unambiguous =
     List.for_all
-      (fun (pos, _) -> (fst pos) != sf)  (* No files are identical *)
+      (fun (pos, _) -> (fst pos) <> sf)  (* No files are identical *)
       o_piece_lst
   in
   let rank_unambiguous =
     List.for_all
-      (fun (pos, _) -> (snd pos) != sr)  (* No ranks are identical *)
+      (fun (pos, _) -> (snd pos) <> sr)  (* No ranks are identical *)
       o_piece_lst
   in
 
@@ -627,7 +653,7 @@ let disambiguate o_piece_lst m_piece m =
 
 (* Exposed functions *)
 (*                   *)
-let to_algno lm b m ?promote:(promote = None) =
+let to_algno ?promote:(promote = None) lm b m =
   let cpos = m |> fst in
   let tpos = m |> snd in
   let (tf, tr) = tpos in
@@ -679,6 +705,7 @@ let to_algno lm b m ?promote:(promote = None) =
     in
 
     (* Final string *)
+    Printf.printf "abbrev: %s|disamb: %s|capture: %s|tpos: %s|promote: %s|checkormate: %s\n" abbrev_str disamb_str capture_str tpos_str promote_str check_or_mate_str;
     abbrev_str ^ disamb_str ^ capture_str ^ tpos_str ^ promote_str ^ check_or_mate_str
 
 let from_algno lm b s =

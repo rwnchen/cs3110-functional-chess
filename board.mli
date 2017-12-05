@@ -67,10 +67,13 @@ val make_move : board -> color -> last_move -> move -> (move * board) list-> (bo
  * Details of how they are formatted found here:
  *   https://en.wikipedia.org/wiki/Portable_Game_Notation#Movetext
  * *)
-(* [to_algno lm b m]
+(* [to_algno p lm b m ]
  * Converts [m] to algebraic notation given that [b] is the state of the board
- * PRIOR move [m], and [lm] was the last move made. *)
-val to_algno : last_move -> board -> move -> string
+ * PRIOR move [m], and [lm] was the last move made.
+ *
+ * [p] should be set to Some (piece_rank) if [m] is a move that promotes a pawn
+ * to (piece_rank). [p] can be left out otherwise. *)
+val to_algno : ?promote:piece_rank option -> last_move -> board -> move -> string
 
 (* [from_algno lm b s]
  * Reverses to_algno.

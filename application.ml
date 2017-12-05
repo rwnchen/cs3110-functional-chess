@@ -37,21 +37,6 @@ let parse_space s =
   let fst_int = Char.code (String.get s 0) - 64 in
   let snd_int = int_of_char (String.get s 1) - 48 in
   (fst_int, snd_int)
-(*
-   These two functions convert to and from algebraic chess notation to/from the
-   moves representation currently used by board.
-   Two signatures:
-     move -> (game state sth sth) -> string
-     string -> (game state sth sth) -> move
-
-   The game state is needed because algebraic chess notation is minimalistic, e.g.
-   if only 1 piece can move to a square e5, then the notation will simply be "e5".
-   But if two or more pieces can, then a letter will be prefixed to indicate which
-   piece does the move e.g. (B for bishop) "Be5". This requires knowing what pieces
-   are where and where they can move to.
-*)
-let to_algnotation m g = failwith "to_algnotation unimplemented"
-let from_algnotation m g = failwith "from_algonotation unimplemented"
 
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Exposed functions *)
@@ -79,7 +64,7 @@ let print_lastm ppf (lastm:Board.last_move) =
         | Bishop -> "Bishop"
         | Knight -> "Knight"
         | Rook m -> "Rook: " ^ (string_of_bool m)
-        | Pawn m -> "Pawn: " ^ (string_of_bool m) in
+        | Pawn (m,_) -> "Pawn: " ^ (string_of_bool m) in
     Format.fprintf ppf "Last Move: (%s // (%d,%d) to (%d,%d))" piece (fst i) (snd i) (fst f) (snd f)
   | None -> ()
 (*   match lastm with
@@ -121,6 +106,7 @@ let rec run (b,c,lm) =
         else
           begin
             let brd = print_board new_b in
+            Printf.printf "Alg. notation: %s\n" (to_algno lm b (pos1,pos2));
             let p' =
               match get_piece new_b pos2 with
               | Some newp -> newp
