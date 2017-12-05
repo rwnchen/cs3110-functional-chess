@@ -585,7 +585,9 @@ let castle_str m =
  * [b] - board prior [m], lm] - last move, [o_color] - opponent color *)
 let is_check_bool b lm o_color m =
   let b' = update_board b lm (oppc o_color) m in
-  match is_check b' lm o_color with
+  let m_piece = m |> fst |> get_piece b |> extract in
+  let lm' = Some (m_piece, m) in
+  match is_check b' lm' o_color with
   | No_Check -> false
   | _ -> true
 
@@ -595,10 +597,12 @@ let is_check_bool b lm o_color m =
  * [b] - board prior [m], lm] - last move, [o_color] - opponent color *)
 let is_checkmate b lm o_color m =
   let b' = update_board b lm (oppc o_color) m in
+  let m_piece = m |> fst |> get_piece b |> extract in
+  let lm' = Some (m_piece, m) in
 
   (* note: is_check_bool already updates its board - do not feed it [b']! *)
   is_check_bool b lm o_color m &&
-  (List.length (legal_moves b' lm o_color) = 0)
+  (List.length (legal_moves b' lm' o_color) = 0)
 
 (* [ambiguous pcs m_rank m]
  * Returns a non-empty list if the move [m], made by piece whose rank is
