@@ -1,3 +1,4 @@
+open Str
 (******************************************************************************)
 (***************************** TYPE DECLARATIONS ******************************)
 (******************************************************************************)
@@ -532,8 +533,15 @@ let print_piecelst lst =
     lst
 
 (* Helper functions *)
-(*                  *)
+(* For to_algno     *)
 let rows = [|"a";"b";"c";"d";"e";"f";"g";"h"|]
+let index_of arr elem =
+  let rec index_of' arr i =
+    if Array.length arr <= i then -1
+    else if arr.(i) = elem then i
+    else index_of' arr (i+1)
+  in
+  index_of' arr 0
 
 let extract = function
   | Some (x) -> x
@@ -600,7 +608,7 @@ let is_checkmate b lm o_color m =
   let m_piece = m |> fst |> get_piece b |> extract in
   let lm' = Some (m_piece, m) in
 
-  (* note: is_check_bool already updates its board - do not feed it [b']! *)
+  (* note: is_check_bool already updates its board - do not feed it [b'] or [lm']! *)
   is_check_bool b lm o_color m &&
   (List.length (legal_moves b' lm' o_color) = 0)
 
@@ -632,8 +640,10 @@ let ambiguous pcs m_rank m =
 let disambiguate o_piece_lst m_piece m =
   let (sf, sr) = m |> fst in
 
+(* debug
   print_piecelst o_piece_lst;
   Printf.printf "m_piece: %s\t(sf, sr): (%d,%d)\n" (piece_to_string m_piece) sf sr;
+*)
 
   let file_unambiguous =
     List.for_all
@@ -654,6 +664,86 @@ let disambiguate o_piece_lst m_piece m =
   else
     rows.(sf-1) ^ (string_of_int sr)
 
+
+(* Helper functions *)
+(* For from_algno   *)
+
+(* REGEX patterns for each component of algebraic notation
+ * Each X_gp is a regex group to match one possible componenent of
+ * algebraic chess notations. Combined, they form the full regex
+ * pattern for algebraic chess notation. *)
+let abbrev_gp = {|\(K\|Q\|R\|N\|B\)|}
+let disamb_gp = {|\([a-h]\|[1-8]\|[a-h][1-8]\)|}
+let capture_gp = {|\(x\)|}
+let pos_gp = {|\([a-h][1-8]\)|}
+let promote_gp = {|\(=Q\|=R\|=N\|=B\)|}
+let check_or_mate_gp = {|\(#\|\+\)|}
+let castle_gp = {|\(O-O-O\|O-O\)|}
+let notation_rx =
+  regexp (abbrev_gp ^ "?" ^
+          disamb_gp ^ "?" ^
+          capture_gp ^ "?" ^
+          pos_gp ^
+          promote_gp ^ "?" ^
+          check_or_mate_gp ^ "?" ^ {|\||} ^
+          castle_gp)
+
+let file_gp = {|\([a-h]\)|}
+let rank_gp = {|\([1-8]\)|}
+let file_rank_rx =           (* Use to match against disamb_gp *)
+  regexp (file_gp ^ "?" ^
+          rank_gp ^ "?")
+
+(* [matched gp_n str] wraps around Str's [matched_group] to return the
+ * empty string if a match is not found, but throws an exception
+ * otherwise. *)
+let matched gp_n str =
+  try
+    matched_group gp_n str
+  with
+  | Not_found -> ""
+  | _ -> failwith "invalid [matched] arguments"
+
+(* [filter_type rank_abbrev pcs]
+ * Filters out all (position * piece) elements in [pcs] to only those
+ * whose rank is the specified [rank_abbrev] (e.g. "Q" specifies Queen) *)
+let filter_type rank_abbrev pcs =
+  let filter_fun =
+    match rank_abbrev with
+    | "K" -> (fun (_, (_, x)) -> match x with | King(_) -> true | _ -> false)
+    | "Q" -> (fun (_, (_, x)) -> match x with | Queen -> true | _ -> false)
+    | "R" -> (fun (_, (_, x)) -> match x with | Rook(_) -> true | _ -> false)
+    | "N" -> (fun (_, (_, x)) -> match x with | Knight -> true | _ -> false)
+    | "B" -> (fun (_, (_, x)) -> match x with | Bishop -> true | _ -> false)
+    | "" -> (fun (_, (_, x)) -> match x with | Pawn(_) -> true | _ -> false)
+    | _ -> failwith "filter_type: Invalid rank_abbrev!"
+  in
+  List.filter filter_fun pcs
+
+(* [filter_cpos disamb pcs]
+ * Filters out all (position * piece) elements in [pcs] to only those
+ * whose position matches the disambiguation string [disamb]
+ * If no elements match or [disamb] is not validly formed, returns []
+ *
+ * NOTE: This should get you a list with 1 element in it, unless something
+ * got screwed up... *)
+let filter_cpos disamb pcs =
+  ignore (string_match file_rank_rx disamb 0);
+  let file = matched 1 disamb in
+  let rank = matched 2 disamb in
+  let df = if file <> "" then (file |> index_of rows) + 1 else -1 in
+  let dr = if rank <> "" then int_of_string rank else -1 in
+
+  if df <> -1 && dr <> -1 then
+    List.filter
+      (fun ((f, r), _) ->
+        f = df && r = dr)
+      pcs
+  else
+    List.filter
+      (fun ((f, r), _) ->
+         f = df || r = dr)
+      pcs
 
 (* Exposed functions *)
 (*                   *)
@@ -708,9 +798,73 @@ let to_algno ?promote:(promote = None) lm b m =
         ""
     in
 
-    (* Final string *)
+    (* Final string - TODO: comment out this print at some point... *)
     Printf.printf "abbrev: %s|disamb: %s|capture: %s|tpos: %s|promote: %s|checkormate: %s\n" abbrev_str disamb_str capture_str tpos_str promote_str check_or_mate_str;
     abbrev_str ^ disamb_str ^ capture_str ^ tpos_str ^ promote_str ^ check_or_mate_str
 
-let from_algno lm b s =
-  failwith "todo"
+(* NOTE: Assumes that [lm] can indicate whose turn it is.
+ * In other words, [s] is done by the OPPOSITE color of last_move [lm] *)
+let from_algno pr_target lm b s =
+  ignore (string_match notation_rx s 0);
+  let abbrev = matched 1 s in  (* Empty string if pawn, otherwise "N" "B" "Q" etc. *)
+  let disamb = matched 2 s in
+  let capture = matched 3 s in
+  let pos = matched 4 s in
+  let promote = matched 5 s in
+  let check_or_mate = matched 6 s in
+  let castle = matched 7 s in
+
+  (* debug prints *)
+  Printf.printf "abbrev: %s|disamb: %s|capture: %s|pos: %s| promote: %s|check_or_mate: %s \n" abbrev disamb capture pos promote check_or_mate;
+
+  (* Information about the state of the board *)
+
+  (* Parses the matched strings to produce a move *)
+  (* identify whose turn [s] belongs to *)
+  let s_color =
+    match lm with
+    | None | Some ((Black, _), _) -> White
+    | _ -> Black
+  in
+
+  (* Special case: Castle move *)
+  if castle <> "" then
+    let king_pos = s_color |> getpcs b |> find_king in
+    let (_, kr) = king_pos in
+    let castle_pos = if castle = "O-O-O" then 2 else 7 in
+    (king_pos, (castle_pos, kr))
+  else
+    (* Promotion/regular move *)
+    let tpos =
+      ((pos.[0] |> String.make 1 |> index_of rows) + 1,
+       pos.[1] |> String.make 1|> int_of_string)
+    in
+
+    (* Gets a list [other_pcs] of all same-colored pieces that can move to [tpos] *)
+    let pieces_list = s_color |> getpcs b in
+    let pcs =
+      List.filter (fun (pos', piece) -> can_move b lm pos' piece tpos) pieces_list
+    in
+
+    (* Filter by type and [disamb] if necessary *)
+    let filtered_pcs = pcs |> filter_type abbrev in
+    let (cpos, _) =
+      if List.length filtered_pcs = 1 then
+        List.hd filtered_pcs
+      else
+        filtered_pcs |> filter_cpos disamb |> List.hd
+    in
+
+    (* If [s] is a promotion move, specify the promotion target with
+     * the [promote] target to Some target, else None *)
+    begin
+      pr_target :=
+          match promote with
+          | "" -> None
+          | "=Q" -> Some Queen
+          | "=R" -> Some (Rook(true))
+          | "=N" -> Some Knight
+          | "=B" -> Some Bishop
+          | _ -> failwith "from_algno: invalid [promote] target!"
+    end;
+    (cpos, tpos)

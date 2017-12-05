@@ -78,4 +78,4 @@ val to_algno : ?promote:piece_rank option -> last_move -> board -> move -> strin
 (* [from_algno lm b s]
  * Reverses to_algno.
  * Requires : [s] is a validly formed and legal given board [b]. fails otherwise *)
-val from_algno : last_move -> board -> string -> move
+val from_algno : piece_rank option ref -> last_move -> board -> string -> move

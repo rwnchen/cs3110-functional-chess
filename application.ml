@@ -48,8 +48,12 @@ let suggest_move o g = None
 
 (* let to_replay = failwith "to_replay unimplemented" *)
 
+
 let print_tup ppf (a,b) =
   Format.fprintf ppf "(%d,%d)" a b
+
+let print_mov ppf ((a,b),(c,d)) =
+  Format.fprintf ppf "((%d,%d) to (%d,%d))" a b c d
 
 let print_lastm ppf (lastm:Board.last_move) =
   match lastm with
@@ -106,7 +110,11 @@ let rec run (b,c,lm) =
         else
           begin
             let brd = print_board new_b in
-            Printf.printf "Alg. notation: %s\n" (to_algno lm b (pos1,pos2));
+            let algno = (to_algno lm b (pos1,pos2)) in
+            let promote_target = ref None in
+            Format.printf "Alg. notation: %s\n" algno;
+            Format.printf "Reverse Alg.: %a\n" print_mov (from_algno promote_target lm b algno);
+            print_newline ();
             let p' =
               match get_piece new_b pos2 with
               | Some newp -> newp
