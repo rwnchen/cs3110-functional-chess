@@ -25,18 +25,18 @@ let print_color c =
     "White"
 
 
-let move_piece state ((x1,y1),(x2,y2)) =
+let move_piece guistate ((x1,y1),(x2,y2)) =
   let pos1 = Pytuple [Pyint x1;Pyint y1] in
   let pos2 = Pytuple [Pyint x2;Pyint y2] in
-  state := Pyref(get_ref gui "move" [!state; pos1; pos2]);
-  !state
+  Pyref(get_ref gui "move" [guistate; pos1; pos2])
 
 let rec highlight guistate tiles =
-  match tiles with
-  | [] -> !guistate
-  | (x,y)::t ->
-    guistate := Pyref(get_ref gui "highlight" [!guistate; Pyint x; Pyint y]);
-    highlight guistate t
+  let rec build_tile_list t_list acc =
+    match t_list with
+    | [] -> acc
+    | (x,y)::t -> build_tile_list t (Pylist [Pyint x; Pyint y]::acc) in
+  let tiles = build_tile_list tiles [] in
+  Pyref(get_ref gui "highlight" [guistate; Pylist tiles])
 
 let openers opener_list =
   failwith "Unimplemented"
@@ -47,8 +47,7 @@ let update_history guistate history =
     | [] -> acc
     | (h,b)::t -> build_hist_list t ((Pystr h)::acc) in
   let hist_list = build_hist_list history [] in
-  guistate := Pyref(get_ref gui "update_history" [!guistate; Pylist hist_list]);
-  !guistate
+  Pyref(get_ref gui "update_history" [guistate; Pylist hist_list])
 
 let get_promotion guistate =
   get_string gui "get_promotion" [guistate]
@@ -99,7 +98,7 @@ let () =
       | Piece (x,y) ->
         let leg_moves = legal_moves !board !last_move !c in
         let highlights = highlight_from_legal_moves leg_moves (x,y) [] in
-        guistate := highlight guistate highlights;
+        guistate := highlight !guistate highlights;
         last_click := click;
       | Highlight (x,y) ->
         begin
@@ -140,8 +139,8 @@ let () =
               (* print_int x'; print_int y'; print_string " moved to ";
               print_int x; print_int y; print_endline ""; *)
               board := new_b;
-              guistate := move_piece guistate ((x',y'),(x,y));
-              guistate := update_history guistate !history;
+              guistate := move_piece !guistate ((x',y'),(x,y));
+              guistate := update_history !guistate !history;
 
               begin
                 match !c with

@@ -296,4 +296,20 @@ let white_winrate trie moves =
   let metadata = StrTrie.find moves trie in
   try
     (metadata.white_wins |> float_of_int) /. (metadata.total_count |> float_of_int)
-  with _ -> 0.0
+  with
+    Division_by_zero -> 0.0
+
+let best_reply d o n =
+  let winrate s =
+    try
+      if List.length o mod 2 = 0 then white_winrate d s else 1. -. (white_winrate d s)
+    with
+      Not_found -> 0.0
+  in
+  let all_replies = StrTrie.subkeys o d in
+  let cmp m1 m2 = Pervasives.compare (winrate (o @ [m2])) (winrate (o @ [m1])) in
+  let sorted_replies = List.sort cmp all_replies in
+  try
+    sorted_replies |> prefix n |> List.filter (fun m' -> StrTrie.mem (o @ [m']) d)
+  with
+    _ -> sorted_replies |> List.filter (fun m' -> StrTrie.mem (o @ [m']) d)
