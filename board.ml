@@ -525,6 +525,19 @@ let piece_to_string p =
   in
   Printf.sprintf "<Color: %s\tRank: %s>" color rank
 
+let string_to_piece p =
+  let color = match fst p with | "white" -> White | "black" -> Black in
+  let rank =
+    match snd p with
+    | "King" -> King false
+    | "Queen" -> Queen
+    | "Rook" -> Rook false
+    | "Knight" -> Knight
+    | "Bishop" -> Bishop
+    | "Pawn" -> Pawn (false, false)
+  in
+  (color, rank)
+
 (* Prints all elements in a (position, piece) list *)
 let print_piecelst lst =
   List.iter
