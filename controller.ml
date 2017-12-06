@@ -7,7 +7,11 @@ type position = int * int
 
 type move = position * position
 
-type click = | Piece of position | Highlight of position | Empty of position | Noclick (*| Opener of string? | History of string? | *)
+type click = | Piece of position
+             | Highlight of position
+             | Promote
+             | Empty of position
+             | Noclick (*| Opener of string? | History of string? | *)
 
 let interpreter = "python2"
 let py = init ~exec:interpreter "."
@@ -27,24 +31,27 @@ let move_piece state ((x1,y1),(x2,y2)) =
   state := Pyref(get_ref gui "move" [!state; pos1; pos2]);
   !state
 
-let rec highlight state tiles =
+let rec highlight guistate tiles =
   match tiles with
-  | [] -> !state
+  | [] -> !guistate
   | (x,y)::t ->
-    state := Pyref(get_ref gui "highlight" [!state; Pyint x; Pyint y]);
-    highlight state t
+    guistate := Pyref(get_ref gui "highlight" [!guistate; Pyint x; Pyint y]);
+    highlight guistate t
 
 let openers opener_list =
   failwith "Unimplemented"
 
-let update_history state history =
+let update_history guistate history =
   let rec build_hist_list m_list acc =
     match m_list with
     | [] -> acc
     | (h,b)::t -> build_hist_list t ((Pystr h)::acc) in
   let hist_list = build_hist_list history [] in
-  state := Pyref(get_ref gui "update_history" [!state; Pylist hist_list]);
-  !state
+  guistate := Pyref(get_ref gui "update_history" [!guistate; Pylist hist_list]);
+  !guistate
+
+let get_promotion guistate =
+  get_string gui "get_promotion" [guistate]
 
 let rec highlight_from_legal_moves legal_moves (x,y) acc =
   match legal_moves with
@@ -55,9 +62,13 @@ let rec highlight_from_legal_moves legal_moves (x,y) acc =
     else
       highlight_from_legal_moves t (x,y) acc
 
+(* gets the click event from the gui and processes it into a click type *)
 let parse_click guistate =
   let event = get_list gui "get_click" [guistate] in
   match event with
+  | [Pystr "promote";Pylist [Pyint x; Pyint y]] ->
+    print_endline (get_promotion guistate);
+    Promote
   | [Pystr "piece"; Pylist [Pyint x; Pyint y]] ->
     (* print_int x; print_int y; print_endline "Piece"; *)
     Piece (x,y)
@@ -83,6 +94,8 @@ let () =
     if (!update = true) then begin
       let click = parse_click !guistate in
       match click with
+      | Promote ->
+        print_endline "Promoted"
       | Piece (x,y) ->
         let leg_moves = legal_moves !board !last_move !c in
         let highlights = highlight_from_legal_moves leg_moves (x,y) [] in
@@ -118,8 +131,7 @@ let () =
                   | ((i,j),(i',j')) ->
                     let ps1 = String.make 1 (Char.chr(i+64)) in
                     let ps2 = String.make 1 (Char.chr(i'+64)) in
-                    ps ^ ": " ^ ps1 ^ (string_of_int j) ^ " to " ^ ps2 ^ (string_of_int j')
-                  | _ -> ps ^ "()" in
+                    ps ^ ": " ^ ps1 ^ (string_of_int j) ^ " to " ^ ps2 ^ (string_of_int j') in
 
               print_endline lst_move;
               history := (lst_move,new_b)::(!history);
@@ -136,6 +148,7 @@ let () =
                 | White -> c := Black;
                 | Black -> c := White;
               end
+
             end
           else begin
             print_endline "Not a legal move";

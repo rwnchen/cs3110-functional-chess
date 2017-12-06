@@ -56,11 +56,15 @@ class GameBoard(tk.Frame):
 
         self.root = parent
         self.root.resizable(0,0)
+        self.root.title("Chess")
         self.update = False
         self.was_click = False
         self.space_clicked = ""
         self.highlighted = []
         self.enpassant = None
+        self.current_color = "w"
+        self.promoted = None
+        self.popup = None
 
         canvas_width = columns * size
         canvas_height = rows * size
@@ -97,6 +101,9 @@ class GameBoard(tk.Frame):
         self.historybox.pack(side="right", fill="both")
 
         scrollbar.config(command=self.historybox.yview)
+
+        self.button1 = Button(self.buttonframe, text="About SPIES", width=20, command=self.promotion)
+        self.button1.pack(side='bottom',padx=5,pady=5)
 
         self.canvas.bind("<Configure>", self.refresh)
 
@@ -192,12 +199,16 @@ class GameBoard(tk.Frame):
                     self.move((rx,ry),(rx+3,ry))
             if "pawnb" in piece:
                 (x2,y2) = pos2
-                if pos2 == self.enpassant:
+                if y2 == 0:
+                    self.promotion((piece,pos2))
+                elif pos2 == self.enpassant:
                     removed_piece = self.getpieceatpos((x2,y2+1))
 
             elif "pawnw" in piece:
                 (x2,y2) = pos2
-                if pos2 == self.enpassant:
+                if y2 == 7:
+                    self.promotion((piece,pos2))
+                elif pos2 == self.enpassant:
                     removed_piece = self.getpieceatpos((x2,y2-1))
             # Clear en_passant after checking if the move was an
             # enpassant capture
@@ -215,7 +226,36 @@ class GameBoard(tk.Frame):
 
             return piece
         else:
-            return "none"
+            return None
+
+    def promotion(self,piece):
+        self.popup = Toplevel()
+        self.popup.title("Promotion")
+        label1 = Label(self.popup, text="Choose Promotion", height=0, width=30, padx = 2, pady=2)
+        name = "knight"+self.current_color
+        piece_name = piece[0]
+        piece_pos = piece[1]
+        info = (piece_name,piece_pos,name)
+        button1 = Button(self.popup, image=self.images[name],
+        command=lambda m=info : self.promote_callback(m))
+        name = "bishop"+self.current_color
+        info = (piece_name,piece_pos,name)
+        button2 = Button(self.popup, image=self.images[name],
+        command=lambda m=info : self.promote_callback(m))
+        name = "rook"+self.current_color
+        info = (piece_name,piece_pos,name)
+        button3 = Button(self.popup, image=self.images[name],
+        command=lambda m=info : self.promote_callback(m))
+        name = "queen"+self.current_color
+        info = (piece_name,piece_pos,name)
+        button4 = Button(self.popup, image=self.images[name],
+        command=lambda m=info : self.promote_callback(m))
+        label1.pack()
+        button1.pack()
+        button2.pack()
+        button3.pack()
+        button4.pack()
+
 
     def callback(self, event):
         #clear highlighted squares after every click
@@ -238,6 +278,23 @@ class GameBoard(tk.Frame):
         self.was_click = True
         self.clicked_space = name
 
+    def promote(self,old_piece,pos,new_piece):
+        del self.pieces[old_piece]
+        self.canvas.delete(old_piece)
+        i = 0
+        while (new_piece + str(i) in self.pieces):
+            i += 1
+        self.addpiece(new_piece+str(i),pos[1],pos[0])
+        self.popup.destroy()
+        self.popup = None
+        self.clicked_space = ["promote",pos]
+        self.promoted = new_piece[:-1]
+        self.was_click = True
+
+    def promote_callback(self, p):
+        # Change pawn to selected piece on board
+        self.promote(p[0],p[1],p[2])
+
 def get_click(board):
     clicked_space = list(board.clicked_space)
     click_type = clicked_space[0]
@@ -247,10 +304,20 @@ def get_click(board):
         click_pos = [-1,-1]
     return [unicode(click_type),click_pos]
 
+def get_promotion(board):
+    promoted = board.promoted
+    board.promoted = None
+    return unicode(promoted)
+
 def move(board, pos1, pos2):
     pos1 = (pos1[0]-1,pos1[1]-1)
     pos2 = (pos2[0]-1,pos2[1]-1)
-    board.move(pos1,pos2)
+    move = board.move(pos1,pos2)
+    if move is not None:
+        if board.current_color == "w":
+            board.current_color = "b"
+        else:
+            board.current_color = "w"
     return board
 
 def highlight(board, x, y):
@@ -293,9 +360,6 @@ def update_game(board, update):
 
 if __name__ == "__main__":
     board = start_game()
-    board.move((3,1),(3,3))
-    board.move((5,6),(5,5))
-    board.move((3,3),(3,4))
-    board.move((4,6),(4,4))
-    board.move((3,4),(4,5))
+    move(board, (2,2),(2,8))
+    # move(board, (2,7),(2,1))
     board.mainloop()
