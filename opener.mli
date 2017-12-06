@@ -24,3 +24,14 @@ val opening_name : openings -> string list -> string
  * in the openings database [d]
  * an example [o]: ["g3"; "e5"; "Nf3"] *)
 val white_winrate : openings -> string list -> float
+
+
+(* [best_reply d o n]
+ * Returns up to [n] "best" replies for WHITE if [o] is EVEN length, or BLACK if [o]
+ * has an ODD length ([o] should be the move history up to this point)
+ *   d - openings
+ *   o - the current sequence of moves already made, in algebraic notation ([] if no moves made)
+ *   n - the maximum number of best replies to give. May be fewer or even [] if no more replies
+ *       are available in [d]. "best" is defined by having the highest winrate
+ * The replies are 1 move and in standard algebraic notation. *)
+val best_reply : openings -> string list -> int -> string list

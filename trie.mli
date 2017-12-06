@@ -32,6 +32,29 @@ module type S = sig
   val fold : (key -> 'a -> 'b -> 'b) -> 'a t -> 'b -> 'b
   val compare : ('a -> 'a -> int) -> 'a t -> 'a t -> int
   val equal : ('a -> 'a -> bool) -> 'a t -> 'a t -> bool
+
+  (* Newly added: Map.Make will provide a module with a [bindings] method *)
+  val bindings : 'a t -> (key * 'a) list
 end
 
-module Make(M : S) : (S with type key = M.key list)
+module type T = sig
+  type key
+  type +'a t
+  val empty : 'a t
+  val is_empty : 'a t -> bool
+  val add : key -> 'a -> 'a t -> 'a t
+  val find : key -> 'a t -> 'a
+  val remove : key -> 'a t -> 'a t
+  val mem : key -> 'a t -> bool
+  val iter : (key -> 'a -> unit) -> 'a t -> unit
+  val map : ('a -> 'b) -> 'a t -> 'b t
+  val mapi : (key -> 'a -> 'b) -> 'a t -> 'b t
+  val fold : (key -> 'a -> 'b -> 'b) -> 'a t -> 'b -> 'b
+  val compare : ('a -> 'a -> int) -> 'a t -> 'a t -> int
+  val equal : ('a -> 'a -> bool) -> 'a t -> 'a t -> bool
+
+  (* Newly added: Map.Make will provide a module with a [bindings] method *)
+  val subkeys : key -> 'a t -> key
+end
+
+module Make(M : S) : (T with type key = M.key list)

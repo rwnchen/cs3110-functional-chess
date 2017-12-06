@@ -37,6 +37,29 @@ module type S = sig
   val fold : (key -> 'a -> 'b -> 'b) -> 'a t -> 'b -> 'b
   val compare : ('a -> 'a -> int) -> 'a t -> 'a t -> int
   val equal : ('a -> 'a -> bool) -> 'a t -> 'a t -> bool
+
+  (* Newly added: Map.Make will provide a module with a [bindings] method *)
+  val bindings : 'a t -> (key * 'a) list
+end
+
+module type T = sig
+  type key
+  type +'a t
+  val empty : 'a t
+  val is_empty : 'a t -> bool
+  val add : key -> 'a -> 'a t -> 'a t
+  val find : key -> 'a t -> 'a
+  val remove : key -> 'a t -> 'a t
+  val mem : key -> 'a t -> bool
+  val iter : (key -> 'a -> unit) -> 'a t -> unit
+  val map : ('a -> 'b) -> 'a t -> 'b t
+  val mapi : (key -> 'a -> 'b) -> 'a t -> 'b t
+  val fold : (key -> 'a -> 'b -> 'b) -> 'a t -> 'b -> 'b
+  val compare : ('a -> 'a -> int) -> 'a t -> 'a t -> int
+  val equal : ('a -> 'a -> bool) -> 'a t -> 'a t -> bool
+
+  (* Newly added: a subkeys method *)
+  val subkeys : key -> 'a t -> key
 end
 
 module Make (M : S) = struct
@@ -70,6 +93,19 @@ module Make (M : S) = struct
     | [], Node (None,_)   -> false
     | [], Node (Some _,_) -> true
     | x::r, Node (_,m)    -> try mem r (M.find x m) with Not_found -> false
+
+
+  (* Newly added function! *)
+  (* [subkeys k t]
+   * Returns a list of single prefixes of all keys in the subtries in [t]
+   * at [k]. Raises Not_found if [k] is not in [t]
+   * In terms of our project, use this to find a list of all possible
+   * continuations of the move sequence [k] (e.g. ["e5"; "c4"; "Nf3"])
+   * that exist in the opening book [t] *)
+  let rec subkeys k t =
+    match (k,t) with
+    | [], Node (_, m)      -> m |> M.bindings |> List.map (fun (n, _) -> n)
+    | x::r, Node (_, m)    -> subkeys r (M.find x m)
 
 (*s Insertion is more subtle. When the final node is reached, we just
     put the information ([Some v]). Otherwise, we have to insert the
