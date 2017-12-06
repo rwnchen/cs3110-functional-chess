@@ -78,6 +78,13 @@ let do_move pos1 pos2 =
     brd
   | None -> "No piece selected."
 
+let rec kill_all l u =
+  match l with
+  |[] -> []
+  |(i,out)::t ->
+    (Lwt_io.fprintf out "Other player quit! \n" >>= fun () -> Lwt_io.close out);
+    kill_all t u
+
 let rec handle_connection ic oc ind () =
   Lwt_io.read_line_opt ic >>=
      (fun msg ->
@@ -113,8 +120,9 @@ let rec handle_connection ic oc ind () =
                 end);
             interact
         | None ->
-          (* users := !users - 1; *)
-          Lwt_log.info "Connection closed" >>= return)
+          kill_all !outs ind;
+          Lwt_log.info "Connection closed" >>= return;
+          exit 0;)
 
 let accept_connection conn =
   users := !users + 1;
