@@ -102,9 +102,6 @@ class GameBoard(tk.Frame):
 
         scrollbar.config(command=self.historybox.yview)
 
-        self.button1 = Button(self.buttonframe, text="About SPIES", width=20, command=self.promotion)
-        self.button1.pack(side='bottom',padx=5,pady=5)
-
         self.canvas.bind("<Configure>", self.refresh)
 
     def addpiece(self, name, row=0, column=0):
@@ -320,11 +317,12 @@ def move(board, pos1, pos2):
             board.current_color = "w"
     return board
 
-def highlight(board, x, y):
-    x -= 1
-    y -= 1
-    if ((x,y) not in board.highlighted):
-        board.highlight_rect(x,y)
+def highlight(board, tiles):
+    for x,y in tiles:
+        x -= 1
+        y -= 1
+        if ((x,y) not in board.highlighted):
+            board.highlight_rect(x,y)
     return board
 
 def update_openers(board, s):
