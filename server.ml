@@ -2,7 +2,6 @@ open Lwt
 open Board
 
 (* Code based off example http://www.baturin.org/code/lwt-counter-server/ *)
-(* let listen_address = Unix.inet_addr_loopback *)
 let listen_address =
   if Array.length Sys.argv < 2
     then
@@ -10,7 +9,8 @@ let listen_address =
     else
       Unix.inet_addr_of_string (Sys.argv.(1))
 
-let port = 9000
+let port = int_of_string (Sys.argv.(2))
+
 let backlog = 10
 
 let users = ref 0
@@ -54,6 +54,9 @@ let rec convert_text te s ind =
 
 let handle_message t =
   let spaces = (String.split_on_char ' ' t) in
+  if List.length spaces < 2 then
+    (true, "bad input")
+  else
   let (pos1,pos2) =  ((List.nth spaces 0),(List.nth spaces 1)) in
   if pos1 = "text" then (true,convert_text spaces "" 0)
   else
@@ -67,6 +70,7 @@ let do_move pos1 pos2 =
   match get_piece b pos1 with
   | Some p ->
     let (new_b, check) = make_move b c lm (pos1,pos2) leg_move in
+    if b = new_b then "Invalid move." else
     let brd = print_board new_b in
     let newlm = Some (p, (pos1,pos2)) in
     board := new_b;
@@ -94,18 +98,20 @@ let rec handle_connection ic oc ind () =
             else
               let (pos1,pos2) = get_command rep in
               let game = do_move pos1 pos2 in
-              if game <> "No piece selected." then
+              broadcast !outs game oc 1;
+              broadcast !outs game oc 2;
+              (if game <> "No piece selected." && game <> "Invalid move." then
                 if !current_user = 1 then
-                  ((current_user := 2);
-                   (current_color := Black);
-                   (broadcast !outs game oc 1);
-                   (broadcast !outs game oc 2); interact)
+                    begin
+                      current_user := 2;
+                      current_color := Black;
+                    end
                 else
-                  ((current_user := 1);
-                   (current_color := White);
-                   (broadcast !outs game oc 1);
-                   (broadcast !outs game oc 2); interact)
-              else ((broadcast !outs game oc ind); interact)
+                  begin
+                    current_user := 1;
+                    current_color := White;
+                end);
+            interact
         | None ->
           (* users := !users - 1; *)
           Lwt_log.info "Connection closed" >>= return)
