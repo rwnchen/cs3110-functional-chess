@@ -16,5 +16,8 @@ serv:
 repl:
 	ocamlbuild -use-ocamlfind application.byte && ./application.byte
 
-client:
-	ocamlbuild -use-ocamlfind client.byte && ./client.byte 10.132.4.207 9000
+client_repl:
+	ocamlbuild -use-ocamlfind client_repl.byte && ./client_repl.byte 10.132.4.207 9000
+
+client_gui:
+	ocamlbuild -use-ocamlfind client_gui.byte && ./client_gui.byte 10.132.4.207 9000

@@ -18,7 +18,7 @@ let () =
   | 0 ->
     let output = Unix.out_channel_of_descr socket in
     while true do
-      output_string output "A2 A3";
+      (*TODO: DO GAME LOGIC*)
       output_string output "\n";
       flush output
     done
@@ -29,6 +29,7 @@ let () =
         let line = input_line input in
         output_string stdout line;
         output_string stdout "\n";
+        (*TODO: UPDATE BOARD*)
         flush stdout
       done
     with End_of_file ->
