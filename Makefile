@@ -11,7 +11,7 @@ repl:
 	ocamlbuild -use-ocamlfind application.byte && ./application.byte
 
 # Run bash server.sh to get IP on server host
-IP = 10.129.13.173
+IP = 10.131.3.56
 
 serv:
 	ocamlbuild -use-ocamlfind -pkgs lwt,lwt.unix server.byte && ./server.byte $(IP)

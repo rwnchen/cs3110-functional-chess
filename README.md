@@ -18,7 +18,7 @@
 ## Network
 
 - Make sure to install Lwt
-- On one computer launch the server by first running bash server.sh to get the local IP
+- On one computer launch the server by first running bash server.sh to get the local IP (on linux change command first)
 - Then replace the IP variable in the make file
 - Run "make serv" to launch the server
 - On two computers of choice (either the same or different) run "make client" to launch the players
