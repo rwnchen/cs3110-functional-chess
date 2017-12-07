@@ -29,8 +29,6 @@ type last_move = (piece * move) option
 
 type move_list
 
-type move_history
-
 (* Represents the chessboard as a list of squares on the board and the pieces
  * that occupy them. The first entry in the tuple represents white's pieces
  * while the second represents black's pieces. Any position not listed is

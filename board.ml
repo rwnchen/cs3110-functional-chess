@@ -39,17 +39,6 @@ type end_game = | Checkmate | Stalemate
 (*************************** BOARD INITIALIZATION *****************************)
 (******************************************************************************)
 
-(* [init_board]
- * A board with all pieces in their initial positions. Returns a tuple of lists
- * of pieces and their positions. The first list is the black pieces, while the
- * second is the white. *)
-let rec init_board = (
-      List.rev_append
-        (setup_front Black 1 [])
-        (setup_back  Black 8),
-      List.rev_append
-        (setup_front White 1 [])
-        (setup_back  White 1))
 
 (* [setup_front color rank count lst]
  * Helper to init_board. Returns a list of pawns of a given color set up in
@@ -57,7 +46,7 @@ let rec init_board = (
  * [c]: color of pawns to set up
  * [f]: file of current pawn to set up
  * [acc]: an accumulator for the list of pawns *)
-and setup_front c f acc =
+let rec setup_front c f acc =
   let r = match c with | Black -> 7 | White -> 2 in
   let pos = (f,r) in
   if f <= 8
@@ -79,6 +68,17 @@ and setup_back c r =
     ((4, r), (c, Queen));
     ((5, r), (c, King false)); ]
 
+(* [init_board]
+ * A board with all pieces in their initial positions. Returns a tuple of lists
+ * of pieces and their positions. The first list is the black pieces, while the
+ * second is the white. *)
+let init_board = (
+      List.rev_append
+        (setup_front Black 1 [])
+        (setup_back  Black 8),
+      List.rev_append
+        (setup_front White 1 [])
+        (setup_back  White 1))
 
 (* [piece_string p c]
  * Taken from https://github.com/shrumo/chess-engine
