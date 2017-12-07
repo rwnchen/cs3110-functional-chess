@@ -338,7 +338,7 @@ let () =
         guistate := update_history !guistate !history;
 
         (* If history was rolled back, undo game_end *)
-        game_end := if i > 0 then false else !game_end;
+        game_end := if i >= 0 then false else !game_end;
       | _ -> guistate := !guistate
     end
     else begin
