@@ -80,6 +80,11 @@ let init_board = (
         (setup_front White 1 [])
         (setup_back  White 1))
 
+
+(******************************************************************************)
+(***************************** ASCII CONVERSION *******************************)
+(******************************************************************************)
+
 (* [piece_string p c]
  * Taken from https://github.com/shrumo/chess-engine
  * Coverts pieces to strings of their unicode counterparts.
@@ -93,6 +98,7 @@ let piece_string p c =
   | Queen -> if c = Black then "♕" else "♛"
   | King _ ->  if c = Black then "♔" else "♚"
 
+(* [board_to_matrix b] *)
 let board_to_matrix b =
   let bb = (fst b) @ (snd b) in
   let rec make brd mat =
@@ -104,6 +110,10 @@ let board_to_matrix b =
       make t [(ind,p)]@mat
   in make bb []
 
+(* [get_axis coord]
+ * Returns the file or rank of a given coordinate. Used to label the ASCII
+ * board.
+ * [coord]: the coordinate *)
 let get_axis coord =
   match coord with
   |(3,0) -> "A"
@@ -154,12 +164,12 @@ let print_board b =
       done; s := !s ^ "\n";
   done; !s
 
-(*************************************************************)
-(************************ GAME LOGIC *************************)
-(*************************************************************)
+(******************************************************************************)
+(******************************** GAME LOGIC **********************************)
+(******************************************************************************)
 
 
-(************************** HELPERS **************************)
+(****************************** GENERAL HELPERS *******************************)
 
 (* [oppc c]
  * Given a color, return the opposite color.
@@ -178,7 +188,8 @@ let getpcs b c = match c with | Black -> fst b | White -> snd b
 let getcheck c = match c with | Black -> Black_Check | White -> White_Check
 
 
-(************************ CHECK LOGIC ************************)
+
+(******************************** CHECK LOGIC *********************************)
 
 (* [is_check b last_move c]
  * Returns whether a color is in check or not. Returns the color's check type if
@@ -294,7 +305,7 @@ and is_attacked b last_move opp_ps d_pos =
     else is_attacked b last_move t d_pos
 
 
-(********************* PSEUO-MOVE LOGIC *********************)
+(***************************** PSEUDO MOVE LOGIC ******************************)
 
 (* [moves b last_move p (f,r)]
  * Returns a list of psuedo moves for a given piece.
@@ -311,11 +322,6 @@ and moves b last_move p (f,r) =
   | Knight -> moves_n b (fst p) (f,r)
   | Bishop -> moves_b b (fst p) (f,r)
   | Pawn (moved,advanced) -> moves_p b last_move (fst p) (moved,advanced) (f,r)
-
-(* [in_bounds (f,r)]
- * Returns a bool for whether a given space is on the board.
- * [(f,r)]: the position to check *)
-and in_bounds (f,r) = 1<=f && f<=8 && 1<=r && r<=8
 
 (* [is_occupied b (f,r)]
  * Checks whether a space is occupied by a piece on a board. Returns an option
@@ -334,7 +340,7 @@ and is_occupied b (f,r) =
  * [c]: the color of the moving piece
  * [(f,r)]: the space to check for moveability *)
 and moveable_space b c (f,r) =
-  if in_bounds (f,r)
+  if 1<=f && f<=8 && 1<=r && r<=8
   then
     match is_occupied b (f,r) with
     | Some color -> if c != color then [(f,r)] else []
@@ -342,17 +348,28 @@ and moveable_space b c (f,r) =
   else []
 
 (* [check_dir b c (f,r) (dx,dy) lst]
+ * Returns a list of moveable spaces in a given direction. Used for sliding
+ * pieces.
+ * [b]: the board
+ * [c]: the color of the moving piece
+ * [(f,r)]: the position of the moving piece
+ * [(dx,dy)]: the direction to check, in terms of change in x and y coordinates
+ *    e.g. diagonally up right is (1,1), down is (0,-1), etc
+ * [lst]: an accumulator list
  *)
 and check_dir b c (f,r) (dx,dy) lst =
   let new_space = (f+dx,r+dy) in
-  if not (in_bounds new_space) then lst
-  else
-    match is_occupied b new_space with
-    | Some color ->
-      if c = color then lst
-      else new_space::lst
-    | None -> check_dir b c new_space (dx,dy) (new_space::lst)
+  match moveable_space b c new_space with
+  | [] -> lst
+  | h::t -> check_dir b c new_space (dx,dy) (h::lst)
 
+(* [moves_k b last_move c moved (f,r)]
+ * Returns a list of spaces a king can move to given the board and its position.
+ * [b]: the board
+ * [last_move]: the last move made on the board
+ * [c]: the color of the piece
+ * [moved]: a flag for whether or not the king has moved yet
+ * [(f,r)]: the position of the piece *)
 and moves_k b last_move c moved (f,r) =
   let e = moveable_space b c (f+1,r) in
   let w = moveable_space b c (f-1,r) in
@@ -365,6 +382,16 @@ and moves_k b last_move c moved (f,r) =
     else castling b last_move c moved (f,r) in
   e @ w @ n @ s @ castle
 
+(* [castling b last_move c moved (f,r)]
+ * Returns a list of castling spaces.
+ * A king is allowed to castle if it is not in check, it and the castling rook
+ * have not moved yet, and the spaces between them are neither occupied nor
+ * under attack.
+ * [b]: the board
+ * [last_move]: the last move made on the board
+ * [c]: the color of the piece
+ * [moved]: a flag for whether or not the king has moved yet
+ * [(f,r)]: the position of the piece *)
 and castling b last_move c moved (f,r) =
   let pcs = getpcs b c in
   let oppcs = getpcs b (oppc c) in
@@ -396,6 +423,11 @@ and castling b last_move c moved (f,r) =
     | _ -> [] in
   rcastle @ lcastle
 
+(* [moves_r b c (f,r)]
+ * Returns a list of spaces a rook can move to given the board and its position.
+ * [b]: the board
+ * [c]: the color of the piece
+ * [(f,r)]: the position of the piece *)
 and moves_r b c (f,r) =
   let n  = check_dir b c (f,r) (1 , 0) [] in
   let s  = check_dir b c (f,r) (-1, 0) [] in
@@ -403,6 +435,11 @@ and moves_r b c (f,r) =
   let w  = check_dir b c (f,r) (0 ,-1) [] in
   List.fold_left List.rev_append [] [n;s;e;w]
 
+(* [moves_b b c (f,r)]
+ * Returns a list of spaces a bishop can move to given the board and its position.
+ * [b]: the board
+ * [c]: the color of the piece
+ * [(f,r)]: the position of the piece *)
 and moves_b b c (f,r) =
   let nw = check_dir b c (f,r) (-1, 1) [] in
   let ne = check_dir b c (f,r) ( 1, 1) [] in
@@ -410,8 +447,14 @@ and moves_b b c (f,r) =
   let se = check_dir b c (f,r) ( 1,-1) [] in
   List.fold_left List.rev_append [] [nw;ne;sw;se]
 
+(* [moves_q b c (f,r)]
+ * Returns a list of spaces a queen can move to given the board and its position.
+ * [b]: the board
+ * [c]: the color of the piece
+ * [(f,r)]: the position of the piece *)
 and moves_q b c (f,r) =
   List.rev_append (moves_r b c (f,r)) (moves_b b c (f,r))
+
 
 and moves_n b c (f,r) =
   let dxy = [(2,1);(2,-1);(-2,1);(-2,-1);
