@@ -81,29 +81,33 @@ class GameBoard(tk.Frame):
         scrollbar = Scrollbar(self.openerframe)
         scrollbar.pack(side="right", fill="y")
         self.openerbox = Listbox(self.openerframe,
-        yscrollcommand=scrollbar.set, width=60, height=10, relief="solid")
+        yscrollcommand=scrollbar.set, width=35, relief="solid")
         self.openerbox.pack(side="left", fill="both")
         scrollbar.config(command=self.openerbox.yview)
 
         # the button window for saving and loading
-        self.buttonframe = Frame(bd=1, width=canvas_width/2, height=100)
-        self.buttonframe.pack(side="left",fill="x", padx=5, pady=5)
-        button1 = Button(self.buttonframe, text="Load",
-        command=self.load_callback())
-        button2 = Button(self.buttonframe, text="Save",
-        command=self.save_callback())
-        button1.pack()
-        button2.pack()
+        # NOTE: Didn't implement loading and saving replays :(
+
+        # self.buttonframe = Frame(bd=1, width=canvas_width/2, height=100)
+        # self.buttonframe.pack(side="left",fill="x", padx=5, pady=5)
+        # button1 = Button(self.buttonframe, text="Load",
+        # command=self.load_callback())
+        # button2 = Button(self.buttonframe, text="Save",
+        # command=self.save_callback())
+        # button1.pack()
+        # button2.pack()
 
         # history window
         self.historyframe = Frame(bd=0, relief=SUNKEN, width=canvas_width/2)
         Label(self.historyframe,text="Move History").pack(side="top")
-        self.historyframe.pack(side="right",fill="x", padx=5, pady=5)
+        Label(frame,
+        text="Click To Revert To Move Before Selection").pack(side="bottom")
+        self.historyframe.pack(side="right",fill="x", padx=75, pady=5)
         scrollbar = Scrollbar(self.historyframe)
         scrollbar.pack(side="right", fill="y")
         self.historybox = Listbox(self.historyframe,
         yscrollcommand=scrollbar.set, width=20, height=20, relief="solid")
-        self.historybox.pack(side="right", fill="both")
+        self.historybox.pack(side="left", fill="both")
         self.historybox.bind('<<ListboxSelect>>', self.get_history)
 
         scrollbar.config(command=self.historybox.yview)
