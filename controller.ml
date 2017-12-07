@@ -97,6 +97,7 @@ let () =
         let color = match !c with
           | White -> Black
           | Black -> White in
+        print_endline (print_color color);
         let (new_b,check) = promote !board color !last_move col piece_name in
         board := new_b
       | Piece (x,y) ->

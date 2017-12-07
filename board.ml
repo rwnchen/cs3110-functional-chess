@@ -23,6 +23,8 @@ type move_list = (piece * move) list
 
 type last_move = (piece * move) option
 
+type move_history = {mutable ms : move_list}
+
 type board = (position * piece) list * (position * piece) list
 
 type check = | Black_Check | White_Check | No_Check
@@ -33,6 +35,8 @@ type end_game = | Checkmate | Stalemate
 (******************************************************************************)
 (*************************** BOARD INITIALIZATION *****************************)
 (******************************************************************************)
+
+(* let mh = {ms = []} *)
 
 let rec setup_board color =
   match color with
@@ -266,15 +270,16 @@ and check_dir b c (f,r) (dx,dy) lst =
     | None -> check_dir b c new_space (dx,dy) (new_space::lst)
 
 and moves_k b last_move c moved (f,r) =
-  let dirs = [(f+1,r);(f-1,r);(f,r+1);(f,r-1);
-              (f+1,r+1);(f-1,r+1);(f+1,r+1);(f-1,r-1)] in
-  let moves = List.fold_left (fun l d -> (moveable_space b c d)@l) [] dirs in
+  let e = moveable_space b c (f+1,r) in
+  let w = moveable_space b c (f-1,r) in
+  let n = moveable_space b c (f,r+1) in
+  let s = moveable_space b c (f,r-1) in
 
   let castle =
     if moved
     then []
     else castling b last_move c moved (f,r) in
-  List.rev_append moves castle
+  e @ w @ n @ s @ castle
 
 and castling b last_move c moved (f,r) =
   let pcs = getpcs b c in
@@ -500,7 +505,7 @@ let promote b c last_move file newp =
     | Black -> (((file,endrank), piece')::pcs'), getpcs b (oppc c)
     | White -> getpcs b (oppc c), (((file,endrank), piece')::pcs') in
   let check = is_check b' last_move (oppc c) in
-  (b', check)
+  (b, check)
 
 
 (*************************************************************)
