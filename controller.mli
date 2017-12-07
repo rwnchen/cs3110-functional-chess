@@ -26,11 +26,11 @@ val highlight: Lymp.pyobj -> position list -> Lymp.pyobj
    TODO: will probably want to change to something like "opener list" or
    something once we get that far
 *)
-val openers: string list -> bool
+(*val openers: Lymp.pyobj -> (string * string * float * string list) list -> Lymp.pyobj*)
 
 (* [history move_list] sends [move_list] to the gui to display. Is true iff
    the operation was successful and false otherwise
    TODO: will probably want to change to something like "move list" or
    something once we get that far.
 *)
-val update_history: Lymp.pyobj -> (string*Board.board) list  -> Lymp.pyobj
+(* val update_history: Lymp.pyobj -> (string*Board.board*Lymp.pyobj) list  -> Lymp.pyobj *)

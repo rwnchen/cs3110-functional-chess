@@ -13,14 +13,13 @@ run:
 repl:
 	ocamlbuild -use-ocamlfind application.byte && ./application.byte
 
-IP = 10.132.4.207
-PORT = 9000
+IP = 10.128.157.174
 
 serv:
-	ocamlbuild -use-ocamlfind -pkgs lwt,lwt.unix server.byte && ./server.byte $(IP) $(PORT)
+	ocamlbuild -use-ocamlfind -pkgs lwt,lwt.unix server.byte && ./server.byte $(IP)
 
 client_repl:
-	ocamlbuild -use-ocamlfind client_repl.byte && ./client_repl.byte $(IP) $(PORT)
+	ocamlbuild -use-ocamlfind client_repl.byte && ./client_repl.byte $(IP)
 
 client_gui:
-	ocamlbuild -use-ocamlfind client_gui.byte && ./client_gui.byte $(IP) $(PORT)
+	ocamlbuild -use-ocamlfind -pkgs lymp client_gui.byte && ./client_gui.byte $(IP) -debug
