@@ -364,7 +364,7 @@ def highlight(board, tiles):
             board.highlight_rect(x,y)
     return board
 
-def update_openers(board, open_list):
+def update_openers(board, s):
     board.openerbox.delete(0,END);
     if len(s) > 0:
         for (eco, name, winrate, reply) in s:
