@@ -144,7 +144,8 @@ let rec list_from lst n =
  * opener_list : (string * string * float * string list) list
  *
  * It sends a python list of lists, of the form:
- * [["ECO category", "opening name", white's winrate (out of 1.0), list of moves], ...]
+ * [["ECO category", "opening name", white's winrate (out of 1.0), list of
+   moves], ...]
  * e.g.
  * [ ["A00", "Name here", 0.12, ["h4", "e5", "Nf3"]], ["A01", ...] ...]*)
 let update_openers guistate opener_list =
@@ -180,7 +181,8 @@ let () =
       (* retrieve the click and parses it into the type defined above *)
       let click = parse_click !guistate in
       match click with
-      (* Each button will have it's own match case and we can do things based on what is passed back *)
+      (* Each button will have it's own match case and we can do things based
+         on what is passed back *)
       | History i ->
         let (_,b,guist,lstmv,color) = List.nth !history i in
         let hist = list_from !history i in
@@ -251,13 +253,15 @@ let () =
                   | ((i,j),(i',j')) ->
                     let ps1 = String.make 1 (Char.chr(i+64)) in
                     let ps2 = String.make 1 (Char.chr(i'+64)) in
-                    ps ^ ": " ^ ps1 ^ (string_of_int j) ^ " to " ^ ps2 ^ (string_of_int j') in
+                    ps ^ ": " ^
+                    ps1 ^ (string_of_int j) ^ " to "
+                    ^ ps2 ^ (string_of_int j') in
 
               print_endline lst_move;
               history := (lst_move,!board,!guistate,!last_move,!c)::(!history);
 
               (* Computes and updates the new list of openers for display *)
-              (* NOTE: algno_history is most recent first, but we need reverse *)
+              (* NOTE: algno_history is most recent first, but we need reverse*)
               let analysis =
                 try
                   let best_replies = best_reply opening_book (List.rev !algno_history) 5 in
