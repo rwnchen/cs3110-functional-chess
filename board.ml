@@ -335,6 +335,11 @@ and moves b last_move p (f,r) =
   | Bishop -> moves_b b (fst p) (f,r)
   | Pawn (moved,advanced) -> moves_p b last_move (fst p) (moved,advanced) (f,r)
 
+(* [in_bounds (f,r)]
+ * Returns a bool for whether a given space is on the board.
+ * [(f,r)]: the position to check *)
+and in_bounds (f,r) = 1<=f && f<=8 && 1<=r && r<=8
+
 (* [is_occupied b (f,r)]
  * Checks whether a space is occupied by a piece on a board. Returns an option
  * containing the color of the piece if occupied.
@@ -352,7 +357,7 @@ and is_occupied b (f,r) =
  * [c]: the color of the moving piece
  * [(f,r)]: the space to check for moveability *)
 and moveable_space b c (f,r) =
-  if 1<=f && f<=8 && 1<=r && r<=8
+  if in_bounds (f,r)
   then
     match is_occupied b (f,r) with
     | Some color -> if c != color then [(f,r)] else []
@@ -371,9 +376,13 @@ and moveable_space b c (f,r) =
  *)
 and check_dir b c (f,r) (dx,dy) lst =
   let new_space = (f+dx,r+dy) in
-  match moveable_space b c new_space with
-  | [] -> lst
-  | h::t -> check_dir b c new_space (dx,dy) (h::lst)
+  if not (in_bounds new_space) then lst
+  else
+    match is_occupied b new_space with
+    | Some color ->
+      if c = color then lst
+      else new_space::lst
+    | None -> check_dir b c new_space (dx,dy) (new_space::lst)
 
 (* [moves_k b last_move c moved (f,r)]
  * Returns a list of spaces a king can move to given the board and its position.
@@ -660,7 +669,7 @@ and update_capture b opps p c (fi,ri) (ff,rf) =
 (* [make_move b c last_move m leg_mves]
  * Updates a board with a legal move. Returns the new board, as well as whether
  * or not this move puts the opponent in check. If the move is illegal, returns
- * the same board
+ * the same board.
  * [b]: the board
  * [c]: the moving color
  * [last_move]: the last move made on the board
@@ -674,7 +683,8 @@ let make_move b c last_move m leg_mves =
 
 (* [promote b c last_move file newp]
  * Updates a board for promotion by replacing the promoting pawn in the piece
- * list with either a queen, rook, bishop, or knight. Returns
+ * list with either a queen, rook, bishop, or knight. Returns a new board with
+ * the promoted piece and whether or not the new board is in check.
  * [b]: the board
  * [c]: the color piece to promote
  * [last_move]: the last move made on the board
