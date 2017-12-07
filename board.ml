@@ -505,7 +505,7 @@ let promote b c last_move file newp =
     | Black -> (((file,endrank), piece')::pcs'), getpcs b (oppc c)
     | White -> getpcs b (oppc c), (((file,endrank), piece')::pcs') in
   let check = is_check b' last_move (oppc c) in
-  (b, check)
+  (b', check)
 
 
 (*************************************************************)

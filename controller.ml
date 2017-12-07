@@ -97,9 +97,10 @@ let () =
         let color = match !c with
           | White -> Black
           | Black -> White in
-        print_endline (print_color color);
         let (new_b,check) = promote !board color !last_move col piece_name in
-        board := new_b
+        if !board = new_b then
+          print_endline "test";
+        board := new_b;
       | Piece (x,y) ->
         let leg_moves = legal_moves !board !last_move !c in
         let highlights = highlight_from_legal_moves leg_moves (x,y) [] in
@@ -109,7 +110,6 @@ let () =
           | None -> (White,Queen) (*This will never happen we just need it
                                   so it type checks*)
         in
-        print_endline (piece_string (snd piece) (fst piece));
         guistate := highlight !guistate highlights;
         last_click := click;
       | Highlight (x,y) ->
