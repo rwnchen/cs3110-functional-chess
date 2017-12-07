@@ -53,6 +53,12 @@ let update_history guistate history =
   let hist_list = build_hist_list history [] in
   Pyref(get_ref gui "update_history" [guistate; Pylist hist_list])
 
+let check_mate_popup guistate =
+  Pyref(get_ref gui "check_mate_popup" [guistate])
+
+let stale_mate_popup guistate =
+  Pyref(get_ref gui "stale_mate_popup" [guistate])
+
 let revert_gui guistate i =
   Pyref(get_ref gui "revert" [guistate; Pyint i])
 
@@ -157,6 +163,7 @@ let () =
                 match !last_move with
                 | None -> "none"
                 | Some (p,m) ->
+
                   (* We have to invert the colors because for some reason the
                     gui's colors are flipped. *)
                   let ps =
@@ -168,8 +175,11 @@ let () =
                     let ps1 = String.make 1 (Char.chr(i+64)) in
                     let ps2 = String.make 1 (Char.chr(i'+64)) in
                     ps ^ ": " ^ ps1 ^ (string_of_int j) ^ " to " ^ ps2 ^ (string_of_int j') in
+
               print_endline lst_move;
               history := (lst_move,!board,!guistate,!last_move,!c)::(!history);
+
+
               (* print_int x'; print_int y'; print_string " moved to ";
               print_int x; print_int y; print_endline ""; *)
               board := new_b;

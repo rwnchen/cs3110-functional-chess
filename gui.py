@@ -88,8 +88,13 @@ class GameBoard(tk.Frame):
 
         scrollbar.config(command=self.openerbox.yview)
 
-        self.buttonframe = Frame(bd=1, relief=SUNKEN, width=canvas_width/2, height=100)
+        self.buttonframe = Frame(bd=1, width=canvas_width/2, height=100)
         self.buttonframe.pack(side="left",fill="x", padx=5, pady=5)
+        button1 = Button(self.buttonframe, text="Load", command=self.load_callback())
+        button2 = Button(self.buttonframe, text="Save",command=self.save_callback())
+        button1.pack()
+        button2.pack()
+
         self.historyframe = Frame(bd=0, relief=SUNKEN, width=canvas_width/2)
         Label(self.historyframe,text="Move History").pack(side="top")
         self.historyframe.pack(side="right",fill="x", padx=5, pady=5)
@@ -99,12 +104,13 @@ class GameBoard(tk.Frame):
 
         self.historybox = Listbox(self.historyframe, yscrollcommand=scrollbar.set, width=20, height=20, relief="solid")
         self.historybox.pack(side="right", fill="both")
+        self.historybox.bind('<<ListboxSelect>>', self.get_history)
 
         scrollbar.config(command=self.historybox.yview)
 
         self.canvas.bind("<Configure>", self.refresh)
 
-    def addpiece(self, name, row=0, column=0):
+    def addpiece(self, name, column=0, row=0):
         '''Add a piece to the playing board'''
         img = self.canvas.create_image(0,0, image=self.images[name[:-1]], tags=name, anchor="c")
         if (name not in self.pieces):
@@ -294,14 +300,44 @@ class GameBoard(tk.Frame):
         # Change pawn to selected piece on board
         self.promote(p[0],p[1],p[2])
 
+    def load_callback(self):
+        self.was_click = True
+        self.clicked_space = ["load","testname"]
+
+    def save_callback(self):
+        self.was_click = True
+        self.clicked_space = ["save",""]
+
+    def get_history(self, event):
+        item = self.historybox.get(self.historybox.curselection())
+        index = (int(item[0]) - self.historybox.size()+1) * -1
+        self.was_click = True
+        self.clicked_space = ["history",int(index)]
+
+    def check_mate(self):
+        self.popup = Toplevel()
+        self.popup.title("Check Mate")
+        label1 = Label(self.popup, text="CHECK MATE!", height=0, width=0, padx = 50, pady=50)
+        label1.pack()
+    def stale_mate(self):
+        self.popup = Toplevel()
+        self.popup.title("Stalemate")
+        label1 = Label(self.popup, text="Stalemate", height=0, width=0, padx = 50, pady=50)
+        label1.pack()
+
+piece_dicts = []
+
 def get_click(board):
     clicked_space = list(board.clicked_space)
     click_type = clicked_space[0]
-    if click_type != u"none":
-        click_pos = [int(clicked_space[1][0])+1,int(clicked_space[1][1])+1]
+    coord_names = ["promote", "piece", "empty", "highlight"]
+    if click_type == u"none":
+        info = [-1,-1]
+    elif click_type in coord_names:
+        info = [int(clicked_space[1][0])+1,int(clicked_space[1][1])+1]
     else:
-        click_pos = [-1,-1]
-    return [unicode(click_type),click_pos]
+        info = clicked_space[1]
+    return [unicode(click_type),info]
 
 def get_promotion(board):
     promoted = board.promoted
@@ -309,6 +345,7 @@ def get_promotion(board):
     return unicode(promoted)
 
 def move(board, pos1, pos2):
+    piece_dicts.insert(0,board.pieces.copy())
     pos1 = (pos1[0]-1,pos1[1]-1)
     pos2 = (pos2[0]-1,pos2[1]-1)
     move = board.move(pos1,pos2)
@@ -327,9 +364,11 @@ def highlight(board, tiles):
             board.highlight_rect(x,y)
     return board
 
-def update_openers(board, s):
+def update_openers(board, open_list):
     board.openerbox.delete(0,END);
-    board.openerbox.insert(END, str(0) + "\t\t" + s + "\t\t\t\tA1-A2\t50%")
+    open_list.reverse()
+    for i,h in enumerate(open_list):
+        board.openerbox.insert(END, str(i) + "\t\t" + s + "\t\t\t\tA1-A2\t50%")
     return board
 
 def update_history(board, hist_lst):
@@ -338,7 +377,7 @@ def update_history(board, hist_lst):
     total_len = len(hist_lst)
     hist_lst.reverse()
     for i,h in enumerate(hist_lst):
-        board.historybox.insert(END, str((i-total_len+1)*-1) + "\t\t\t" + h)
+        item = board.historybox.insert(END, str((i-total_len+1)*-1) + "\t\t\t" + h)
     return board
 
 def start_game():
@@ -357,9 +396,29 @@ def update_game(board, update):
     board.was_click = False
     return click
 
+def revert(board, i):
+    global piece_dicts
+    for p in board.pieces.keys():
+        board.canvas.delete(p)
+    board.pieces = {}
+    board.pieces = piece_dicts[i]
+    piece_dicts = piece_dicts[i+1:]
+    board.addpieces()
+    board.pack(side="top", fill="both", expand="true", padx=4, pady=4)
+    return board
+
+def check_mate_popup(board):
+    board.check_mate()
+    return board
+
+def stale_mate_popup(board):
+    board.stale_mate()
+    return board
+
 
 if __name__ == "__main__":
     board = start_game()
-    move(board, (2,2),(2,8))
+    move(board, (2,2),(2,7))
     # move(board, (2,7),(2,1))
+    stale_mate_popup(board)
     board.mainloop()
