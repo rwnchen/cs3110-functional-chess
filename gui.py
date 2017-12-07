@@ -321,6 +321,8 @@ class GameBoard(tk.Frame):
         self.popup = None
         self.clicked_space = ["promote",pos]
         self.promoted = new_piece[0]
+        if (self.promoted == "k"):
+            self.promoted = "n"
         self.was_click = True
 
     def promote_callback(self, p):
