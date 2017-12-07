@@ -62,6 +62,7 @@ val legal_moves : board -> last_move -> color -> (move * board) list
  * performing move [m]. If [m] is not a legal move, return the same board. *)
 val make_move : board -> color -> last_move -> move -> (move * board) list-> (board * check)
 
+val promote : board -> color -> last_move -> int -> string -> (board * check)
 
 (* The functions below convert moves into "algebraic chess notation"
  * Details of how they are formatted found here:
