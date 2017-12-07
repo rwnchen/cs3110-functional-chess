@@ -22,6 +22,7 @@
 - Then replace the IP variable in the make file
 - Run "make serv" to launch the server
 - On two computers of choice (either the same or different) run "make client" to launch the players
+- The computers generally have to be in the same room to work together because the server is not being hosted online
 - Enjoy chess by picking moves by typing for example "A2 A3" to move a pawn
 - Communicate with your partner by typing first "text" then a message, ie "text hi"
 - View the game history by typing "history"
