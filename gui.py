@@ -107,6 +107,8 @@ class GameBoard(tk.Frame):
     def addpiece(self, name, row=0, column=0):
         '''Add a piece to the playing board'''
         img = self.canvas.create_image(0,0, image=self.images[name[:-1]], tags=name, anchor="c")
+        if (name not in self.pieces):
+            self.pieces[name] = (column, row)
         self.placepiece(name, column, row)
 
     def placepiece(self, name, column, row):
@@ -285,7 +287,7 @@ class GameBoard(tk.Frame):
         self.popup.destroy()
         self.popup = None
         self.clicked_space = ["promote",pos]
-        self.promoted = new_piece[:-1]
+        self.promoted = new_piece[0]
         self.was_click = True
 
     def promote_callback(self, p):

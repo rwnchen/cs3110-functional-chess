@@ -9,7 +9,7 @@ type move = position * position
 
 type click = | Piece of position
              | Highlight of position
-             | Promote
+             | Promote of (string*int) (* (piece name * column) *)
              | Empty of position
              | Noclick (*| Opener of string? | History of string? | *)
 
@@ -65,9 +65,9 @@ let rec highlight_from_legal_moves legal_moves (x,y) acc =
 let parse_click guistate =
   let event = get_list gui "get_click" [guistate] in
   match event with
-  | [Pystr "promote";Pylist [Pyint x; Pyint y]] ->
-    print_endline (get_promotion guistate);
-    Promote
+  | [Pystr "promote";Pylist [Pyint col; Pyint _]] ->
+    let piece_name = get_promotion guistate in
+    Promote (piece_name,col)
   | [Pystr "piece"; Pylist [Pyint x; Pyint y]] ->
     (* print_int x; print_int y; print_endline "Piece"; *)
     Piece (x,y)
@@ -93,11 +93,23 @@ let () =
     if (!update = true) then begin
       let click = parse_click !guistate in
       match click with
-      | Promote ->
-        print_endline "Promoted"
+      | Promote (piece_name,col)->
+        let color = match !c with
+          | White -> Black
+          | Black -> White in
+        let (new_b,check) = promote !board color !last_move col piece_name in
+        if !board = new_b then
+          print_endline "test";
+        board := new_b;
       | Piece (x,y) ->
         let leg_moves = legal_moves !board !last_move !c in
         let highlights = highlight_from_legal_moves leg_moves (x,y) [] in
+        let piece =
+          match get_piece !board (x,y) with
+          | Some p -> p
+          | None -> (White,Queen) (*This will never happen we just need it
+                                  so it type checks*)
+        in
         guistate := highlight !guistate highlights;
         last_click := click;
       | Highlight (x,y) ->

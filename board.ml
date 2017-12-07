@@ -28,6 +28,8 @@ type move_list = (piece * move) list
 
 type last_move = (piece * move) option
 
+type move_history = {mutable ms : move_list}
+
 type board = (position * piece) list * (position * piece) list
 
 type check = | Black_Check | White_Check | No_Check
@@ -39,11 +41,19 @@ type end_game = | Checkmate | Stalemate
 (*************************** BOARD INITIALIZATION *****************************)
 (******************************************************************************)
 
+<<<<<<< HEAD
 (* [init_board]
  * A board with all pieces in their initial positions. Returns a tuple of lists
  * of pieces and their positions. The first list is the black pieces, while the
  * second is the white. *)
 let rec init_board = (
+=======
+(* let mh = {ms = []} *)
+
+let rec setup_board color =
+  match color with
+  | Black ->
+>>>>>>> 267cae53da6f8277d24903881e7d59108fb76ed8
       List.rev_append
         (setup_front Black 7 1 [])
         (setup_back  Black 8),
@@ -354,15 +364,16 @@ and check_dir b c (f,r) (dx,dy) lst =
     | None -> check_dir b c new_space (dx,dy) (new_space::lst)
 
 and moves_k b last_move c moved (f,r) =
-  let dirs = [(f+1,r);(f-1,r);(f,r+1);(f,r-1);
-              (f+1,r+1);(f-1,r+1);(f+1,r+1);(f-1,r-1)] in
-  let moves = List.fold_left (fun l d -> (moveable_space b c d)@l) [] dirs in
+  let e = moveable_space b c (f+1,r) in
+  let w = moveable_space b c (f-1,r) in
+  let n = moveable_space b c (f,r+1) in
+  let s = moveable_space b c (f,r-1) in
 
   let castle =
     if moved
     then []
     else castling b last_move c moved (f,r) in
-  List.rev_append moves castle
+  e @ w @ n @ s @ castle
 
 and castling b last_move c moved (f,r) =
   let pcs = getpcs b c in
@@ -607,20 +618,6 @@ let piece_to_string p =
     | Pawn(_) -> "Pawn"
   in
   Printf.sprintf "<Color: %s\tRank: %s>" color rank
-
-let string_to_piece p =
-  let color = match fst p with | "white" -> White | "black" -> Black in
-  let rank =
-    match snd p with
-    | "King" -> King false
-    | "Queen" -> Queen
-    | "Rook" -> Rook false
-    | "Knight" -> Knight
-    | "Bishop" -> Bishop
-    | "Pawn" -> Pawn (false, false)
-    | _ -> failwith "Not a piece"
-  in
-  (color, rank)
 
 (* Prints all elements in a (position, piece) list *)
 let print_piecelst lst =
