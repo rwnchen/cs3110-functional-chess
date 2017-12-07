@@ -11,6 +11,10 @@ type click = | Piece of position
              | Highlight of position
              | Promote of (string*int) (* (piece name * column) *)
              | Empty of position
+             | Opener
+             | History of int (*index*)
+             | Load
+             | Save
              | Noclick (*| Opener of string? | History of string? | *)
 
 let interpreter = "python2"
@@ -45,9 +49,12 @@ let update_history guistate history =
   let rec build_hist_list m_list acc =
     match m_list with
     | [] -> acc
-    | (h,b)::t -> build_hist_list t ((Pystr h)::acc) in
+    | (h,b,_,_,_)::t -> build_hist_list t ((Pystr h)::acc) in
   let hist_list = build_hist_list history [] in
   Pyref(get_ref gui "update_history" [guistate; Pylist hist_list])
+
+let revert_gui guistate i =
+  Pyref(get_ref gui "revert" [guistate; Pyint i])
 
 let get_promotion guistate =
   get_string gui "get_promotion" [guistate]
@@ -68,6 +75,8 @@ let parse_click guistate =
   | [Pystr "promote";Pylist [Pyint col; Pyint _]] ->
     let piece_name = get_promotion guistate in
     Promote (piece_name,col)
+  | [Pystr "history"; Pyint i ] ->
+    History i
   | [Pystr "piece"; Pylist [Pyint x; Pyint y]] ->
     (* print_int x; print_int y; print_endline "Piece"; *)
     Piece (x,y)
@@ -77,6 +86,14 @@ let parse_click guistate =
     print_endline "noclick";
     Noclick (*This will happen when the use clicks somewhere that has no
                    click event*)
+
+(* gets the tail of the list after index n *)
+let rec list_from lst n =
+  match lst with
+  | [] -> []
+  | h::t ->
+    if n = 0 then t
+    else list_from t (n-1)
 
 let () =
   let guistate = ref (Pyref (get_ref gui "start_game" [])) in
@@ -90,16 +107,25 @@ let () =
 
   while (true) do (*Gameloop. TODO: replace true with endgame check*)
     update := (get_bool gui "update_game" [!guistate; Pybool true]);
-    if (!update = true) then begin
-      let click = parse_click !guistate in
-      match click with
+    if (!update = true) then begin (* This checks if there was a click*)
+      let click = parse_click !guistate in (* This  gets what that click was and parses it into the type defined above for clicks*)
+      match click with (*This matches the click and does events based on what happened. *)
+      (* Each button will have it's own match case and we can do things based on what is passed back *)
+      | History i ->
+        let (_,b,guist,lstmv,color) = List.nth !history i in
+        let hist = list_from !history i in
+        board := b;
+        guistate := revert_gui guist i;
+        last_move := lstmv;
+        c := color;
+        history := hist;
+        guistate := update_history !guistate !history;
       | Promote (piece_name,col)->
         let color = match !c with
           | White -> Black
           | Black -> White in
+        (* need to flip color since color switches after move is done *)
         let (new_b,check) = promote !board color !last_move col piece_name in
-        if !board = new_b then
-          print_endline "test";
         board := new_b;
       | Piece (x,y) ->
         let leg_moves = legal_moves !board !last_move !c in
@@ -133,7 +159,7 @@ let () =
                 | Some (p,m) ->
 
                   (* We have to invert the colors because for some reason the
-                    gui's codes are flipped. *)
+                    gui's colors are flipped. *)
                   let ps =
                     match (fst p) with
                     | White -> piece_string (snd p) Black
@@ -145,7 +171,7 @@ let () =
                     ps ^ ": " ^ ps1 ^ (string_of_int j) ^ " to " ^ ps2 ^ (string_of_int j') in
 
               print_endline lst_move;
-              history := (lst_move,new_b)::(!history);
+              history := (lst_move,!board,!guistate,!last_move,!c)::(!history);
 
 
               (* print_int x'; print_int y'; print_string " moved to ";
