@@ -314,6 +314,17 @@ class GameBoard(tk.Frame):
         self.was_click = True
         self.clicked_space = ["history",int(index)]
 
+    def check_mate(self):
+        self.popup = Toplevel()
+        self.popup.title("Check Mate")
+        label1 = Label(self.popup, text="CHECK MATE!", height=0, width=0, padx = 50, pady=50)
+        label1.pack()
+    def stale_mate(self):
+        self.popup = Toplevel()
+        self.popup.title("Stalemate")
+        label1 = Label(self.popup, text="Stalemate", height=0, width=0, padx = 50, pady=50)
+        label1.pack()
+
 piece_dicts = []
 
 def get_click(board):
@@ -353,7 +364,7 @@ def highlight(board, tiles):
             board.highlight_rect(x,y)
     return board
 
-def update_openers(board, s):
+def update_openers(board, open_list):
     board.openerbox.delete(0,END);
     if len(s) > 0:
         for (eco, name, winrate, reply) in s:
@@ -398,9 +409,18 @@ def revert(board, i):
     board.pack(side="top", fill="both", expand="true", padx=4, pady=4)
     return board
 
+def check_mate_popup(board):
+    board.check_mate()
+    return board
+
+def stale_mate_popup(board):
+    board.stale_mate()
+    return board
+
 
 if __name__ == "__main__":
     board = start_game()
-    move(board, (2,2),(2,8))
+    move(board, (2,2),(2,7))
     # move(board, (2,7),(2,1))
+    stale_mate_popup(board)
     board.mainloop()

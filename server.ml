@@ -2,6 +2,15 @@ open Lwt
 open Board
 
 (* Code based off example http://www.baturin.org/code/lwt-counter-server/ *)
+type pos = int * int
+
+type move = pos * pos
+
+type mess =
+  |TextMes of string
+  |PosMes of move
+  |Hist of string
+
 let listen_address =
   if Array.length Sys.argv < 2
     then
@@ -9,7 +18,7 @@ let listen_address =
     else
       Unix.inet_addr_of_string (Sys.argv.(1))
 
-let port = int_of_string (Sys.argv.(2))
+let port = 9000
 
 let backlog = 10
 
@@ -17,6 +26,7 @@ let users = ref 0
 let outs = ref []
 let current_user = ref 1
 let current_color = ref White
+let history = ref ""
 
 let last_move = ref None
 
@@ -35,16 +45,7 @@ let rec broadcast l rep oc ind =
 let process_command s =
   let fst_int = Char.code (String.get s 0) - 64 in
   let snd_int = int_of_char (String.get s 1) - 48 in
-  string_of_int(fst_int) ^","^ string_of_int(snd_int)
-
-let get_command s =
-  let coms = (String.split_on_char ' ' s) in
-  let (p1,p2) =  ((List.nth coms 0),(List.nth coms 1)) in
-  let pp1 = (String.split_on_char ',' p1) in
-  let pp2 = (String.split_on_char ',' p2) in
-  let pos1 = (int_of_string(List.nth pp1 0),int_of_string(List.nth pp1 1)) in
-  let pos2 = (int_of_string(List.nth pp2 0),int_of_string(List.nth pp2 1)) in
-  (pos1,pos2)
+  (fst_int,snd_int)
 
 let rec convert_text te s ind =
   match te with
@@ -53,14 +54,15 @@ let rec convert_text te s ind =
     else convert_text t s (ind+1)
 
 let handle_message t =
+  if t = "history" then Hist !history else
   let spaces = (String.split_on_char ' ' t) in
   if List.length spaces < 2 then
-    (true, "bad input")
+    TextMes "bad input"
   else
   let (pos1,pos2) =  ((List.nth spaces 0),(List.nth spaces 1)) in
-  if pos1 = "text" then (true,convert_text spaces "" 0)
+  if pos1 = "text" then TextMes (convert_text spaces "" 0)
   else
-    (false, process_command pos1 ^ " " ^ process_command pos2)
+    PosMes (process_command pos1,process_command pos2)
 
 let do_move pos1 pos2 =
   let b = !board in
@@ -91,23 +93,24 @@ let rec handle_connection ic oc ind () =
         match msg with
         | Some msg ->
           let reply = handle_message msg in
-          let rep = snd reply in
-          let is_text = fst reply in
           let interact = (Lwt_log.info "Interaction" >>= handle_connection ic oc ind) in
           if !users < 2 then
-            (Lwt_io.write_line oc "Not enough users" >>= handle_connection ic oc ind)
+            (Lwt_log.info "Not enough users" >>= handle_connection ic oc ind)
           else
-          if is_text then
-            ((broadcast !outs rep oc ind);  interact)
-          else
+          begin
+            match reply with
+            |Hist h -> (Lwt_io.write_line oc h >>= handle_connection ic oc ind)
+            |TextMes rep ->
+              ((broadcast !outs rep oc ind); interact)
+            |PosMes (pos1,pos2) ->
             if ind <> !current_user then
-              (Lwt_io.write_line oc "Not your turn" >>= handle_connection ic oc ind)
+              (Lwt_log.info "Not your turn" >>= handle_connection ic oc ind)
             else
-              let (pos1,pos2) = get_command rep in
               let game = do_move pos1 pos2 in
               broadcast !outs game oc 1;
               broadcast !outs game oc 2;
               (if game <> "No piece selected." && game <> "Invalid move." then
+                 history := !history^"\n"^msg;
                 if !current_user = 1 then
                     begin
                       current_user := 2;
@@ -118,7 +121,8 @@ let rec handle_connection ic oc ind () =
                     current_user := 1;
                     current_color := White;
                 end);
-            interact
+              interact
+          end
         | None ->
           kill_all !outs ind;
           Lwt_log.info "Connection closed" >>= return;

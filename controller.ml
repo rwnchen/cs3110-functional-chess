@@ -54,6 +54,12 @@ let update_history guistate history =
   let hist_list = build_hist_list history [] in
   Pyref(get_ref gui "update_history" [guistate; Pylist hist_list])
 
+let check_mate_popup guistate =
+  Pyref(get_ref gui "check_mate_popup" [guistate])
+
+let stale_mate_popup guistate =
+  Pyref(get_ref gui "stale_mate_popup" [guistate])
+
 let revert_gui guistate i =
   Pyref(get_ref gui "revert" [guistate; Pyint i])
 
