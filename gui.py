@@ -2,6 +2,33 @@ import Tkinter as tk
 from Tkinter import *
 from PIL import Image, ImageTk
 import os
+import logging
+
+# logging
+FORMAT = "[%(levelname)s] - %(message)s"
+LOG_DIR = "log"
+
+"""
+Logging levels:
+  Logging levels in increasing value are:
+    1) DEBUG
+    2) INFO
+    3) WARNING
+    4) ERROR
+    5) CRITICAL
+    6) EXCEPTION
+
+Only logs to LEVEL or above will be written to the logging file. Increasing the
+logging LEVEL makes the log less verbose. For example, setting LEVEL to
+logging.INFO will ignore all DEBUG-level loggings
+
+Note:
+"""
+LEVEL = logging.DEBUG
+LOGGER = logging.getLogger("process_logger")
+log_file = os.path.join(LOG_DIR, "gui.log")
+logging.basicConfig(filename=log_file, filemode='w', level=LEVEL, format=FORMAT)
+LOGGER.critical("Starting up")
 
 class GameBoard(tk.Frame):
     def __init__(self, parent, is_white=True ,rows=8, columns=8, size=75,
@@ -315,6 +342,9 @@ class GameBoard(tk.Frame):
         """Promotes [old_piece] to [new_piece]. Also sets the self.promoted
         field to indicate to the backend what piece was selected. Closes popup
         when a piece is selected."""
+
+        LOGGER.debug("promote: Promoting {} to {}\npieces are {}".format(old_piece, new_piece, self.pieces))
+
         del self.pieces[old_piece]
         self.canvas.delete(old_piece)
         i = 0
@@ -379,6 +409,9 @@ def get_click(board):
     """Gets what the click was in the [board] and sends that data to the
     backend
         Returns: [string;[int,int]]"""
+
+    LOGGER.info("Called: get_click")
+
     clicked_space = list(board.clicked_space)
     click_type = clicked_space[0]
     coord_names = ["promote", "piece", "empty", "highlight"]
@@ -394,6 +427,10 @@ def get_promotion(board):
     """Gets the what piece was sleceted for promotion and send that to the
     backend.
         Returns: string"""
+
+    LOGGER.info("Called: get_promotion")
+    LOGGER.debug("get_promotion: board.promoted: {}".format(board.promoted))
+
     promoted = board.promoted
     board.promoted = None
     return unicode(promoted)
@@ -402,6 +439,10 @@ def move(board, pos1, pos2):
     """ Calls the move function from the board module to move piece from
     [pos1] to [pos2]. Needs to correct for the 1 indexing from backend.
         Returns: Board (Pyref). """
+
+    LOGGER.info("Called: move")
+    LOGGER.debug("move: pos1, pos2 {}, {}".format(pos1, pos2))
+
     piece_dicts.insert(0,board.pieces.copy())
     pos1 = (pos1[0]-1,pos1[1]-1)
     pos2 = (pos2[0]-1,pos2[1]-1)
@@ -417,6 +458,9 @@ def highlight(board, tiles):
     """ calls the highlight function in board. Corrects for 1-indexing from
     backend.
         Returns: Board (Pyref)"""
+
+    LOGGER.info("Called: highlight")
+    LOGGER.debug("highlight: tiles are {}".format(tiles))
     for x,y in tiles:
         x -= 1
         y -= 1
@@ -428,8 +472,12 @@ def update_openers(board, s):
     """ Updates the openers. Clears the current openers and replaces it
     with the new list [s].
         Retuns: Board (Pyref)"""
+
+    LOGGER.info("Called: update_openers")
+
     board.openerbox.delete(0,END);
     if len(s) > 0:
+        LOGGER.debug("update_openers: s is {}".format(s))
         for (eco, name, winrate, reply) in s:
             board.openerbox.insert(0, "{}|{}".format(eco, name))
             board.openerbox.insert(1, "White winrate: {:.3f}".format(winrate))
@@ -443,6 +491,9 @@ def update_history(board, hist_lst):
     """ Updates the history. Clears current history and replaces it with the
     new list [hist_lst]
         Returns: Board (Pyref)"""
+
+    LOGGER.info("Called: update_history")
+
     # Deletes history list and updates with items in hist_lst
     board.historybox.delete(0,END);
     total_len = len(hist_lst)
@@ -455,6 +506,9 @@ def update_history(board, hist_lst):
 def start_game():
     """ Initializes the game and sends the starting board to the backed.
         Returns: Board (Pyref)"""
+
+    LOGGER.info("Called: start_game")
+
     root = tk.Tk()
     board = GameBoard(root)
     board.addpieces()
@@ -465,6 +519,7 @@ def start_game():
 
 def update_game(board, update):
     """ Updates the game. This is the main game loop that  """
+    #LOGGER.info("Called: update_game") You really don't want to log this...
     try:
         board.root.update_idletasks()
         board.root.update()
@@ -474,12 +529,14 @@ def update_game(board, update):
     except TclError:
         return [False,False]
 
-
 def revert(board, i):
     """ Reverts the gui back to the state [board] is in. [i] is the index of
     the history that is stored in piece_dicts. Board is NOT the current board
     of the backend.
         Return: Board (Pyref)"""
+
+    LOGGER.info("Called: revert")
+
     global piece_dicts
     # for p in board.pieces.keys():
     #     board.canvas.delete(p)
@@ -492,11 +549,17 @@ def revert(board, i):
 
 def check_mate_popup(board):
     """Just calls the check_mate popup function"""
+
+    LOGGER.info("Called: check_mate_popup")
+
     board.check_mate()
     return board
 
 def stale_mate_popup(board):
     """Just calls the stale_mate popup function"""
+
+    LOGGER.info("Called: stale_mate_popup")
+
     board.stale_mate()
     return board
 
