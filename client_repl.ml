@@ -1,4 +1,5 @@
-(*http://pleac.sourceforge.net/pleac_ocaml/sockets.html*)
+(*Largely borrrows from http://pleac.sourceforge.net/pleac_ocaml/sockets.html*)
+(* Equivalent to running 'telnet ip port'*)
 
 let listen_address =
   if Array.length Sys.argv < 2
@@ -7,7 +8,7 @@ let listen_address =
   else
     Unix.inet_addr_of_string (Sys.argv.(1))
 
-let port = int_of_string (Sys.argv.(2))
+let port = 9000
 
 let sockaddr = Unix.ADDR_INET (listen_address, port)
 
