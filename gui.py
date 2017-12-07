@@ -427,7 +427,10 @@ def update_openers(board, s):
     board.openerbox.delete(0,END);
     if len(s) > 0:
         for (eco, name, winrate, reply) in s:
-            board.openerbox.insert(0, "{}|{}|White winrate: {:.3f}|Next move: {}".format(eco, name, winrate, reply[-1]))
+            board.openerbox.insert(0, "{}|{}".format(eco, name))
+            board.openerbox.insert(1, "White winrate: {:.3f}".format(winrate))
+            board.openerbox.insert(2, "Next move: {}".format(reply[-1]))
+            board.openerbox.insert(3, "-----------")
     else:
         board.openerbox.insert(0, "No openings for the current move sequence!")
     return board

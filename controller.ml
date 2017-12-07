@@ -158,6 +158,23 @@ let update_openers guistate opener_list =
   let py_openings = build_py_openers opener_list [] in
   Pyref(get_ref gui "update_openers" [guistate; Pylist py_openings])
 
+let format_replies opening_book algno_history =
+  try
+    let best_replies = best_reply opening_book (List.rev !algno_history) 10 in
+    let rec analyze_replies r acc =
+      match r with
+      | [] -> acc
+      | h::t ->
+        let seq = List.rev (h::!algno_history) in
+        let opm = opening_meta opening_book seq in
+        let name = opening_name opm in
+        let winrate = white_winrate opm in
+        let eco_c = eco_category opm in
+        analyze_replies t ((eco_c, name, winrate, [h])::acc)
+    in
+    analyze_replies best_replies []
+  with _ -> []
+
 let () =
   let guistate = ref (Pyref (get_ref gui "start_game" [])) in
   let update = ref (get_bool gui "update_game" [!guistate; Pybool true]) in
@@ -167,6 +184,7 @@ let () =
   let last_click = ref Noclick in
   let c = ref White in
   let history = ref [] in
+  let game_end = ref false in
 
   (* loads opener data *)
   let opening_book = init_openings () in
@@ -174,10 +192,11 @@ let () =
   (* Move history in Standard Algebraic Notation *)
   let algno_history = ref [] in
 
-  while (true) do (*Gameloop. TODO: replace true with endgame check*)
+  while (true) do (*Gameloop. TODO: replace true with endgame check *)
     update := (get_bool gui "update_game" [!guistate; Pybool true]);
+
     (* check if there was a click*)
-    if (!update = true) then begin
+    if (!update = true && not !game_end) then begin
       (* retrieve the click and parses it into the type defined above *)
       let click = parse_click !guistate in
       match click with
@@ -191,6 +210,11 @@ let () =
         last_move := lstmv;
         c := color;
         history := hist;
+
+        algno_history := list_from !algno_history i;
+        let analysis = format_replies opening_book algno_history in
+        guistate := update_openers !guistate analysis;
+
         guistate := update_history !guistate !history;
       | Promote (piece_name,col) ->
         print_endline piece_name;
@@ -233,7 +257,7 @@ let () =
                   let b = !board in
                   let m = ((x',y'),(x,y)) in
                   algno_history := (to_algno lm b m)::!algno_history;
-                  (*print_endline (List.hd !algno_history)*)
+                  print_endline (List.hd !algno_history)
                 with _ -> ();
               end;
 
@@ -262,43 +286,59 @@ let () =
 
               (* Computes and updates the new list of openers for display *)
               (* NOTE: algno_history is most recent first, but we need reverse*)
-              let analysis =
-                try
-                  let best_replies = best_reply opening_book (List.rev !algno_history) 5 in
-                  let rec analyze_replies r acc =
-                    match r with
-                    | [] -> acc
-                    | h::t ->
-                      let seq = List.rev (h::!algno_history) in
-                      let opm = opening_meta opening_book seq in
-                      let name = opening_name opm in
-                      let winrate = white_winrate opm in
-                      let eco_c = eco_category opm in
-                      analyze_replies t ((eco_c, name, winrate, [h])::acc)
-                  in
-                  analyze_replies best_replies []
-                with _ -> []
-              in
+              let analysis = format_replies opening_book algno_history in
               guistate := update_openers !guistate analysis;
 
 
               (* print_int x'; print_int y'; print_string " moved to ";
               print_int x; print_int y; print_endline ""; *)
+              (* Check for checkmate *)
               board := new_b;
               guistate := move_piece !guistate ((x',y'),(x,y));
               guistate := update_history !guistate !history;
-
-              begin
-                match !c with
-                | White -> c := Black;
-                | Black -> c := White;
-              end
-
+              let lm_algno = List.hd !algno_history in
+              try
+                let _ = String.index lm_algno '#' in
+                guistate := check_mate_popup !guistate;
+                game_end := true;
+              with
+                Not_found ->
+                begin
+                  match !c with
+                  | White -> c := Black;
+                  | Black -> c := White;
+                end
             end
           else begin
             print_endline "Not a legal move";
           end
-        | _ -> guistate := !guistate end
+        | _ -> guistate := !guistate
+        end
+      | _ -> guistate := !guistate
+    end
+    (* These are all the things the player can do if the game has ended *)
+    else if (!update = true) then begin
+      let click = parse_click !guistate in
+      match click with
+      (* Each button will have it's own match case and we can do things based
+         on what is passed back *)
+      | History i ->
+        let (_,b,guist,lstmv,color) = List.nth !history i in
+        let hist = list_from !history i in
+        board := b;
+        guistate := revert_gui guist i;
+        last_move := lstmv;
+        c := color;
+        history := hist;
+
+        algno_history := list_from !algno_history i;
+        let analysis = format_replies opening_book algno_history in
+        guistate := update_openers !guistate analysis;
+
+        guistate := update_history !guistate !history;
+
+        (* If history was rolled back, undo game_end *)
+        game_end := if i > 0 then false else !game_end;
       | _ -> guistate := !guistate
     end
     else begin

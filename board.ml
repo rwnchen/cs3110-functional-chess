@@ -1005,7 +1005,7 @@ let to_algno ?promote:(promote = None) lm b m =
     in
 
     (* Final string - TODO: comment out this print at some point... *)
-    Printf.printf "abbrev: %s|disamb: %s|capture: %s|tpos: %s|promote: %s|checkormate: %s\n" abbrev_str disamb_str capture_str tpos_str promote_str check_or_mate_str;
+    (*Printf.printf "abbrev: %s|disamb: %s|capture: %s|tpos: %s|promote: %s|checkormate: %s\n" abbrev_str disamb_str capture_str tpos_str promote_str check_or_mate_str;*)
     abbrev_str ^ disamb_str ^ capture_str ^ tpos_str ^ promote_str ^ check_or_mate_str
 
 (* NOTE: Assumes that [lm] can indicate whose turn it is.
@@ -1021,7 +1021,7 @@ let from_algno pr_target lm b s =
   let castle = matched 7 s in
 
   (* debug prints *)
-  Printf.printf "abbrev: %s|disamb: %s|capture: %s|pos: %s| promote: %s|check_or_mate: %s \n" abbrev disamb capture pos promote check_or_mate;
+  (*Printf.printf "abbrev: %s|disamb: %s|capture: %s|pos: %s| promote: %s|check_or_mate: %s \n" abbrev disamb capture pos promote check_or_mate;*)
 
   (* Information about the state of the board *)
 
