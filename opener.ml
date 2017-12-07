@@ -1,5 +1,4 @@
 open Str
-open Board
 open Trie
 open Yojson.Basic.Util
 open String
@@ -213,7 +212,7 @@ let prefix i lst =
  *   Since the prefix "e4 e5 Nf3 g3" is not in the trie, we move onto the next game.
  * Once the entire replay file has been read, the trie is then stored back onto disk as a
  * json file. Oh my god OCaml yojson is a real pain in the neck... Should've used ATDgen *)
-let construct_openings ?trie:(op_trie = init_eco eco_opening_json) games =
+let construct_openings ?(op_trie = init_eco eco_opening_json) games =
   (* Read the pgn file here *)
   let replays = load_pgn games in
   let rec build_stats op_trie replay_list =
@@ -285,24 +284,28 @@ let print_trie op_trie =
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Exposed functions *)
 
-let init_openings f =
+let init_openings () =
   let in_channel = open_in eco_opening_data in
   let trie_json = Yojson.Basic.from_channel in_channel in
   json_to_trie trie_json
 
-let opening_name trie moves = (StrTrie.find moves trie).name
+let opening_meta trie moves = StrTrie.find moves trie
 
-let white_winrate trie moves =
-  let metadata = StrTrie.find moves trie in
+let opening_name opm = opm.name
+
+let white_winrate opm =
   try
-    (metadata.white_wins |> float_of_int) /. (metadata.total_count |> float_of_int)
+    (opm.white_wins |> float_of_int) /. (opm.total_count |> float_of_int)
   with
     Division_by_zero -> 0.0
+
+let eco_category opm = opm.category
 
 let best_reply d o n =
   let winrate s =
     try
-      if List.length o mod 2 = 0 then white_winrate d s else 1. -. (white_winrate d s)
+      let opm = opening_meta d s in
+      if List.length o mod 2 = 0 then white_winrate opm else 1. -. (white_winrate opm)
     with
       Not_found -> 0.0
   in

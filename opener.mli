@@ -8,22 +8,29 @@ type opmetadata
  * it every time the application begins. *)
 type openings
 
-(* [init_openings s]
- * Given the path to the openings database on disk [s], loads and returns the
- * database *)
-val init_openings : string -> openings
+(* [init_openings ()]
+ * loads and returns the openings database from the standard location *)
+val init_openings : unit -> openings
 
-(* [opening_name d o]
- * Returns the name of the opening move sequence represented by [o] in
- * the openings database [d]
- * an example [o]: ["g3"; "e5"; "Nf3"] *)
-val opening_name : openings -> string list -> string
+(* [opening_meta d seq]
+ * Returns the [opmetadata] associated with the move sequence [seq] in the
+ * database [d]
+ *
+ * If [seq] is not in [d], raises Not_found *)
+val opening_meta : openings -> string list -> opmetadata
 
-(* [white_winrate d o]
+(* [opening_name o]
+ * Returns the name of the opening move sequence represented by [o] *)
+val opening_name : opmetadata -> string
+
+(* [eco_category o]
+ * Returns the ECO category of the opening move sequence represented by [o] *)
+val eco_category : opmetadata -> string
+
+(* [white_winrate o]
  * Returns WHITE's winrate of the opening move sequence represented by [o]
- * in the openings database [d]
- * an example [o]: ["g3"; "e5"; "Nf3"] *)
-val white_winrate : openings -> string list -> float
+ * If [o] has never been seen before, returns 0.0 (welp) *)
+val white_winrate : opmetadata -> float
 
 
 (* [best_reply d o n]

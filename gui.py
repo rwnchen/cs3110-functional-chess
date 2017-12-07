@@ -355,7 +355,11 @@ def highlight(board, tiles):
 
 def update_openers(board, s):
     board.openerbox.delete(0,END);
-    board.openerbox.insert(END, str(0) + "\t\t" + s + "\t\t\t\tA1-A2\t50%")
+    if len(s) > 0:
+        for (eco, name, winrate, reply) in s:
+            board.openerbox.insert(0, "{}|{}|White winrate: {:.3f}|Next move: {}".format(eco, name, winrate, reply[-1]))
+    else:
+        board.openerbox.insert(0, "No openings for the current move sequence!")
     return board
 
 def update_history(board, hist_lst):
