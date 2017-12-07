@@ -10,8 +10,6 @@ let replay_tests = []
 
 let board_tests = []
 
-let piece_tests = []
-
 let open_tests = []
 
 let app_tests = []
@@ -19,7 +17,6 @@ let app_tests = []
 let all_tests =
   replay_tests @
   board_tests @
-  piece_tests @
   open_tests @
   app_tests
 

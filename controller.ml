@@ -139,9 +139,11 @@ let () =
 
   while (true) do (*Gameloop. TODO: replace true with endgame check*)
     update := (get_bool gui "update_game" [!guistate; Pybool true]);
-    if (!update = true) then begin (* This checks if there was a click*)
-      let click = parse_click !guistate in (* This  gets what that click was and parses it into the type defined above for clicks*)
-      match click with (*This matches the click and does events based on what happened. *)
+    (* check if there was a click*)
+    if (!update = true) then begin
+      (* retrieve the click and parses it into the type defined above *)
+      let click = parse_click !guistate in
+      match click with
       (* Each button will have it's own match case and we can do things based on what is passed back *)
       | History i ->
         let (_,b,guist,lstmv,color) = List.nth !history i in

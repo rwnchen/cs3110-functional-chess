@@ -182,6 +182,26 @@ let oppc c = match c with | Black -> White | White -> Black
  * [c]: the color of pieces to retrieve *)
 let getpcs b c = match c with | Black -> fst b | White -> snd b
 
+(* [get_piece b pos]
+ * Retrieve a piece at a given position on a board.
+ * [b]: the board
+ * [pos]: the position of the piece *)
+let get_piece b pos =
+  let b_ps = fst b in
+  let w_ps = snd b in
+  let rec loop pieces = begin
+    match pieces with
+    | [] -> None
+    | ((x,y),piece)::t ->
+      if ((x = (fst pos)) && (y = (snd pos))) then
+        Some piece
+      else
+        loop t
+  end in
+  match loop b_ps with
+  | Some p -> Some p
+  | None -> loop w_ps
+
 (* [getcheck c]
  * Given a color, return its respective check type.
  * [c]: the color check to retrieve *)
@@ -300,7 +320,7 @@ and is_attacked b last_move opp_ps d_pos =
     if ((snd piece) != King true) && can_attack piece (f,r) d_pos
     then
       if List.mem d_pos (moves b last_move piece (f,r))
-      then true (*  match c with | Black -> Black_Check | White -> White_Check *)
+      then true
       else is_attacked b last_move t d_pos
     else is_attacked b last_move t d_pos
 
@@ -371,16 +391,15 @@ and check_dir b c (f,r) (dx,dy) lst =
  * [moved]: a flag for whether or not the king has moved yet
  * [(f,r)]: the position of the piece *)
 and moves_k b last_move c moved (f,r) =
-  let e = moveable_space b c (f+1,r) in
-  let w = moveable_space b c (f-1,r) in
-  let n = moveable_space b c (f,r+1) in
-  let s = moveable_space b c (f,r-1) in
+  let dirs = [(f+1,r);(f-1,r);(f,r+1);(f,r-1);
+              (f+1,r+1);(f-1,r+1);(f+1,r+1);(f-1,r-1)] in
+  let moves = List.fold_left (fun l d -> (moveable_space b c d)@l) [] dirs in
 
   let castle =
     if moved
     then []
     else castling b last_move c moved (f,r) in
-  e @ w @ n @ s @ castle
+  List.rev_append moves castle
 
 (* [castling b last_move c moved (f,r)]
  * Returns a list of castling spaces.
@@ -436,7 +455,8 @@ and moves_r b c (f,r) =
   List.fold_left List.rev_append [] [n;s;e;w]
 
 (* [moves_b b c (f,r)]
- * Returns a list of spaces a bishop can move to given the board and its position.
+ * Returns a list of spaces a bishop can move to given the board and its
+ * position.
  * [b]: the board
  * [c]: the color of the piece
  * [(f,r)]: the position of the piece *)
@@ -448,14 +468,20 @@ and moves_b b c (f,r) =
   List.fold_left List.rev_append [] [nw;ne;sw;se]
 
 (* [moves_q b c (f,r)]
- * Returns a list of spaces a queen can move to given the board and its position.
+ * Returns a list of spaces a queen can move to given the board and its
+ * position.
  * [b]: the board
  * [c]: the color of the piece
  * [(f,r)]: the position of the piece *)
 and moves_q b c (f,r) =
   List.rev_append (moves_r b c (f,r)) (moves_b b c (f,r))
 
-
+(* [moves_n b c (f,r)]
+ * Returns a list of spaces a knight can move to given the board and its
+ * position.
+ * [b]: the board
+ * [c]: the color of the piece
+ * [(f,r)]: the position of the piece *)
 and moves_n b c (f,r) =
   let dxy = [(2,1);(2,-1);(-2,1);(-2,-1);
              (1,2);(-1,2);(1,-2);(-1,-2)] in
@@ -469,6 +495,13 @@ and moves_n b c (f,r) =
       end in
   loop (f,r) dxy []
 
+(* [moves_p b last_move c (m,a) (f,r)]
+ * Returns a list of spaces a pawn can move to given the board and its position.
+ * [b]: the board
+ * [last_move]: the last move made on the board
+ * [c]: the color of the piece
+ * [(m,a)]: a pawn's movement flags; see type definition for piece_rank above
+ * [(f,r)]: the position of the piece *)
 and moves_p b last_move c (m,a) (f,r) =
   let inc =
     if c = Black then -1 else 1 in
@@ -486,10 +519,21 @@ and moves_p b last_move c (m,a) (f,r) =
   let two_sq = if m || a then [] else moveable_space b c (f,r+2*inc) in
   let en_pass =
     match last_move with
-    | None -> [(1,1)]
+    | None -> []
     | Some lm -> enpass_valid lm (f,r) inc in
   forward @ forward_left @ forward_right @ two_sq @ en_pass
 
+(* [enpass_valid (p, ((f1,r1),(f2,r2))) (f,r) inc]
+ * Returns a space if a pawn is allowed to en passant, i.e:
+ * - the last move was made by an opponent pawn advancing two spaces
+ * - the opponent pawn is in an adjacent file and the same rank
+ * - the space is unoccupied
+ * [p]: the piece that maide the last move
+ * [(f1,r1)]: the initial position of the piece that made the last move
+ * [(f2,r2)]: the final position of the piece that made the last move
+ * [(f,r)]: the position of the piece making the current move
+ * [inc]: the change in rank that for advancement, i.e. -1 for black, 1 for
+ *    white *)
 and enpass_valid (p, ((f1,r1),(f2,r2))) (f,r) inc =
   match snd p with
   | Pawn (_, true) ->
@@ -497,24 +541,14 @@ and enpass_valid (p, ((f1,r1),(f2,r2))) (f,r) inc =
       else []
   | _ -> []
 
-(********************* BOARD UPDATE LOGIC **********************)
 
-let get_piece b pos =
-  let b_ps = fst b in
-  let w_ps = snd b in
-  let rec loop pieces = begin
-    match pieces with
-    | [] -> None
-    | ((x,y),piece)::t ->
-      if ((x = (fst pos)) && (y = (snd pos))) then
-        Some piece
-      else
-        loop t
-  end in
-  match loop b_ps with
-  | Some p -> Some p
-  | None -> loop w_ps
+(**************************** BOARD UPDATE LOGIC ******************************)
 
+(* [all_moves b last_move c]
+ * Returns a list of all possible moves by a given color.
+ * [b]: the board
+ * [last_move]: the last move made on the board
+ * [c]: the moving color *)
 let all_moves b last_move c =
   let ps = getpcs b c in
   let rec loop pieces move_lst =
@@ -529,6 +563,12 @@ let all_moves b last_move c =
       end in
   loop ps []
 
+(* [legal_moves b last_move c]
+ * Returns a list of all legal moves by a given color. A legal move does not put
+ * one's own king in check.
+ * [b]: the board
+ * [last_move]: the last move made on the board
+ * [c]: the moving color *)
 let rec legal_moves b last_move c =
   let mvs = all_moves b last_move c in
   let rec loop move_lst legal_lst =
@@ -543,6 +583,13 @@ let rec legal_moves b last_move c =
       end in
   loop mvs []
 
+(* [update_board b last_move c m]
+ * Given a board and a move, return a new board that is the result of making the
+ * move.
+ * [b]: the old board
+ * [last_move]: the last move made on the board
+ * [c]: the moving color
+ * [m]: the move to be made *)
 and update_board b last_move c m =
   let i_pos = fst m in
   let f_pos = snd m in
@@ -563,59 +610,83 @@ and update_board b last_move c m =
   then (pcs', opps')
   else (opps', pcs')
 
-and update_piece_bool piece i_pos f_pos =
-  match piece with
+(* [update_piece_bool piece i_pos f_pos]
+ * Updates a piece's movement flags, if they have them.
+ * [p]: the moving piece
+ * [i_pos]: the piece's initial position
+ * [f_pos]: the piece's final position *)
+and update_piece_bool p i_pos f_pos =
+  match p with
     | c, King _ -> (c, King true)
     | c, Rook _ -> (c, Rook true)
     | c, Pawn _ ->
       if abs ((snd i_pos) - (snd f_pos)) = 2
       then (c, Pawn (true, true))
       else (c, Pawn (true, false))
-    | _ -> piece
+    | _ -> p
 
+(* [update_castle p pcs (fi,ri) (ff,rf)]
+ * Updates a list of pieces in the event of castling to move the rook.
+ * [p]: the moving piece; castling only occurs if this is a king
+ * [pcs]: the list of pieces of the moving color
+ * [(fi,ri)]: the piece's initial position
+ * [(ff,rf)]: the piece's final position *)
 and update_castle p pcs (fi,ri) (ff,rf) =
   match p with
   | _, King _ ->
-    if ff-fi = 2
-    then
+    if ff-fi = 2 then
       let rm_rk = List.remove_assoc (8,ri) pcs in
       ((ff-1,ri),(fst p, Rook true))::rm_rk
-    else if ff-fi = -2
-    then
+    else if ff-fi = -2 then
       let rm_rk = List.remove_assoc (1,ri) pcs in
       ((ff+1,ri),(fst p, Rook true))::rm_rk
     else pcs
   | _ -> pcs
 
-and update_capture b opps piece c (fi,ri) (ff,rf) =
-  match piece with
+(* [update_capture b opps p c (fi,ri) (ff,rf)]
+ * Updates a list of pieces to adjust for any capturing.
+ * [b]: the board
+ * [opps]: the opponent's pieces
+ * [p]: the moving piece
+ * [c]: the moving color
+ * [(fi,ri)]: the moving piece's initial position
+ * [(ff,rf)]: the moving piece's final position *)
+and update_capture b opps p c (fi,ri) (ff,rf) =
+  match p with
   | _, Pawn _ ->
     let inc = match c with | Black -> -1 | White -> 1 in
-    if ri+inc = rf && (abs (ff-fi)) = 1
-    then pawn_capture b c opps (fi,ri) (ff,rf)
+    if ri+inc = rf && (abs (ff-fi)) = 1 then
+      if is_occupied b (ff,rf) = None
+      (* en passant *)
+      then List.remove_assoc (ff, rf-inc) opps
+      (* regular capture *)
+      else List.remove_assoc (ff,rf) opps
     else opps
   | _ -> List.remove_assoc (ff,rf) opps
 
-and pawn_capture b c opps i_pos f_pos =
-  (* match snd p with
-  | Pawn (_,true) ->
-    if (abs (r2-r1) = 2) && r2 = (snd i_pos)
-    then List.remove_assoc (f2,r2) opps
-    else List.remove_assoc f_pos opps
-  | _ -> opps *)
-  let inc = match c with | Black -> -1 | White -> 1 in
-  if is_occupied b f_pos = None
-  then List.remove_assoc ((fst f_pos), (snd f_pos)-inc) opps
-  else List.remove_assoc f_pos opps
-(*   if snd p = (Pawn (true,true)) && (abs ()) *)
 
-let make_move b c last_move (m:move) (leg_mves:((move * board) list)) =
+(* [make_move b c last_move m leg_mves]
+ * Updates a board with a legal move. Returns the new board, as well as whether
+ * or not this move puts the opponent in check.
+ * [b]: the board
+ * [c]: the moving color
+ * [last_move]: the last move made on the board
+ * [m]: the move to make
+ * [leg_mves]: a list of legal moves on the board for the given color *)
+let make_move b c last_move m leg_mves =
   try
     let b' = List.assoc m leg_mves in
     (b', is_check b' last_move (oppc c))
   with Not_found -> (b, No_Check)
 
-
+(* [promote b c last_move file newp]
+ * Updates a board for promotion by replacing the promoting pawn in the piece
+ * list with either a queen, rook, bishop, or knight. Returns
+ * [b]: the board
+ * [c]: the color piece to promote
+ * [last_move]: the last move made on the board
+ * [file]: the file of the pawn to promote
+ * [newp]: a string representing the piece type to promote to*)
 let promote b c last_move file newp =
   let endrank = match c with | Black -> 1 | White -> 8 in
   let pcs = getpcs b c in
@@ -638,6 +709,7 @@ let promote b c last_move file newp =
 (*************************************************************)
 (**********************ALGEBRAIC NOTATION*********************)
 (*************************************************************)
+
 (* Debugging functions *)
 let piece_to_string p =
   let color = match fst p with | White -> "white" | Black -> "black" in
