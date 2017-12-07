@@ -24,15 +24,11 @@ type position = int * int
 
 type move = position * position
 
-type move_list = (piece * move) list
-
 type last_move = (piece * move) option
 
 type board = (position * piece) list * (position * piece) list
 
 type check = | Black_Check | White_Check | No_Check
-
-type end_game = | Checkmate | Stalemate
 
 
 (******************************************************************************)
@@ -68,10 +64,6 @@ and setup_back c r =
     ((4, r), (c, Queen));
     ((5, r), (c, King false)); ]
 
-(* [init_board]
- * A board with all pieces in their initial positions. Returns a tuple of lists
- * of pieces and their positions. The first list is the black pieces, while the
- * second is the white. *)
 let init_board = (
       List.rev_append
         (setup_front Black 1 [])
@@ -667,7 +659,8 @@ and update_capture b opps p c (fi,ri) (ff,rf) =
 
 (* [make_move b c last_move m leg_mves]
  * Updates a board with a legal move. Returns the new board, as well as whether
- * or not this move puts the opponent in check.
+ * or not this move puts the opponent in check. If the move is illegal, returns
+ * the same board
  * [b]: the board
  * [c]: the moving color
  * [last_move]: the last move made on the board

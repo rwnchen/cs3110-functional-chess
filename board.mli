@@ -18,48 +18,56 @@ type piece = color * piece_rank
  * 1 and 8, inclusive. *)
 type position = int * int
 
+(* Represents a move in chess as a tuple of positions. The first of the tuple is
+ * the initial position, while the second represents the final position. *)
 type move = position * position
 
+(* Represents the last move made on a board. Is None at the start of the game,
+ * otherwise should contain a tuple of the piece that made the move and the move
+ * itself. *)
 type last_move = (piece * move) option
-
-(* Represents the movement of a piece from one position to another as a tuple,
- * where the first position is the initial position and the second position is
- * the final position. *)
-(* type move *)
-
-type move_list
 
 (* Represents the chessboard as a list of squares on the board and the pieces
  * that occupy them. The first entry in the tuple represents white's pieces
  * while the second represents black's pieces. Any position not listed is
  * assumed to be an empty space. *)
-type board
+type board = (position * piece) list * (position * piece) list
 
-(* Represents a starting board, set up according to chess convention. *)
+(* A type to describe the state of check of a board: whether or not its in check
+ * as well as which color is in check. *)
+type check = | Black_Check | White_Check | No_Check
+
+(* [init_board] is a board with all pieces in their initial positions. Returns a
+ * tuple of lists of pieces and their positions. The first list is the black
+* pieces, while the second is the white. *)
 val init_board : board
 
+(* [print_board b] prints an ASCII representation of board [b].  *)
 val print_board : board -> string
 
-type check
-
-(* Represents the end-game state. A game can either end in a checkmate or
- * stalemate when a player can no longer make any legal moves *)
-type end_game
-
+(* [get_piece b pos] retrieves a piece at a given position on a board. *)
 val get_piece : board -> position -> piece option
 
+(* [oppc c] returns the opposite color of [c]. *)
 val oppc : color -> color
 
+(* [piece_string p c] converts pieces to strings of their unicode counterparts.
+ * Taken from https://github.com/shrumo/chess-engine *)
 val piece_string: piece_rank -> color -> string
 
-(* [legal_moves b c] returns a list of legal moves by player [c] given
- * board [b]. *)
+(* [legal_moves b last_move c] returns a list of all legal moves by a given
+ * color. A legal move does not put one's own king in check. *)
 val legal_moves : board -> last_move -> color -> (move * board) list
 
-(* [update_board b m] takes a board [b] and returns an updated board after
- * performing move [m]. If [m] is not a legal move, return the same board. *)
+(* [make_move b c last_move m leg_mves] Updates a board with a legal move. Returns the new board, as well as whether
+ * or not this move puts the opponent in check. If the move is illegal, returns
+ * the same board. *)
 val make_move : board -> color -> last_move -> move -> (move * board) list-> (board * check)
 
+(* [promote b c last_move file newp]
+ * Updates a board for promotion by replacing the promoting pawn in the piece
+ * list with either a queen, rook, bishop, or knight. Returns a new board with
+ * the promoted piece and whether or not the new board is in check. *)
 val promote : board -> color -> last_move -> int -> string -> (board * check)
 
 (* The functions below convert moves into "algebraic chess notation"
