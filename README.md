@@ -3,6 +3,17 @@
 # How to Launch Game Modes
 
 ## GUI
+- GUI requires:
+  - ocaml Lymp module (opam install lymp)
+  - Python 2.7.x (we're running 2.7.3 and did not test with other versions)
+  - Python packages Tkinter and PIL
+    - Tkinter install on mac: brew install homebrew/dupes/tcl-tk (you need homebrew. We don't know how to install it otherwise easily)
+    - Tkinter on linux: sudo apt-get install python python-tk
+    - PIL: pip install PIL
+  - Lymp also requires python module bson, but new versions of bson do not work. The easiest way to get bson is to install pymongo (pip install pymongo). You also could install bson manually (pip install bson=0.4.3), but you may run into issues with this.
+
+- To run the gui: make run
+
 
 ## Network
 
