@@ -1,5 +1,11 @@
 (*http://pleac.sourceforge.net/pleac_ocaml/sockets.html*)
 
+(*We put in a lot of time into getting the network working for the GUI
+  In the end we couldn't get it working. We beleive it was mainly due to a memory issue of proeccessing the game and
+  network at the same time. The network is still depicted as functional in repl form, however the GUI could not end
+  up being implemented.*)
+
+(*)
 open Lymp
 open Board
 
@@ -116,14 +122,13 @@ let () =
 
   Unix.connect socket sockaddr;
   match Unix.fork () with
-  | 0 -> let output = Unix.out_channel_of_descr socket in
-    flush output
-    (* let output = Unix.out_channel_of_descr socket in
+  | 0 ->
+    let output = Unix.out_channel_of_descr socket in
     let coord = ref "" in
 
     while true do
       (*TODO: DO GAME LOGIC*)
-      (*  (update := (get_bool gui "update_game" [!guistate; Pybool true]);
+      (update := (get_bool gui "update_game" [!guistate; Pybool true]);
       if (!update = true) then begin
         let click = parse_click !guistate in
         match click with
@@ -194,10 +199,11 @@ let () =
               end
             | _ -> guistate := !guistate end
         | _ -> guistate := !guistate
-      end);*)
+      end);
+      output_string coord "\n";
       output_string stdout "\n";
       flush output
-       done*)
+       done
   | kidpid ->
     let input = Unix.in_channel_of_descr socket in
     try
@@ -225,3 +231,4 @@ let () =
       done
     with End_of_file ->
       Unix.kill kidpid Sys.sigterm;
+      *)
