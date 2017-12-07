@@ -8,6 +8,7 @@ type position = int * int
 
 type move = position * position
 
+(* A click type so we know what happened on the front end *)
 type click = | Piece of position
              | Highlight of position
              | Promote of (string*int) (* (piece name * column) *)
@@ -18,10 +19,12 @@ type click = | Piece of position
              | Save
              | Noclick (*| Opener of string? | History of string? | *)
 
+(* These are basic values that are needed to connect to a python file *)
 let interpreter = "python2"
 let py = init ~exec:interpreter "."
 let gui = get_module py "gui"
 
+(* Prints the colors *)
 let print_color c =
   match c with
   | Black ->
@@ -33,11 +36,21 @@ let extract = function
   | Some (x) -> x
   | None -> failwith "extract: failed to extract!"
 
+(* [move_piece state ((x1,y1),(x2,y2))] performs the move [((x1,y1),(x2,y2))],
+   moveing from (x1,y1) to (x2,y2) in the gui [guistate]
+   Returns:
+   - Pyref : new guistate after the move
+*)
 let move_piece guistate ((x1,y1),(x2,y2)) =
   let pos1 = Pytuple [Pyint x1;Pyint y1] in
   let pos2 = Pytuple [Pyint x2;Pyint y2] in
   Pyref(get_ref gui "move" [guistate; pos1; pos2])
 
+(* [highlight tile_list] sends [tile_list] as a list of positions to be
+   highlighted in the [guistate].
+   Returns:
+   - Pyref : new guistate after the highlighting
+*)
 let rec highlight guistate tiles =
   let rec build_tile_list t_list acc =
     match t_list with
@@ -46,26 +59,49 @@ let rec highlight guistate tiles =
   let tiles = build_tile_list tiles [] in
   Pyref(get_ref gui "highlight" [guistate; Pylist tiles])
 
+(* [update_history guistate history] sends [move_list] to the gui to display
+   the new [history]. [history] is a list of
+   (string,board,guistate,move,color). Which represents all the data for a
+   particular spot in history.
+   Returns:
+    - Pyref : new guistate after the updatding history
+*)
 let update_history guistate history =
   let rec build_hist_list m_list acc =
     match m_list with
     | [] -> acc
-    | (h,b,_,_,_)::t -> build_hist_list t ((Pystr h)::acc) in
+    | (s,b,_,_,_)::t -> build_hist_list t ((Pystr s)::acc) in
   let hist_list = build_hist_list history [] in
   Pyref(get_ref gui "update_history" [guistate; Pylist hist_list])
 
+(* Calls popup function in gui for checkmates.
+   Returns:
+    - Pyref: new guistate after popup*)
 let check_mate_popup guistate =
   Pyref(get_ref gui "check_mate_popup" [guistate])
 
+(* Calls popup function in gui for stalemates.
+   Returns:
+    - Pyref: new guistate after popup*)
 let stale_mate_popup guistate =
   Pyref(get_ref gui "stale_mate_popup" [guistate])
 
+(* Sends an old guistate to the board which reverts the board back to that
+   point in the history.
+   Returns:
+   - Pyref: new guistate after reverting
+*)
 let revert_gui guistate i =
   Pyref(get_ref gui "revert" [guistate; Pyint i])
 
+(* Gets which piece was selected for promotion in the gui.
+   Returns:
+   - String : the piece that was selected (r,k,b,q) *)
 let get_promotion guistate =
   get_string gui "get_promotion" [guistate]
 
+(* Helper function which gets which tiles the game needs to highlight based on
+   the current moves and selectedp piece at pos [(x,y)] *)
 let rec highlight_from_legal_moves legal_moves (x,y) acc =
   match legal_moves with
   | [] -> acc
@@ -108,7 +144,8 @@ let rec list_from lst n =
  * opener_list : (string * string * float * string list) list
  *
  * It sends a python list of lists, of the form:
- * [["ECO category", "opening name", white's winrate (out of 1.0), list of moves], ...]
+ * [["ECO category", "opening name", white's winrate (out of 1.0), list of
+   moves], ...]
  * e.g.
  * [ ["A00", "Name here", 0.12, ["h4", "e5", "Nf3"]], ["A01", ...] ...]*)
 let update_openers guistate opener_list =
@@ -144,7 +181,8 @@ let () =
       (* retrieve the click and parses it into the type defined above *)
       let click = parse_click !guistate in
       match click with
-      (* Each button will have it's own match case and we can do things based on what is passed back *)
+      (* Each button will have it's own match case and we can do things based
+         on what is passed back *)
       | History i ->
         let (_,b,guist,lstmv,color) = List.nth !history i in
         let hist = list_from !history i in
@@ -154,7 +192,8 @@ let () =
         c := color;
         history := hist;
         guistate := update_history !guistate !history;
-      | Promote (piece_name,col)->
+      | Promote (piece_name,col) ->
+        print_endline piece_name;
         let color = match !c with
           | White -> Black
           | Black -> White in
@@ -214,13 +253,15 @@ let () =
                   | ((i,j),(i',j')) ->
                     let ps1 = String.make 1 (Char.chr(i+64)) in
                     let ps2 = String.make 1 (Char.chr(i'+64)) in
-                    ps ^ ": " ^ ps1 ^ (string_of_int j) ^ " to " ^ ps2 ^ (string_of_int j') in
+                    ps ^ ": " ^
+                    ps1 ^ (string_of_int j) ^ " to "
+                    ^ ps2 ^ (string_of_int j') in
 
               print_endline lst_move;
               history := (lst_move,!board,!guistate,!last_move,!c)::(!history);
 
               (* Computes and updates the new list of openers for display *)
-              (* NOTE: algno_history is most recent first, but we need reverse *)
+              (* NOTE: algno_history is most recent first, but we need reverse*)
               let analysis =
                 try
                   let best_replies = best_reply opening_book (List.rev !algno_history) 5 in

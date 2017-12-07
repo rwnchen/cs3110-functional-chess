@@ -7,7 +7,7 @@ type move = pos * pos
 type mess =
   |TextMes of string
   |PosMes of move
-  |Hist of string
+  |Hist of string * int option
 
 (*[broadcast] Broadcasts text to desired output*)
 val broadcast : ('a * Lwt_io.output_channel) list -> string -> 'b -> 'a -> 'c list

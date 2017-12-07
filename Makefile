@@ -1,6 +1,3 @@
-main:
-	ocamlbuild -use-ocamlfind main.byte
-
 test:
 	ocamlbuild -use-ocamlfind test.byte
 
@@ -13,7 +10,7 @@ run:
 repl:
 	ocamlbuild -use-ocamlfind application.byte && ./application.byte
 
-IP = 10.128.157.174
+IP = 10.129.13.173
 
 serv:
 	ocamlbuild -use-ocamlfind -pkgs lwt,lwt.unix server.byte && ./server.byte $(IP)

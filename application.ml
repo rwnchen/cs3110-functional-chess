@@ -19,23 +19,13 @@ type move = position * position
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
 (* Helper functions/states *)
 
-(* game -> board *)
-let extract_board g = failwith "extract_board unimplemented"
-
-(* game -> bool
- * true if it is white's turn *)
-let extract_turn g = failwith "extract_turn unimplemented"
-
-(* game -> metadata *)
-let extract_meta g = failwith "extract_meta unimplemented"
-
-(* metadata -> tag_pair list *)
-let extract_tags m = failwith "extract_tags unimplemented"
-
-(* TODO: *)
+(* [parse_space s]
+ * Parses user-inputted spaces to our representation of a board position.
+ * [s]: a string of the position,  *)
 let parse_space s =
-  let fst_int = Char.code (String.get s 0) - 64 in
-  let snd_int = int_of_char (String.get s 1) - 48 in
+  let s' = String.uppercase_ascii s in
+  let fst_int = Char.code (String.get s' 0) - 64 in
+  let snd_int = int_of_char (String.get s' 1) - 48 in
   (fst_int, snd_int)
 
 (* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *)
@@ -48,13 +38,18 @@ let suggest_move o g = None
 
 (* let to_replay = failwith "to_replay unimplemented" *)
 
-
+(* [print_tup ppf (a,b)]
+ * Printing function for tuples. Debug purposes. *)
 let print_tup ppf (a,b) =
   Format.fprintf ppf "(%d,%d)" a b
 
+(* [print_mov ppf ((a,b),(c,d))]
+ * Printing function for moves. Debug purposes. *)
 let print_mov ppf ((a,b),(c,d)) =
   Format.fprintf ppf "((%d,%d) to (%d,%d))" a b c d
 
+(* [print_mov ppf ((a,b),(c,d))]
+ * Printing function for the last move on a board. Debug purposes. *)
 let print_lastm ppf (lastm:Board.last_move) =
   match lastm with
   | Some (a,b) ->
@@ -71,21 +66,13 @@ let print_lastm ppf (lastm:Board.last_move) =
         | Pawn (m,_) -> "Pawn: " ^ (string_of_bool m) in
     Format.fprintf ppf "Last Move: (%s // (%d,%d) to (%d,%d))" piece (fst i) (snd i) (fst f) (snd f)
   | None -> ()
-(*   match lastm with
-  | Some (_,p),((i1,i2),(f1,f2)) ->
-    begin
-      let piece =
-        match p with
-        | King m -> "King: " ^ (string_of_bool m)
-        | Queen -> "Queen"
-        | Bishop -> "Bishop"
-        | Knight -> "Knight"
-        | Rook m -> "Rook: " ^ (string_of_bool m)
-        | Pawn m -> "Pawn: " ^ (string_of_bool m) in
-      Format.fprintf ppf "Last Move: (%s // (%d,%d) to (%d,%d))" piece i1 i2 f1 f2
-    end
-  | None -> Format.fprintf ppf "Last Move: None" *)
 
+(* [run (b,c,lm)]
+ * Run one round of the REPL, which involves the current color making one move.
+ * The moving color switches between rounds.
+ * [b]: the current board
+ * [c]: the currently moving color
+ * [lm]: the last move made on the board *)
 let rec run (b,c,lm) =
   let leg_moves = legal_moves b lm c in
   match leg_moves with

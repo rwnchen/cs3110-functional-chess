@@ -9,7 +9,7 @@ type move = pos * pos
 type mess =
   |TextMes of string
   |PosMes of move
-  |Hist of string
+  |Hist of string * int option
 
 let listen_address =
   if Array.length Sys.argv < 2
@@ -26,7 +26,9 @@ let users = ref 0
 let outs = ref []
 let current_user = ref 1
 let current_color = ref White
-let history = ref ""
+let hist_string = ref ""
+let hist_data = ref []
+let moves = ref 0
 
 let last_move = ref None
 
@@ -54,8 +56,14 @@ let rec convert_text te s ind =
     else convert_text t s (ind+1)
 
 let handle_message t =
-  if t = "history" then Hist !history else
   let spaces = (String.split_on_char ' ' t) in
+  if  (List.nth spaces 0) = "history" then
+    if (List.length spaces) < 2 then Hist ("history",None)
+    else
+        let num = List.nth spaces 1 in
+        let n = int_of_char (String.get num 0) - 48 in
+        Hist ("history", Some(n))
+  else
   if List.length spaces < 2 then
     TextMes "bad input"
   else
@@ -87,6 +95,14 @@ let rec kill_all l u =
     (Lwt_io.fprintf out "Other player quit! \n" >>= fun () -> Lwt_io.close out);
     kill_all t u
 
+let get_hist n =
+  let (b,u) = List.assoc n !hist_data in
+  board := b;
+  current_user := u;
+  moves := n;
+  let brd = print_board !board in
+  brd
+
 let rec handle_connection ic oc ind () =
   Lwt_io.read_line_opt ic >>=
      (fun msg ->
@@ -99,7 +115,19 @@ let rec handle_connection ic oc ind () =
           else
           begin
             match reply with
-            |Hist h -> (Lwt_io.write_line oc h >>= handle_connection ic oc ind)
+            |Hist (t,o) ->
+              begin
+                match o with
+                  |Some n ->
+                    if !hist_data = [] then (Lwt_io.write_line oc "No history" >>= handle_connection ic oc ind)
+                    else
+                      let b = get_hist n in
+                      broadcast !outs b oc 1;
+                      broadcast !outs b oc 2;
+                      interact
+                  |None ->
+                    (Lwt_io.write_line oc !hist_string >>= handle_connection ic oc ind)
+                end
             |TextMes rep ->
               ((broadcast !outs rep oc ind); interact)
             |PosMes (pos1,pos2) ->
@@ -110,7 +138,10 @@ let rec handle_connection ic oc ind () =
               broadcast !outs game oc 1;
               broadcast !outs game oc 2;
               (if game <> "No piece selected." && game <> "Invalid move." then
-                 history := !history^"\n"^msg;
+                 hist_string := !hist_string^"\n"^msg;
+                 moves := !moves + 1;
+                 hist_data := !hist_data@[(!moves,(!board,!current_user))];
+
                 if !current_user = 1 then
                     begin
                       current_user := 2;
