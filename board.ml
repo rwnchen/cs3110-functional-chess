@@ -660,7 +660,7 @@ and update_capture b opps p c (fi,ri) (ff,rf) =
 (* [make_move b c last_move m leg_mves]
  * Updates a board with a legal move. Returns the new board, as well as whether
  * or not this move puts the opponent in check. If the move is illegal, returns
- * the same board
+ * the same board.
  * [b]: the board
  * [c]: the moving color
  * [last_move]: the last move made on the board
@@ -674,7 +674,8 @@ let make_move b c last_move m leg_mves =
 
 (* [promote b c last_move file newp]
  * Updates a board for promotion by replacing the promoting pawn in the piece
- * list with either a queen, rook, bishop, or knight. Returns
+ * list with either a queen, rook, bishop, or knight. Returns a new board with
+ * the promoted piece and whether or not the new board is in check.
  * [b]: the board
  * [c]: the color piece to promote
  * [last_move]: the last move made on the board
