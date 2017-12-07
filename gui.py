@@ -289,7 +289,7 @@ class GameBoard(tk.Frame):
         i = 0
         while (new_piece + str(i) in self.pieces):
             i += 1
-        self.addpiece(new_piece+str(i),pos[1],pos[0])
+        self.addpiece(new_piece+str(i),pos[0],pos[1])
         self.popup.destroy()
         self.popup = None
         self.clicked_space = ["promote",pos]
