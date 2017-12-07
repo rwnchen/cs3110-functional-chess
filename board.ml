@@ -517,7 +517,11 @@ and moves_p b last_move c (m,a) (f,r) =
     | Some color -> if color = oppc c then [(f+1,r+inc)] else []
     | _ -> [] in
 
-  let two_sq = if m || a then [] else moveable_space b c (f,r+2*inc) in
+  let two_sq =
+    if m || a then []
+    else if is_occupied b (f,r+(2*inc)) = None
+      then [(f,r+(2*inc))]
+      else [] in
   let en_pass =
     match last_move with
     | None -> []

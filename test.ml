@@ -1,6 +1,5 @@
 open OUnit2
 open Board
-open Piece
 open Replayer
 open Opener
 open Application
