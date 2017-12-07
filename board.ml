@@ -28,8 +28,6 @@ type move_list = (piece * move) list
 
 type last_move = (piece * move) option
 
-type move_history = {mutable ms : move_list}
-
 type board = (position * piece) list * (position * piece) list
 
 type check = | Black_Check | White_Check | No_Check
@@ -41,24 +39,16 @@ type end_game = | Checkmate | Stalemate
 (*************************** BOARD INITIALIZATION *****************************)
 (******************************************************************************)
 
-<<<<<<< HEAD
 (* [init_board]
  * A board with all pieces in their initial positions. Returns a tuple of lists
  * of pieces and their positions. The first list is the black pieces, while the
  * second is the white. *)
 let rec init_board = (
-=======
-(* let mh = {ms = []} *)
-
-let rec setup_board color =
-  match color with
-  | Black ->
->>>>>>> 267cae53da6f8277d24903881e7d59108fb76ed8
       List.rev_append
-        (setup_front Black 7 1 [])
+        (setup_front Black 1 [])
         (setup_back  Black 8),
       List.rev_append
-        (setup_front White 2 1 [])
+        (setup_front White 1 [])
         (setup_back  White 1))
 
 (* [setup_front color rank count lst]
