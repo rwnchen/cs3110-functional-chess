@@ -461,11 +461,15 @@ def start_game():
 
 def update_game(board, update):
     """ Updates the game. This is the main game loop that  """
-    board.root.update_idletasks()
-    board.root.update()
-    click = board.was_click
-    board.was_click = False
-    return click
+    try:
+        board.root.update_idletasks()
+        board.root.update()
+        click = board.was_click
+        board.was_click = False
+        return [click,True]
+    except TclError:
+        return [False,False]
+
 
 def revert(board, i):
     """ Reverts the gui back to the state [board] is in. [i] is the index of

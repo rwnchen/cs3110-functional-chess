@@ -138,6 +138,14 @@ let rec list_from lst n =
     if n = 0 then t
     else list_from t (n-1)
 
+(* [extract_py_bool (Pybool b)] either returns [b] or False if the pyobj is not
+   a bool for some reason.
+*)
+let extract_py_bool p =
+  match p with
+  | Pybool b -> b
+  | _ -> false
+
 (* Opener related functions *)
 
 (* Sends the openings in opener_list to the gui
@@ -177,7 +185,9 @@ let format_replies opening_book algno_history =
 
 let () =
   let guistate = ref (Pyref (get_ref gui "start_game" [])) in
-  let update = ref (get_bool gui "update_game" [!guistate; Pybool true]) in
+  let update = ref (get_list gui "update_game" [!guistate; Pybool true]) in
+  let was_click = ref (extract_py_bool (List.nth !update 0)) in
+  let game_running = ref (extract_py_bool (List.nth !update 1)) in
   let board = ref Board.init_board in
   (* let highlights = ref [] in *)
   let last_move = ref None in
@@ -192,11 +202,14 @@ let () =
   (* Move history in Standard Algebraic Notation *)
   let algno_history = ref [] in
 
-  while (true) do (*Gameloop. TODO: replace true with endgame check *)
-    update := (get_bool gui "update_game" [!guistate; Pybool true]);
+
+  while (!game_running) do (*Gameloop. TODO: replace true with endgame check *)
+    update := (get_list gui "update_game" [!guistate; Pybool true]);
+    was_click := (extract_py_bool (List.nth !update 0));
+    game_running := (extract_py_bool (List.nth !update 1));
 
     (* check if there was a click*)
-    if (!update = true && not !game_end) then begin
+    if (!was_click && not !game_end) then begin
       (* retrieve the click and parses it into the type defined above *)
       let click = parse_click !guistate in
       match click with
@@ -317,7 +330,7 @@ let () =
       | _ -> guistate := !guistate
     end
     (* These are all the things the player can do if the game has ended *)
-    else if (!update = true) then begin
+    else if (!was_click = true) then begin
       let click = parse_click !guistate in
       match click with
       (* Each button will have it's own match case and we can do things based
