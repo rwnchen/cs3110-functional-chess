@@ -5,6 +5,11 @@ open Str
 
 type color = | White | Black
 
+(* [piece_rank] represents a chess piece type.
+ * Both the king and the rook pieces have a flag for whether or not they have
+ * already moved. The pawn contains two flags, one for whether or not they have
+ * moved, and the other for whether or not they have advanced two spaces before.
+ *)
 type piece_rank =
   | King of bool
   | Queen
@@ -34,46 +39,59 @@ type end_game = | Checkmate | Stalemate
 (*************************** BOARD INITIALIZATION *****************************)
 (******************************************************************************)
 
-let rec setup_board color =
-  match color with
-  | Black ->
+(* [init_board]
+ * A board with all pieces in their initial positions. Returns a tuple of lists
+ * of pieces and their positions. The first list is the black pieces, while the
+ * second is the white. *)
+let rec init_board = (
       List.rev_append
         (setup_front Black 7 1 [])
-        (setup_back  Black 8)
-  | White ->
+        (setup_back  Black 8),
       List.rev_append
         (setup_front White 2 1 [])
-        (setup_back  White 1)
+        (setup_back  White 1))
 
-and setup_front color rank count lst =
-  if count <= 8
-  then
-    let pos = (count, rank) in
-    setup_front color rank (count+1) ((pos, (color, Pawn (false,false)))::lst)
-  else lst
+(* [setup_front color rank count lst]
+ * Helper to init_board. Returns a list of pawns of a given color set up in
+ * their initial positions.
+ * [c]: color of pawns to set up
+ * [f]: file of current pawn to set up
+ * [acc]: an accumulator for the list of pawns *)
+and setup_front c f acc =
+  let r = match c with | Black -> 7 | White -> 2 in
+  let pos = (f,r) in
+  if f <= 8
+  then setup_front c (f+1) ((pos, (c, Pawn (false,false)))::acc)
+  else acc
 
-and setup_back color rank =
-  [ ((1, rank), (color, Rook false));
-    ((8, rank), (color, Rook false));
-    ((2, rank), (color, Knight));
-    ((7, rank), (color, Knight));
-    ((3, rank), (color, Bishop));
-    ((6, rank), (color, Bishop));
-    ((4, rank), (color, Queen));
-    ((5, rank), (color, King false)); ]
+(* [setup_back c r]
+ * Helper to init_board. Returns a list of all non-pawn pieces of a given color
+ * set up in their initial positions.
+ * [c]: color of pieces to set up *)
+and setup_back c r =
+  let r = match c with | Black -> 8 | White -> 1 in
+  [ ((1, r), (c, Rook false));
+    ((8, r), (c, Rook false));
+    ((2, r), (c, Knight));
+    ((7, r), (c, Knight));
+    ((3, r), (c, Bishop));
+    ((6, r), (c, Bishop));
+    ((4, r), (c, Queen));
+    ((5, r), (c, King false)); ]
 
 
-let init_board = ((setup_board Black), (setup_board White))
-
-(*https://github.com/shrumo/chess-engine*)
-let piece_string p color =
+(* [piece_string p c]
+ * Taken from https://github.com/shrumo/chess-engine
+ * Coverts pieces to strings of their unicode counterparts.
+ * [c]: color of the piece *)
+let piece_string p c =
   match p with
-  | Pawn (m,a) -> if color = Black then "♙" else "♟"
-  | Rook b -> if color = Black then "♖" else "♜"
-  | Knight -> if color = Black then "♘" else "♞"
-  | Bishop -> if color = Black then "♗" else "♝"
-  | Queen -> if color = Black then "♕" else "♛"
-  | King b ->  if color = Black then "♔" else "♚"
+  | Pawn _ -> if c = Black then "♙" else "♟"
+  | Rook _ -> if c = Black then "♖" else "♜"
+  | Knight -> if c = Black then "♘" else "♞"
+  | Bishop -> if c = Black then "♗" else "♝"
+  | Queen -> if c = Black then "♕" else "♛"
+  | King _ ->  if c = Black then "♔" else "♚"
 
 let board_to_matrix b =
   let bb = (fst b) @ (snd b) in
@@ -85,7 +103,6 @@ let board_to_matrix b =
       let ind = string_of_int x ^ string_of_int y in
       make t [(ind,p)]@mat
   in make bb []
-
 
 let get_axis coord =
   match coord with
@@ -107,6 +124,9 @@ let get_axis coord =
   |(0,16) -> "1 "
   | _ -> ""
 
+(* [print_board b]
+ * Prints and ASCII representation of board [b].
+ * [b]: the board to print  *)
 let print_board b =
   let m = board_to_matrix b in
   let s = ref "" in
@@ -141,13 +161,31 @@ let print_board b =
 
 (************************** HELPERS **************************)
 
+(* [oppc c]
+ * Given a color, return the opposite color.
+ * [c]: the color to take the opposite of *)
 let oppc c = match c with | Black -> White | White -> Black
-let getpcs (b:board) (c:color) = match c with | Black -> fst b | White -> snd b
+
+(* [getpcs b c]
+ * Retrieve a color's pieces from the board.
+ * [b]: the board state to get pieces from
+ * [c]: the color of pieces to retrieve *)
+let getpcs b c = match c with | Black -> fst b | White -> snd b
+
+(* [getcheck c]
+ * Given a color, return its respective check type.
+ * [c]: the color check to retrieve *)
 let getcheck c = match c with | Black -> Black_Check | White -> White_Check
 
 
 (************************ CHECK LOGIC ************************)
 
+(* [is_check b last_move c]
+ * Returns whether a color is in check or not. Returns the color's check type if
+ * so, [No_Check] if not.
+ * [b]: the board state to check for check
+ * [last_move]: the last move made on the board
+ * [c]: the color to check for check *)
 let rec is_check b last_move c =
   let opp_pieces = getpcs b (oppc c) in
   let k_pos =
@@ -158,7 +196,11 @@ let rec is_check b last_move c =
   then getcheck c
   else No_Check
 
-
+(* [find_king ps]
+ * Returns the position of the king in a list of pieces. Fails if not found, as
+ * it should not be possible for the king to be removed from a board's list of
+ * pieces.
+ * [ps]: a color's set of pieces from a board state *)
 and find_king ps =
   try
     fst (List.find
@@ -168,8 +210,13 @@ and find_king ps =
       ps)
   with Not_found -> failwith "Somehow captured a king."
 
+
 (* Attack array and associated logic from Jonatan Pettersson at
  * http://mediocrechess.blogspot.com/2006/12/guide-attacked-squares.html *)
+
+(* [attack_array]
+ * Some mathemagical that allows easy lookup of whether or not a piece in one
+ * position can attack another. *)
 and attack_array =
    [0;0;0;0;0;0;0;0;0;5;0;0;0;0;0;0;2;0;0;0;     (* 0-19 *)
     0;0;0;5;0;0;5;0;0;0;0;0;2;0;0;0;0;0;5;0;     (* 20-39 *)
@@ -185,8 +232,15 @@ and attack_array =
     0;0;0;0;2;0;0;0;0;0;5;0;0;5;0;0;0;0;0;0;     (* 220-239 *)
     2;0;0;0;0;0;0;5;0;0;0;0;0;0;0;0;0         ]  (* 240-256 *)
 
-and fr2sq (f,r) = 16 * (r-1) + (f-1)
+(* [fr2sq (f,r)]
+ * Converts a [position] to 0x88 notation, which is required to use the attack
+ * array.
+ * [(f,r)]: the tuple representation of a position  *)
+and fr_88 (f,r) = 16 * (r-1) + (f-1)
 
+(* [att_constants]
+ * More mathemagical numbers. Used in conjunction with the array to check if a
+ * specific piece type can attack a space. *)
 and att_constants = [
   ("k" , [1;3;4]);
   ("q" , [2;3;4;5]);
@@ -197,6 +251,12 @@ and att_constants = [
   ("p" , [3;4]);
 ]
 
+(* [can_attack p (fa,ra) (fd,rd)]
+ * Returns a bool for whether it is possible for a piece to attack a position on
+ * the board, given its current position.
+ * [p]: the piece that is attacking
+ * [(fa,ra)]: the attacking position
+ * [(fd,rd)]: the defending position *)
 and can_attack p (fa,ra) (fd,rd) =
   let parray =
     match snd p with
@@ -209,11 +269,19 @@ and can_attack p (fa,ra) (fd,rd) =
       else List.assoc "bw" att_constants
     | Knight -> List.assoc "n" att_constants
     | Pawn _ -> List.assoc "p" att_constants in
-  let att_sq = fr2sq (fa,ra) in
-  let def_sq = fr2sq (fd,rd) in
+  let att_sq = fr_88 (fa,ra) in
+  let def_sq = fr_88 (fd,rd) in
   let formula = def_sq - att_sq + 128 in
   List.mem (List.nth attack_array formula) parray
 
+(* [is_attacked b last_move opp_ps d_pos]
+ * Returns a bool for whether a position is actually attacked by a piece, given
+ * the current state a the board. Essentially checks if the piece can actually
+ * move into the position.
+ * [b]: the current board
+ * [last_move]: the last move made on the board
+ * [opp_ps]: the attacking color's pieces
+ * [d_pos]: the defending position *)
 and is_attacked b last_move opp_ps d_pos =
   match opp_ps with
   | [] -> false
@@ -226,10 +294,15 @@ and is_attacked b last_move opp_ps d_pos =
     else is_attacked b last_move t d_pos
 
 
-(********************* PSUEDO-MOVE LOGIC *********************)
+(********************* PSEUO-MOVE LOGIC *********************)
 
-(* [moves p pos] returns a list positions that piece [p] can move to, given that
- * it is in position [pos] on board [b]. *)
+(* [moves b last_move p (f,r)]
+ * Returns a list of psuedo moves for a given piece.
+ * A pseudo move is one that is restricted only by the piece's movement rules.
+ * [b]: the board state
+ * [last_move]: the last move made on the board
+ * [p]: the moving piece
+ * [(f,r)]: the position of the moving piece *)
 and moves b last_move p (f,r) =
   match (snd p) with
   | King moved -> moves_k b last_move (fst p) moved (f,r)
@@ -239,14 +312,27 @@ and moves b last_move p (f,r) =
   | Bishop -> moves_b b (fst p) (f,r)
   | Pawn (moved,advanced) -> moves_p b last_move (fst p) (moved,advanced) (f,r)
 
+(* [in_bounds (f,r)]
+ * Returns a bool for whether a given space is on the board.
+ * [(f,r)]: the position to check *)
 and in_bounds (f,r) = 1<=f && f<=8 && 1<=r && r<=8
 
-
+(* [is_occupied b (f,r)]
+ * Checks whether a space is occupied by a piece on a board. Returns an option
+ * containing the color of the piece if occupied.
+ * [b]: the board
+ * [(f,r)]: the position to check for occupancy *)
 and is_occupied b (f,r) =
   if List.mem_assoc (f,r) (fst b) then Some Black
   else if List.mem_assoc (f,r) (snd b) then Some White
   else None
 
+(* [moveable_space b c (f,r)]
+ * Checks whether a space is can be moved into, i.e. it is in bounds on the
+ * board and either is unoccupied or contains a piece of the opposing color.
+ * [b]: the board
+ * [c]: the color of the moving piece
+ * [(f,r)]: the space to check for moveability *)
 and moveable_space b c (f,r) =
   if in_bounds (f,r)
   then
@@ -255,6 +341,8 @@ and moveable_space b c (f,r) =
     | None -> [(f,r)]
   else []
 
+(* [check_dir b c (f,r) (dx,dy) lst]
+ *)
 and check_dir b c (f,r) (dx,dy) lst =
   let new_space = (f+dx,r+dy) in
   if not (in_bounds new_space) then lst
