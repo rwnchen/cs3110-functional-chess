@@ -128,7 +128,7 @@ class GameBoard(tk.Frame):
         self.historyframe = Frame(bd=0, relief=SUNKEN, width=canvas_width/2)
         Label(self.historyframe,text="Move History").pack(side="top")
         Label(frame,
-        text="Click To Revert To Move Before Selection").pack(side="bottom")
+        text="Click Move Above Revert To Move Before Selection").pack(side="bottom")
         self.historyframe.pack(side="right",fill="x", padx=75, pady=5)
         scrollbar = Scrollbar(self.historyframe)
         scrollbar.pack(side="right", fill="y")

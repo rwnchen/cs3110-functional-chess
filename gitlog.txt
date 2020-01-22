@@ -1,0 +1,1781 @@
+commit b203ba3b1141a88259368cf71c1cecee27ead9ab
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Dec 7 16:07:01 2017 -0500
+
+    added image source file
+
+ img/image_source.md | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit 1e1a04da0e48ecd967721a1dc40c5754c738bc55
+Author: Jacob Rauch <jacobrauch@dhcp-clara-824.eduroam.cornell.edu>
+Date:   Thu Dec 7 16:05:48 2017 -0500
+
+    linux
+
+ Makefile  | 2 +-
+ README.md | 2 +-
+ server.sh | 2 ++
+ 3 files changed, 4 insertions(+), 2 deletions(-)
+
+commit ae9d9323e6086e732d8a4857a1b9d3654bd3b1db
+Merge: 0735715 6b43d27
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Dec 7 15:45:33 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 0735715f00d054eca6f4a96f614ac44e68c20538
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Dec 7 15:45:27 2017 -0500
+
+    repositioned gui stuff
+
+ gui.py | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
+
+commit 6b43d27e121ac49e6e410a5825c79e1bf0b7b417
+Merge: d5ae046 c366888
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Thu Dec 7 15:36:53 2017 -0500
+
+    merge
+
+commit d5ae046310132af2c4be1e14473c291505bc7370
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Thu Dec 7 15:35:22 2017 -0500
+
+    Bringing logging BACK
+
+ gui.py | 68 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 67 insertions(+), 1 deletion(-)
+
+commit f675e6bcd3e2a4a0c4dc1ad6840611b638dbd1f4
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Thu Dec 7 15:32:25 2017 -0500
+
+    Added the log cleaning script
+
+ log/clean | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit c36688847784dbf114f46da7580991d3a6b01e68
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Dec 7 15:31:21 2017 -0500
+
+    app now quits gracefully
+
+ controller.ml | 23 ++++++++++++++++++-----
+ gui.py        | 14 +++++++++-----
+ 2 files changed, 27 insertions(+), 10 deletions(-)
+
+commit 1f289117d9e253a0007e0d4fb899c924730f055d
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Dec 7 15:17:28 2017 -0500
+
+    checkmate fix
+
+ controller.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 01c3991aae1f24aab27b1f252ab0495a18fc9931
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Thu Dec 7 15:10:38 2017 -0500
+
+    Checkmate checking for gui
+
+ board.ml      |  4 +--
+ controller.ml | 96 ++++++++++++++++++++++++++++++++++++++++++-----------------
+ gui.py        |  5 +++-
+ 3 files changed, 74 insertions(+), 31 deletions(-)
+
+commit 92948b024ca01cefd918f57d918552f90e164f4e
+Merge: 77d162a 9edaf00
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Thu Dec 7 13:40:50 2017 -0500
+
+    merge
+
+commit 77d162a287d032eb0aae9a0af24f37d8712b67ac
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Thu Dec 7 13:40:35 2017 -0500
+
+    pawn advance logic
+
+ board.ml | 6 +++++-
+ test.ml  | 1 -
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+commit 9edaf004274cc4e89c7595232d4b2403d9698427
+Author: Jacob Rauch <jacobrauch@dhcp-hol-3501.eduroam.cornell.edu>
+Date:   Thu Dec 7 12:43:41 2017 -0500
+
+    server read
+
+ README.md | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit bdaa8e8323886accc6f6a0e2978fde62bfbf3cd4
+Author: Jacob Rauch <jacobrauch@dhcp-hol-3501.eduroam.cornell.edu>
+Date:   Thu Dec 7 12:12:24 2017 -0500
+
+    network gui :(
+
+ Makefile      |  5 +++--
+ client_gui.ml | 19 +++++++++++++------
+ 2 files changed, 16 insertions(+), 8 deletions(-)
+
+commit 53d08d0e2be5461990f1ebf9347e3bc01fac1c03
+Merge: d26f4bb fde6ae5
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Dec 7 11:51:13 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit d26f4bbfdb530851e9c98b1b2bbb0e697422338c
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Dec 7 11:51:09 2017 -0500
+
+    readme update with gui
+
+ README.md | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+commit fde6ae545002057fe95b0a5e95d4eb4cb866f5e5
+Merge: 34b5f67 9251b89
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Thu Dec 7 11:41:48 2017 -0500
+
+    merge
+
+commit 9251b89b2ab1dcb061cd2aac18b6a82351d1b5cb
+Merge: 03dbd24 531ab6c
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Dec 7 11:26:53 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 03dbd24c2d04dad3180572a7e1db5140c7755e15
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Dec 7 11:26:27 2017 -0500
+
+    reduced column length of some lines
+
+ controller.ml | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+commit 531ab6ce1fd3266d2e593f8ae572d10562f63ca0
+Author: Jacob Rauch <jacobrauch@dhcp-hol-3501.eduroam.cornell.edu>
+Date:   Thu Dec 7 11:25:14 2017 -0500
+
+    read 2
+
+ README.md | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+commit 3f912163f2a193630acb84c6fa3955e93c921149
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Dec 7 11:25:05 2017 -0500
+
+    removed controller mli and added function specs to controller
+
+ controller.ml  | 41 +++++++++++++++++++++++++++++++++++++++--
+ controller.mli | 36 ------------------------------------
+ 2 files changed, 39 insertions(+), 38 deletions(-)
+
+commit 87421f411c72f946b42e3d587126396b40126634
+Merge: 1726d42 63f31cc
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Dec 7 11:22:55 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 1726d42920cacb79140181ed6637015039c6b073
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Dec 7 11:22:48 2017 -0500
+
+    knigh promote fix
+
+ gui.py | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit 63f31ccab60b0698fe46abba796709d803dfcc87
+Author: Jacob Rauch <jacobrauch@dhcp-hol-3501.eduroam.cornell.edu>
+Date:   Thu Dec 7 11:22:10 2017 -0500
+
+    read
+
+ README.md | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
+
+commit 1c674cb3ab4bf2c52681dc833b7f706602b2bb44
+Merge: 7e519ff 5adefe2
+Author: Jacob Rauch <jacobrauch@dhcp-hol-3501.eduroam.cornell.edu>
+Date:   Thu Dec 7 11:09:51 2017 -0500
+
+    update
+
+commit 7e519ffe2918239be59167ba231011c6eddc5820
+Author: Jacob Rauch <jacobrauch@dhcp-hol-3501.eduroam.cornell.edu>
+Date:   Thu Dec 7 11:09:01 2017 -0500
+
+    clean up
+
+ Makefile     |  3 ---
+ computer.mli | 10 ----------
+ main.ml      |  3 ---
+ server.sh    |  2 +-
+ 4 files changed, 1 insertion(+), 17 deletions(-)
+
+commit 5adefe2fdcd1be619e383e901c9d0759ec2d2b2c
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Dec 7 10:59:37 2017 -0500
+
+    added function specs to the gui
+
+ gui.py | 166 ++++++++++++++++++++++++++++++++++++++++++++++-------------------
+ 1 file changed, 118 insertions(+), 48 deletions(-)
+
+commit 34b5f67a09ca26c3298a7aa601ae0b780c92f3bd
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Thu Dec 7 10:54:44 2017 -0500
+
+    reversed the breaking
+
+ board.ml | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
+
+commit def3affde87d16c4e4e917e6107bf05d0b33153d
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Thu Dec 7 10:44:41 2017 -0500
+
+    board
+
+ board.ml | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+commit 7362a19e505b37bb384bde024317dee200b929cd
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Dec 7 10:00:33 2017 -0500
+
+    promotion fix
+
+ gui.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit eee625d6788160ec961fca753a16c49d35577544
+Author: Jacob Rauch <jacobrauch@dhcp-hol-3501.eduroam.cornell.edu>
+Date:   Thu Dec 7 09:51:35 2017 -0500
+
+    hist
+
+ Makefile   |  2 +-
+ server.ml  | 41 ++++++++++++++++++++++++++++++++++++-----
+ server.mli |  2 +-
+ 3 files changed, 38 insertions(+), 7 deletions(-)
+
+commit 87c5e60b213d1b64d00b8c0b016f509b69afc443
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Thu Dec 7 07:58:17 2017 -0500
+
+    fixed board mli
+
+ board.ml  | 11 ++---------
+ board.mli | 46 +++++++++++++++++++++++++++-------------------
+ 2 files changed, 29 insertions(+), 28 deletions(-)
+
+commit 7aa7b8b3730ca32bf9be4946f5c4f012d0e2d716
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Thu Dec 7 07:45:27 2017 -0500
+
+    finished board spec
+
+ board.ml      | 178 +++++++++++++++++++++++++++++++++++++++++-----------------
+ controller.ml |   8 ++-
+ test.ml       |   3 -
+ 3 files changed, 130 insertions(+), 59 deletions(-)
+
+commit bccbfedaf54faf650110648db9d3178106b432af
+Merge: 5777107 bb50f1e
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Thu Dec 7 05:49:40 2017 -0500
+
+    merge
+
+commit 57771072e4d62a780768dfde05157cc6b3d0e12f
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Thu Dec 7 05:49:09 2017 -0500
+
+    spec
+
+ board.ml | 81 +++++++++++++++++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 62 insertions(+), 19 deletions(-)
+
+commit bb50f1e50292671e780f419c548d3d7baa3e8858
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Thu Dec 7 01:59:21 2017 -0500
+
+    bugfix in merge
+
+ gui.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 27cc1ed07eda4ead387878020b2514c054cc5cd0
+Merge: c7082cd 70ace09
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Thu Dec 7 01:53:56 2017 -0500
+
+    MERGE GUI
+
+commit c7082cdc8eb5d2e8e8735d373cd6323ebcd2aef7
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Thu Dec 7 01:52:36 2017 -0500
+
+    Updated openings database with a lot mroe games' statistics. GUI now displays the top 5 best openings for the current sequence.
+
+ controller.ml         | 65 ++++++++++++++++++++++++++++++++++++++++++++++++---
+ controller.mli        |  2 +-
+ gui.py                |  6 ++++-
+ opener.ml             | 19 ++++++++-------
+ opener.mli            | 37 +++++++++++++++++------------
+ openings/eco_openings |  2 +-
+ 6 files changed, 102 insertions(+), 29 deletions(-)
+
+commit 70ace099e6e689f772ceb546db7309d9d45c4746
+Author: Jacob Rauch <jacobrauch@dhcp-gs-7598.eduroam.cornell.edu>
+Date:   Thu Dec 7 01:04:47 2017 -0500
+
+    mli
+
+ server.mli | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+commit 35aa77388daebb6066e0f22e4b8772d3ed6fd708
+Merge: 9355967 bb74b8a
+Author: Jacob Rauch <jacobrauch@dhcp-gs-7598.eduroam.cornell.edu>
+Date:   Thu Dec 7 01:00:17 2017 -0500
+
+    check
+
+commit 93559678e82b0936b94e3f79b269ecf04fe43254
+Author: Jacob Rauch <jacobrauch@dhcp-gs-7598.eduroam.cornell.edu>
+Date:   Thu Dec 7 00:58:16 2017 -0500
+
+    hist
+
+ Makefile       |   9 ++-
+ client_gui.ml  | 205 ++++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ client_repl.ml |   5 +-
+ controller.ml  |  46 +++++++++----
+ server         | Bin 1752692 -> 0 bytes
+ server.ml      |  50 +++++++-------
+ server.mli     |  24 +++++++
+ 7 files changed, 289 insertions(+), 50 deletions(-)
+
+commit bb74b8a82db59f03807c19baf08b24d42f660733
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Dec 7 00:33:23 2017 -0500
+
+    added checkmate and stalemate functions
+
+ controller.ml |  6 ++++++
+ gui.py        | 28 +++++++++++++++++++++++++---
+ 2 files changed, 31 insertions(+), 3 deletions(-)
+
+commit 65ad9fde268fda0148a0890da7bd4f4b33219073
+Merge: ddb5d46 27ed741
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Wed Dec 6 23:41:54 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit ddb5d46070025227442657a53fb2e1e33c0b1666
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Wed Dec 6 23:41:48 2017 -0500
+
+    added history recall to local game
+
+ controller.ml  | 42 ++++++++++++++++++++++++++++++++++--------
+ controller.mli |  2 +-
+ gui.py         | 51 ++++++++++++++++++++++++++++++++++++++++++++-------
+ 3 files changed, 79 insertions(+), 16 deletions(-)
+
+commit 27ed7410f795940116344feefd5f770c8427917f
+Author: Kevin Winoto <kw487@cornell.edu>
+Date:   Wed Dec 6 23:33:43 2017 -0500
+
+    Updated with 1800ish openings, from a few pitiful hundred
+
+ openings/eco_openings.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 84f3e1440ea4dcaa31c858def4ebead7fb510da1
+Author: Kevin Winoto <kw487@cornell.edu>
+Date:   Wed Dec 6 23:19:16 2017 -0500
+
+    Adding new openings from another database
+
+ openings/eco_openings.json     | 2 +-
+ openings/eco_openings_old.json | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+commit b9547f39193376d9de09776a4d2d3b1e525f1349
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Wed Dec 6 20:20:30 2017 -0500
+
+    fixed mli
+
+ board.ml  | 24 ++++++++++++------------
+ board.mli |  2 --
+ 2 files changed, 12 insertions(+), 14 deletions(-)
+
+commit 8433427c7f2089845701ec5ecf6a759d6fefd420
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Wed Dec 6 20:00:37 2017 -0500
+
+    fixed a thing
+
+ board.ml | 14 ++------------
+ 1 file changed, 2 insertions(+), 12 deletions(-)
+
+commit 7bbed7efaa7608da25ebc141e25025d139892422
+Merge: 2040fbe 267cae5
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Wed Dec 6 19:54:17 2017 -0500
+
+    merge
+
+commit 2040fbeec5afefb27d6554937ce237fce45d2cc9
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Wed Dec 6 19:53:37 2017 -0500
+
+    getting that thicc s p e c c in
+
+ board.ml | 178 +++++++++++++++++++++++++++++++++++++++++++++++----------------
+ 1 file changed, 133 insertions(+), 45 deletions(-)
+
+commit 267cae53da6f8277d24903881e7d59108fb76ed8
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Wed Dec 6 19:52:36 2017 -0500
+
+    promotion working in gui
+
+ board.ml      | 2 +-
+ controller.ml | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+commit a8441dfbc1b92b5d58333590e9f96bc604d5cb09
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Wed Dec 6 19:49:49 2017 -0500
+
+    fixed board
+
+ board.ml      | 15 ++++++++++-----
+ controller.ml |  1 +
+ 2 files changed, 11 insertions(+), 5 deletions(-)
+
+commit 8c830c8850b2a9b4fd6b65aa7f27cbf46cf4ba78
+Merge: 35560a8 3f69d7e
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Wed Dec 6 19:33:22 2017 -0500
+
+    merge
+
+commit 35560a81b109c00f55753a30399c37f94bab3800
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Wed Dec 6 19:32:43 2017 -0500
+
+    promotion stuff
+
+ board.ml      | 13 -------------
+ board.mli     |  1 +
+ controller.ml | 23 +++++++++++++++++------
+ gui.py        |  4 +++-
+ 4 files changed, 21 insertions(+), 20 deletions(-)
+
+commit 3f69d7eb58e8565011aab48ca47070711b632e95
+Merge: fcc5ca0 055050a
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Wed Dec 6 17:42:46 2017 -0500
+
+    merge
+
+commit fcc5ca0ccd4afd5aecdf24381a14ea6b6f12adc6
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Wed Dec 6 17:41:55 2017 -0500
+
+    King moves diagonally now
+
+ board.ml | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
+
+commit 055050ad6d83dbe03e58315b8a3251fc17eaaf4f
+Merge: fab656f 5d5a713
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Wed Dec 6 17:29:57 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit fab656fdb8abcc7ccabb1a7843e6a215dc3cb6ba
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Wed Dec 6 17:29:54 2017 -0500
+
+    updated functions so they're more clear to what they return
+
+ controller.ml  | 25 ++++++++++++-------------
+ controller.mli |  6 +++---
+ gui.py         | 14 ++++++--------
+ 3 files changed, 21 insertions(+), 24 deletions(-)
+
+commit 5d5a71395ba2277230b6bc131eff87d48007f94e
+Merge: a636af2 2250e2d
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Wed Dec 6 17:23:22 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit a636af261400faa694261537f7c8d6e61da8197d
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Wed Dec 6 17:23:16 2017 -0500
+
+    Added best_reply to obtain a list of top n replies given a move history in algebraic notation.
+
+ opener.ml  | 18 +++++++++++++++++-
+ opener.mli | 11 +++++++++++
+ trie.ml    | 36 ++++++++++++++++++++++++++++++++++++
+ trie.mli   | 25 ++++++++++++++++++++++++-
+ 4 files changed, 88 insertions(+), 2 deletions(-)
+
+commit 2250e2ddb9b53551e67c938e094459223d64fd88
+Merge: 22e0496 38b842f
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Wed Dec 6 17:07:32 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 22e0496f0174748ba03a14505125a4c511e0a312
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Wed Dec 6 17:07:26 2017 -0500
+
+    Promotion added in gui (not actually promoting yet)
+
+ board.ml      | 13 ++++++++++
+ controller.ml | 33 ++++++++++++++++--------
+ gui.py        | 82 ++++++++++++++++++++++++++++++++++++++++++++++++++++-------
+ 3 files changed, 109 insertions(+), 19 deletions(-)
+
+commit 38b842fed7b7def322fc8f50f0e269f99b6b22c7
+Author: Jacob Rauch <jacobrauch@dhcp-rhodes-1231.eduroam.cornell.edu>
+Date:   Wed Dec 6 13:34:26 2017 -0500
+
+    ip
+
+ Makefile | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+commit 2c0d10dafc095fcd7df65e29e103a0bd9e2982ce
+Author: Jacob Rauch <jacobrauch@dhcp-rhodes-1231.eduroam.cornell.edu>
+Date:   Wed Dec 6 13:29:54 2017 -0500
+
+    kill
+
+ server.ml | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+commit 91919734f084236ac18cfd9a9a8b47c37d2caa5c
+Author: Jacob Rauch <jacobrauch@dhcp-rhodes-1231.eduroam.cornell.edu>
+Date:   Wed Dec 6 13:01:18 2017 -0500
+
+    gui net
+
+ Makefile                   |  7 +++++--
+ client.ml => client_gui.ml |  3 ++-
+ client_repl.ml             | 38 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 45 insertions(+), 3 deletions(-)
+
+commit 418b69391e0cf24adbafd88a82ab6b485a90a0d2
+Author: Jacob Rauch <jacobrauch@dhcp-rhodes-1231.eduroam.cornell.edu>
+Date:   Wed Dec 6 12:43:56 2017 -0500
+
+    client
+
+ Makefile  |  5 ++++-
+ client.ml | 37 +++++++++++++++++++++++++++++++++++++
+ server.ml | 30 ++++++++++++++++++------------
+ server.sh |  2 ++
+ 4 files changed, 61 insertions(+), 13 deletions(-)
+
+commit aa828d6076d20843d591d1670752187792f3e042
+Merge: e43d98b 39d88f0
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Tue Dec 5 12:44:19 2017 -0500
+
+    oh i remember now it was some debug printing stuff. en passant-related.
+
+commit e43d98b689bd5f8173edc18a2dd552f669f80d09
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Tue Dec 5 12:42:06 2017 -0500
+
+    i don't even remember what i changed for this. probably something en passant-related. no one even uses en passant ever.
+
+ board.ml      | 13 +++++++++----
+ controller.ml |  2 +-
+ 2 files changed, 10 insertions(+), 5 deletions(-)
+
+commit 39d88f036aa50005b627d3d826a6f58ff7fec351
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Tue Dec 5 12:22:58 2017 -0500
+
+    Working en passant in the gui
+
+ controller.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 5f241bd7c7d86a7c085d39779f7db1b8f4120022
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Tue Dec 5 00:08:13 2017 -0500
+
+    Updated comments for board interface
+
+ board.mli | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+commit dcf202df8cf1a77f79241819f47d76d04a6bef6d
+Merge: 2c17772 aac5739
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 23:59:46 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 2c177723a6cb89465dbc17bdbf22bb00d43545d2
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 23:59:33 2017 -0500
+
+    Completed: from_algno. Bugfixes for to_algno. Also integrated wtih repl for testing. Tested on a variety of moves BUT NOT YET promotions
+
+ application.ml |  10 +++-
+ board.ml       | 164 +++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ board.mli      |   2 +-
+ 3 files changed, 169 insertions(+), 7 deletions(-)
+
+commit aac57397b191f826305a753ba2308a163152a0e7
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 21:31:02 2017 -0500
+
+    fixed logic error
+
+ board.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit dee5b52afcec5bbbf4ed39646c4b0d6d181ccf6d
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 21:19:46 2017 -0500
+
+    Bugfix: to_algno was not correctly using the is_check function to detect check and checkmate moves
+
+ board.ml | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+commit 85b65553342535501aa2081d9f6425ba96b3eed9
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 21:09:52 2017 -0500
+
+    Bugfix WIP: Added debug prints, integrated to_algno to the repl
+
+ application.ml | 18 ++----------------
+ board.ml       | 35 +++++++++++++++++++++++++++++++----
+ board.mli      |  9 ++++++---
+ 3 files changed, 39 insertions(+), 23 deletions(-)
+
+commit e206d08f97f2c47d8671aeaf432e88e12f611ccb
+Author: Jacob Rauch <jacobrauch@dhcp-clara-1849.eduroam.cornell.edu>
+Date:   Mon Dec 4 18:53:26 2017 -0500
+
+    play
+
+ Makefile       |  2 +-
+ application.ml |  2 +-
+ server.ml      | 11 +++++++++--
+ 3 files changed, 11 insertions(+), 4 deletions(-)
+
+commit 13584cb5c7d5018890fbc4c8b18ac8256db27981
+Merge: 51e7bae b8cccab
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Mon Dec 4 18:28:45 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 51e7bae0223084c0962b63926e9d9088617d2f5a
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Mon Dec 4 18:28:35 2017 -0500
+
+    board: WIP to be tested converting moves TO algebraic notation
+
+ board.ml  | 174 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ board.mli |  12 +++--
+ 2 files changed, 180 insertions(+), 6 deletions(-)
+
+commit b8cccabe41e1874dd356a05dd2783669f1e55da9
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 18:27:27 2017 -0500
+
+    fixed colors and orders for history print out
+
+ controller.ml | 9 +++++++--
+ gui.py        | 4 ++--
+ 2 files changed, 9 insertions(+), 4 deletions(-)
+
+commit ee81eb736584ca5703faadead265b374530a39e4
+Merge: 29ebbf2 4eb41e4
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 18:18:34 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 29ebbf20f3fcf0e776c56082122d734ff7604ddb
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 18:18:21 2017 -0500
+
+    code to print color
+
+ controller.ml | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+commit 4eb41e423d442b819418fc6d7f5411372d79631c
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 18:17:46 2017 -0500
+
+    fixing board.
+
+ board.ml | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit a9cdec56bb0ee4b49c95ff36c5fa928589617b51
+Merge: e399553 5526111
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 18:11:06 2017 -0500
+
+    merge
+
+commit e399553bbd05028dd711159b44c009ce43f6f1dd
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 18:10:54 2017 -0500
+
+    i actually hate pawns
+
+ board.ml | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
+
+commit 552611102413264b849afb4738e327edd2587ce4
+Merge: 554e994 afce7fe
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 18:10:24 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 554e994f0fc38adb9b0c57115248a1a4ff3e477d
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 18:10:20 2017 -0500
+
+    added history to gui
+
+ controller.ml  | 22 ++++++++++++++++++----
+ controller.mli |  2 +-
+ gui.py         |  5 +++--
+ 3 files changed, 22 insertions(+), 7 deletions(-)
+
+commit afce7fe5002da6dd54d69c09c6c1924fc4afe793
+Merge: 496e05f 0790da9
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 17:48:13 2017 -0500
+
+    merge
+
+commit 496e05f74108cb2e433629ceed4e19e0f9d51431
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 17:47:57 2017 -0500
+
+    still fixing pawns
+
+ board.ml | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
+
+commit 0790da9afa9ee6fe5ee8d2cb184e7d1896cd5795
+Merge: 6569f03 6cab7cf
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 17:34:23 2017 -0500
+
+    merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 6569f036023653237a5e9221e0015354f9b2a0f0
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 17:34:19 2017 -0500
+
+    working en passant
+
+ gui.py | 30 +++++++++++++++++++++++-------
+ 1 file changed, 23 insertions(+), 7 deletions(-)
+
+commit 6cab7cf7a71038c37f3457058d7961859d483122
+Merge: e53b832 9e9d594
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 17:26:03 2017 -0500
+
+    merge
+
+commit e53b832d2a56b92b9aeba82ad4cfa4ff444d0605
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 17:23:34 2017 -0500
+
+    castling updating board now
+
+ board.ml | 38 +++++++++++++++++++++++++++-----------
+ 1 file changed, 27 insertions(+), 11 deletions(-)
+
+commit 9e9d59477b2a6580585d32ba814ffa1ee5ba2c6c
+Merge: 9f43188 a100e09
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 17:08:19 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 9f431883513b1264daa8dbeeec0db950938f8246
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 17:08:16 2017 -0500
+
+    added printing of last move
+
+ controller.ml | 55 +++++++++++++++++++++++++++++++++----------------------
+ 1 file changed, 33 insertions(+), 22 deletions(-)
+
+commit a100e09f57b915d49156b88b999f4ced3b75e315
+Merge: d209647 975ea09
+Author: Jacob Rauch <jacobrauch@dhcp-rhodes-2000.eduroam.cornell.edu>
+Date:   Mon Dec 4 16:41:59 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit d209647cdf958c3cc573e87e3a0edc10965f8605
+Author: Jacob Rauch <jacobrauch@dhcp-rhodes-2000.eduroam.cornell.edu>
+Date:   Mon Dec 4 16:41:52 2017 -0500
+
+    network
+
+ server.ml | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+commit 975ea097c4c07ce0d77bfc4b7256b6a951736590
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 16:34:24 2017 -0500
+
+    IDK what I changed
+
+ board.mli     |  2 ++
+ controller.ml | 36 +++++++++++++++++++++---------------
+ 2 files changed, 23 insertions(+), 15 deletions(-)
+
+commit 7b8eec5504d4a676060ee34cd6be8a48fa65ca1a
+Merge: 2225dfe 3fc9c5d
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 16:25:57 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 2225dfe5c8a9654d1937892f8af19694571f5e20
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 16:25:54 2017 -0500
+
+    unfinished gui things
+
+ controller.ml |  3 +--
+ gui.py        | 29 +++++++++++++++++++----------
+ 2 files changed, 20 insertions(+), 12 deletions(-)
+
+commit 3fc9c5d4206a376b656aba82206cc3bbfbd3bc57
+Merge: 16fa5f2 62c23c2
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 16:24:39 2017 -0500
+
+    merge
+
+commit 16fa5f270bcc80b60363f6ab5a25c158c0c578a2
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 16:23:53 2017 -0500
+
+    fixing en passant
+
+ application.ml        |   4 +-
+ board.ml              |  77 ++++++++++++++++++++-------
+ board.mli             |   9 ++++
+ opener.ml             | 144 +++++++++++++++++++++++++++++++++-----------------
+ openings/eco_openings |   2 +-
+ server.ml             |  80 +++++++++++++++++++++++-----
+ 6 files changed, 230 insertions(+), 86 deletions(-)
+
+commit d4ab65f3680e660f015fb37091d339410ed66557
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 16:09:10 2017 -0500
+
+    fixing en passant
+
+ board.ml  | 46 +++++++++++++++++++++++++---------------------
+ board.mli |  2 +-
+ 2 files changed, 26 insertions(+), 22 deletions(-)
+
+commit 702bf3c6b0f52f3b0456f96efc67965f8e50c447
+Merge: 7ef80bc 78e4cd6
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 16:06:34 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 62c23c2cb8a426d0c5dbf611c450d537bb998651
+Merge: 2fa34fe 78e4cd6
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Mon Dec 4 16:06:31 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 7ef80bc26a7713dc9f64ee737bc50466e9c42942
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 16:06:30 2017 -0500
+
+    removed simple files
+
+ simple.ml | 20 --------------------
+ simple.py |  8 --------
+ 2 files changed, 28 deletions(-)
+
+commit 2fa34fe58f3f84709283605397e92aecd2928a0c
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Mon Dec 4 16:06:25 2017 -0500
+
+    Added algebraic chess notation conversion helper stubs
+
+ board.ml  | 10 +++++++++
+ board.mli |  9 ++++++++
+ opener.ml | 73 ++++++++++++++++++++++++++++-----------------------------------
+ 3 files changed, 51 insertions(+), 41 deletions(-)
+
+commit 4fe1593b7d53b6a48b870bb2819c54d58cf82500
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 16:06:01 2017 -0500
+
+    Added some more controller logic and fixed gui issues
+
+ application.ml |  2 +-
+ controller.ml  | 17 ++++++++++++++---
+ gui.py         | 20 +++++++++++++++++---
+ simple.ml      |  4 ++--
+ 4 files changed, 34 insertions(+), 9 deletions(-)
+
+commit 78e4cd68891d89c6f8cef5654cfbb1997771585d
+Merge: cb4fdf6 c6be264
+Author: Jacob Rauch <jacobrauch@dhcp-rhodes-2000.eduroam.cornell.edu>
+Date:   Mon Dec 4 15:44:15 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit cb4fdf6862c7bb67b7c56e18f2b05dcd87d54fe6
+Author: Jacob Rauch <jacobrauch@dhcp-rhodes-2000.eduroam.cornell.edu>
+Date:   Mon Dec 4 15:44:09 2017 -0500
+
+    board
+
+ server.ml | 28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
+
+commit c6be2646595c3b319d1781d297f9177700b894d7
+Merge: a7f5565 9e9d5bc
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Mon Dec 4 15:22:38 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit a7f55652d3e46b49f1fda0e399cb818888953df5
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Mon Dec 4 15:22:24 2017 -0500
+
+    Opener data generation and loading complete!
+
+ opener.ml             | 105 ++++++++++++++++++++++++++++++++++++++------------
+ openings/eco_openings |   2 +-
+ 2 files changed, 81 insertions(+), 26 deletions(-)
+
+commit 9e9d5bc37ef58187ea6949423e4b7545451dc499
+Author: Jacob Rauch <jacobrauch@dhcp-rhodes-2000.eduroam.cornell.edu>
+Date:   Mon Dec 4 15:14:54 2017 -0500
+
+    axis
+
+ application.ml |  2 +-
+ board.ml       | 55 ++++++++++++++++++++++++++++++++------------
+ server.ml      | 72 ++++++++++++++++++++++++++++++++++++++++++++++------------
+ 3 files changed, 100 insertions(+), 29 deletions(-)
+
+commit 5efbdc51881953604ec0e640c3ebfc78e7cd7855
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 14:35:10 2017 -0500
+
+    another try
+
+ simple.ml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 18b8a55b6a459c22d779b68934871528be9fb24e
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 14:33:20 2017 -0500
+
+    another fix
+
+ simple.ml | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+commit 8eb8132737aef5fc4112f0ad76763ddcfd696945
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 14:31:31 2017 -0500
+
+    Fixed simple file
+
+ simple.ml | 2 +-
+ simple.py | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+commit 246c3a8602b0c12411103ed03defca753ffc02ca
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Mon Dec 4 14:27:10 2017 -0500
+
+    simple example of Lymp
+
+ simple.ml | 16 ++++++++++++++++
+ simple.py |  8 ++++++++
+ 2 files changed, 24 insertions(+)
+
+commit 3ad46619fa78d1db6e64b766b9e32cd7e85235cd
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 11:11:52 2017 -0500
+
+    minor
+
+ controller.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 11635323ecebbb90be22d0794734a925695672a2
+Merge: 409438c dc11a79
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 10:18:09 2017 -0500
+
+    merged
+
+commit 409438c215ccbca83d0e87bc72594457bbbeef14
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Mon Dec 4 10:17:41 2017 -0500
+
+    Finished game logic.
+
+ application.ml |  69 +++++++++++---
+ board.ml       | 286 ++++++++++++++++++++++++++++++++++-----------------------
+ board.mli      |  14 ++-
+ 3 files changed, 236 insertions(+), 133 deletions(-)
+
+commit dc11a79b8f1cb0820c8de00fd4a3e9ec6e2fce7c
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Sun Dec 3 20:29:28 2017 -0500
+
+    moves and deleting pieces all seem to work on gui. Weird issues with game logic causes problems.
+
+ controller.ml |  2 ++
+ gui.py        | 26 ++++++++++++++++++++------
+ 2 files changed, 22 insertions(+), 6 deletions(-)
+
+commit 1e5ad025046786eeb5db41243fcea960e1299bbd
+Merge: c65da77 b3f6ee6
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Sun Dec 3 19:37:27 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit c65da77e6e20dd7d307c4085a61cb53d81ac847c
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Sun Dec 3 19:37:25 2017 -0500
+
+    gui sort of working with the board
+
+ controller.ml | 79 +++++++++++++++++++++++++++++++++++++++++------------------
+ gui.py        | 37 +++++++++++++++++++---------
+ 2 files changed, 80 insertions(+), 36 deletions(-)
+
+commit b3f6ee6e563398b9f4cbea3da66650f2c122651c
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Sun Dec 3 17:32:57 2017 -0500
+
+    Openings WIP: Bugfix for building opening statistics in progress
+
+ opener.ml             | 48 +++++++++++++++++++++++++++++++++++++++++++++++-
+ openings/eco_openings |  2 +-
+ 2 files changed, 48 insertions(+), 2 deletions(-)
+
+commit 771ddb5944487d0feb69bdd9672c233940895b7e
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Sun Dec 3 16:53:35 2017 -0500
+
+    Bugfix: Removed comments, removed result from moves line.
+
+ replayer.ml | 28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
+
+commit bc90ee4aaeb3b9af46adde6f340d590734f1bf5d
+Merge: bc01a3e ef673fe
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Sun Dec 3 15:53:37 2017 -0500
+
+    Merge
+
+commit bc01a3efd24faf3bf95ad3cc7659b27a682e7fa4
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Sun Dec 3 15:52:26 2017 -0500
+
+    Opener: WIP, all except actually building up the game statistics is ready
+
+ opener.ml  | 100 +++++++++++++++++++++++++++++++++++++++++++++++++++----------
+ opener.mli |  15 +++++++---
+ 2 files changed, 95 insertions(+), 20 deletions(-)
+
+commit ef673fe52b29bbf9928683100bd6bc1a9783d324
+Merge: 03235a8 3df9026
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Sun Dec 3 15:32:16 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 03235a8d38c969ed07db8cd4303eab6cec2aea1c
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Sun Dec 3 15:32:13 2017 -0500
+
+    fixed board orientation so the row at the bottom is 0 and the row at top is 7
+
+ controller.ml |  6 +++++-
+ gui.py        | 16 ++++++++--------
+ 2 files changed, 13 insertions(+), 9 deletions(-)
+
+commit 3df90260cd5478fbb357de76e6b83c38eb76da7d
+Author: Jacob Rauch <jacobrauch@dhcp-rhodes-1121.eduroam.cornell.edu>
+Date:   Sun Dec 3 15:21:22 2017 -0500
+
+    reverse
+
+ board.ml | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit 9a82e4b2c4af6f6f8d4d4993a02324c038e31d15
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Sun Dec 3 15:18:44 2017 -0500
+
+    Pieces moving!
+
+ application.ml | 10 ++++++++--
+ board.ml       | 12 ++++++------
+ 2 files changed, 14 insertions(+), 8 deletions(-)
+
+commit 9877f3998819b13ff5aa0ae77053d9759b0b71a2
+Merge: a2e4a93 a1c82d0
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Sun Dec 3 15:01:45 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit a2e4a934a2f4f820ca031950701a06f4d1f3b817
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Sun Dec 3 15:01:41 2017 -0500
+
+    fixed king and queen issue in the GUI and added interaction between a controller and board.
+
+ controller.ml | 17 +++++++++++++----
+ gui.py        | 21 ++++++++++++++++-----
+ 2 files changed, 29 insertions(+), 9 deletions(-)
+
+commit a1c82d039125bb1b909d3da996a662664188bad2
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Sun Dec 3 14:55:21 2017 -0500
+
+    Merged repl with board.
+
+ application.ml | 54 +++++++++++++++++++++++++++++++++++-------------------
+ board.ml       |  5 +++--
+ board.mli      |  2 +-
+ 3 files changed, 39 insertions(+), 22 deletions(-)
+
+commit 54f853f9411950ad9a21a2d8f9761b6d39631b69
+Merge: cdac270 4e50327
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Sun Dec 3 14:41:30 2017 -0500
+
+    merge?
+
+commit cdac270ca494d6e5a105bee75aece795482a5a6e
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Sun Dec 3 14:40:37 2017 -0500
+
+    Fixed board mli.
+
+ board.ml  | 9 +++++----
+ board.mli | 8 ++++----
+ 2 files changed, 9 insertions(+), 8 deletions(-)
+
+commit 5684a222e732b538db68e2cc07a47915d7698fd9
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Sun Dec 3 14:36:35 2017 -0500
+
+    Fixed math.
+
+ board.ml   | 2 +-
+ opener.mli | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+commit 4e50327b8f3a5179871085c1bc6ac025f490cf06
+Author: Jacob Rauch <jacobrauch@dhcp-rhodes-1121.eduroam.cornell.edu>
+Date:   Sun Dec 3 14:35:40 2017 -0500
+
+    bool
+
+ board.ml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 1617fe4346a729f0c26e7b99831f5c4ecc6f4684
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Sun Dec 3 14:34:23 2017 -0500
+
+    Fixed merge.
+
+ application.ml | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+commit 85b1d75e1dec912b35f5ef2c55d0a296729a091d
+Merge: cbff9c5 a68df06
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Sun Dec 3 14:32:51 2017 -0500
+
+    Merged.
+
+commit cbff9c5ecc0f9da12dcea0e69cdf34ad4875b260
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Sun Dec 3 14:25:37 2017 -0500
+
+    Starting castling.
+
+ application.ml |   6 ++-
+ board.ml       | 131 +++++++++++++++++++++++++++++++--------------------------
+ controller.ml  |   2 -
+ 3 files changed, 76 insertions(+), 63 deletions(-)
+
+commit 8c81a402cd582f2a6d0871bd2d176b2ea7c6a3d8
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Sun Dec 3 13:52:31 2017 -0500
+
+    Opening WIP: Building up the initial json file from readng the pgn
+
+ opener.ml  | 80 +++++++++++++++++++++++++++++++++++++++++++++++++-------------
+ opener.mli |  9 +++----
+ 2 files changed, 67 insertions(+), 22 deletions(-)
+
+commit a68df067e05aa64cb5392b9ad6c05c18eb6affbd
+Author: Kevin W <kw487@cornell.edu>
+Date:   Sun Dec 3 10:28:35 2017 -0800
+
+    Updated openings json
+
+ openings/eco_openings.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 8f6273f2c2bdd729c52b5c3de76afc07d34ff6be
+Author: Jacob Rauch <jacobrauch@dhcp-clara-4240.eduroam.cornell.edu>
+Date:   Fri Dec 1 14:47:41 2017 -0500
+
+    print board
+
+ application.ml  |  9 ++++++---
+ application.mli |  2 +-
+ board.ml        | 40 ++++++++++++++++++++++++++++++++++++++++
+ board.mli       |  2 ++
+ controller.ml   | 29 +++++++++++------------------
+ server.ml       |  2 +-
+ 6 files changed, 61 insertions(+), 23 deletions(-)
+
+commit 92ce098e5b96ae9479934f1730a3b15a1b2e7bfc
+Merge: 70ea988 e616b79
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Nov 30 16:51:05 2017 -0500
+
+    merged
+
+commit 70ea988c51c6f216bcf13e6ff968c3d313c0dfc8
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Nov 30 16:48:58 2017 -0500
+
+    EXTREMELY simple repl just to show how things will work together. Also had to comment out a bunch of things to type check woops
+
+ Makefile        |  3 +++
+ application.ml  | 49 ++++++++++++++++++++++++++++++++++++++++++-------
+ application.mli | 14 +++++++-------
+ board.mli       |  8 ++++++--
+ 4 files changed, 58 insertions(+), 16 deletions(-)
+
+commit e616b795e4cb5a1913847509abd1b2ef4f1dcfa6
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Thu Nov 30 16:48:17 2017 -0500
+
+    Opener WIP, parsing wip
+
+ opener.ml | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
+
+commit e061e9b6892156d5246bb97c2376149f0d818c32
+Merge: 99684c7 2e8846c
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Thu Nov 30 16:43:02 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 99684c7e3d03bc9b5ed62004a8d58eb8f1b7777e
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Thu Nov 30 16:42:53 2017 -0500
+
+    Opening parsing wip
+
+ opener.ml | 43 ++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 36 insertions(+), 7 deletions(-)
+
+commit 2e8846c9f086e0305d2d26e1492a06343ae231d0
+Author: Kevin W <kw487@cornell.edu>
+Date:   Thu Nov 30 13:42:38 2017 -0800
+
+    Updated json formatting
+
+ openings/eco_openings.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 7820a72ab26e9a5cc7160584ed17c500ad1c049e
+Merge: 5a10c26 ed67066
+Author: Kevin W <kw487@cornell.edu>
+Date:   Thu Nov 30 13:10:33 2017 -0800
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 5a10c2602baa3a1d7469f6f05f623bcc11b0c6b8
+Author: Kevin W <kw487@cornell.edu>
+Date:   Thu Nov 30 13:10:19 2017 -0800
+
+    Reformatted json openings
+
+ openings/eco_openings.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit ed6706685813f916ad275f7019386d901d5fe460
+Merge: 68a7ea7 570abd4
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Thu Nov 30 16:04:38 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 68a7ea74763f92eda802c175f2f4e3fabfdb4294
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Thu Nov 30 16:04:24 2017 -0500
+
+    Added json import yojson, two helper functions to application.ml need to be implemented
+
+ _tags          |  2 +-
+ application.ml | 17 +++++++++++++++++
+ opener.ml      | 14 ++++++++++++--
+ 3 files changed, 30 insertions(+), 3 deletions(-)
+
+commit 2e7eb56e4766bb5e7531c9af633f60e484cb7a1b
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Thu Nov 30 15:57:11 2017 -0500
+
+    Working ocntroller with board
+
+ board.ml      | 20 +++++++++++++++++++-
+ board.mli     |  4 +++-
+ controller.ml | 31 +++++++++++++++++--------------
+ gui.py        | 24 +++++++++++++-----------
+ 4 files changed, 52 insertions(+), 27 deletions(-)
+
+commit 570abd4ef737295adc938b35998e6aedb71d99d0
+Merge: 1a6962d f27a4b8
+Author: Jacob Rauch <jacobrauch@dhcp-rhodes-2407.eduroam.cornell.edu>
+Date:   Thu Nov 30 15:52:32 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 1a6962d681f5dedff1ab51f9f4809a15b594786a
+Author: Jacob Rauch <jacobrauch@dhcp-rhodes-2407.eduroam.cornell.edu>
+Date:   Thu Nov 30 15:51:16 2017 -0500
+
+    make
+
+ controller.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit d40d0d40588d798e011d38fc374fbb8921fd4ded
+Author: Jacob Rauch <jacobrauch@dhcp-rhodes-2407.eduroam.cornell.edu>
+Date:   Thu Nov 30 15:50:55 2017 -0500
+
+    make
+
+ Makefile      | 2 +-
+ controller.ml | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+commit a0a2cd7f8e3c8cf190e49fa12ef3ade0def29981
+Merge: 83eecd7 f27a4b8
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Thu Nov 30 15:41:23 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 83eecd7ec55331fdc37b0bf6d2635a91921501fd
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Thu Nov 30 15:41:08 2017 -0500
+
+    Unk
+
+ opener.ml | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+commit f27a4b88993ef8caf2c3affcbb9a72fff2e90d6f
+Merge: 3b13125 a168092
+Author: Kevin W <kw487@cornell.edu>
+Date:   Thu Nov 30 12:40:10 2017 -0800
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 3b131259c0e952b215ce13b664b7592d1eccce69
+Author: Kevin W <kw487@cornell.edu>
+Date:   Thu Nov 30 12:39:51 2017 -0800
+
+    Openings names and games files
+
+ openings/eco_openings.json |      1 +
+ openings/ficsgames_1.pgn   | 999661 ++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 999662 insertions(+)
+
+commit a168092c0811771292c10c808acdcc2ef1ea169b
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Wed Nov 29 23:01:51 2017 -0500
+
+    updated the controller to work with board types
+
+ controller.ml  | 23 ++++++++++++++++------
+ controller.mli | 25 +++++++++++++++++-------
+ gui.py         | 61 ++++++++++++++++++++++++++++++++++++++++++++--------------
+ 3 files changed, 82 insertions(+), 27 deletions(-)
+
+commit d569e620d0811f09911a75c16d46c67673ca0af8
+Merge: 29e4f77 397808c
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Tue Nov 28 13:47:34 2017 -0500
+
+    merged branches
+
+commit 29e4f779b5082f48f66a3797638aa875f4e21fb3
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Tue Nov 28 13:40:37 2017 -0500
+
+    Updating board mostly done.
+
+ board.ml  | 61 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-------
+ board.mli | 16 ++++++----------
+ 2 files changed, 60 insertions(+), 17 deletions(-)
+
+commit 397808cc0aff1142b68b15d3397e755d1a87dd7e
+Merge: 9c1c2b5 76c4ecf
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Tue Nov 28 09:56:48 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 76c4ecf849ee04437ab877365070912c13398ed4
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Tue Nov 28 06:42:56 2017 -0500
+
+    Prelim board update done.
+
+ board.ml | 34 ++++++++++++++++++++++++----------
+ 1 file changed, 24 insertions(+), 10 deletions(-)
+
+commit c3a23ac4e616d42ea483587ed8a85a59965de0e1
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Tue Nov 28 05:43:38 2017 -0500
+
+    Check logic done. Update board started.
+
+ board.ml | 202 ++++++++++++++++++++++++++++++++++++++++++---------------------
+ 1 file changed, 135 insertions(+), 67 deletions(-)
+
+commit c556a7dce3c26149d8fd6cb21a3de50b5df71c5b
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Tue Nov 28 03:28:14 2017 -0500
+
+    Most of move logic implemented. Started check logic.
+
+ board.ml  | 177 +++++++++++++++++++++++++++++++++++++++++++++++---------------
+ board.mli |   2 +-
+ 2 files changed, 136 insertions(+), 43 deletions(-)
+
+commit 16da3d0062c0172af1afb7c57cc19d5abef9ce8e
+Author: Jacob Rauch <jacobrauch@dhcp-clara-4240.eduroam.cornell.edu>
+Date:   Sun Nov 26 21:27:40 2017 -0500
+
+    updates server
+
+ server    | Bin 1752612 -> 1752692 bytes
+ server.ml |   3 +++
+ 2 files changed, 3 insertions(+)
+
+commit 257b3e22522cc7e94f95ca6ef85ca459d2e10039
+Author: Jacob Rauch <jacobrauch@dhcp-clara-4240.eduroam.cornell.edu>
+Date:   Sun Nov 26 21:16:05 2017 -0500
+
+    server
+
+ Makefile  |   3 +++
+ server    | Bin 0 -> 1752612 bytes
+ server.ml |  84 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 87 insertions(+)
+
+commit 56c810625375fe47c2a8ef7d974e0bb9525b7726
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Sat Nov 25 19:33:42 2017 -0500
+
+    Initial game logic.
+
+ board.ml  | 100 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ board.mli |  13 ++++++--
+ mli.zip   | Bin 0 -> 5461 bytes
+ piece.ml  |  11 -------
+ piece.mli |   8 -----
+ 5 files changed, 108 insertions(+), 24 deletions(-)
+
+commit d75641f1ad8c8d358e53db73f640d3b084a3edbb
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Wed Nov 22 14:58:21 2017 -0500
+
+    Added example usage to replayer.ml
+
+ replayer.ml | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+commit 71c25a21669435519ff9f8f55d55b0312a20c9fb
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Wed Nov 22 14:52:14 2017 -0500
+
+    Replayer complete
+
+ replayer.ml  | 107 ++++++++++++++++++++++++++++++++++++-----------------------
+ replayer.mli |  15 +++++++--
+ 2 files changed, 77 insertions(+), 45 deletions(-)
+
+commit 6cc7aeab64c62bb708cfdb49710f2cba0b25d5a0
+Merge: 9ef52c4 4f4e58f
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Wed Nov 22 13:52:42 2017 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/rgw66/cs3110_final
+
+commit 4f4e58fcb686a01583a8def554f30dbfa9af4a59
+Author: Kevin W <kw487@cornell.edu>
+Date:   Wed Nov 22 10:52:36 2017 -0800
+
+    Added test replay files.
+
+ replays/test_pgn.pgn | 59 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 59 insertions(+)
+
+commit 9ef52c414071169fb3d902aeec2cd214ee83f02d
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Wed Nov 22 13:52:08 2017 -0500
+
+    Replayer initial implementation, testing TBD
+
+ replayer.ml  | 110 +++++++++++++++++++++++++++++++++++++++++++++++++++--------
+ replayer.mli |  37 +++++++++-----------
+ 2 files changed, 113 insertions(+), 34 deletions(-)
+
+commit 9c1c2b508307e78a5ce679cf56dedb8bce284242
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Sun Nov 19 17:45:36 2017 -0500
+
+    added the ability to click on everything, and the ocaml will just print the space you clicked on for now. This is all I'm able to get done with the gui until we get more of the game implemented.
+
+ controller.ml |  4 ++--
+ gui.py        | 17 ++++++++++++-----
+ 2 files changed, 14 insertions(+), 7 deletions(-)
+
+commit f9789bc3fdb31f681cb8555e873a479905ab6688
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Sun Nov 19 17:26:13 2017 -0500
+
+    added functionality to move pices from a position to a new position. Added the ability to highlight a list of squares on the board.
+
+ Makefile        |   3 ++
+ controller.ml   |  47 ++++++++++++------
+ controller.mli  |  16 +++----
+ gui.py          | 145 ++++++++++++++++++++++++++++++++++++++++++++++----------
+ img/bishopb.gif | Bin 0 -> 413 bytes
+ img/bishopw.gif | Bin 0 -> 479 bytes
+ img/kingb.gif   | Bin 0 -> 549 bytes
+ img/kingw.gif   | Bin 0 -> 516 bytes
+ img/knightb.gif | Bin 0 -> 463 bytes
+ img/knightw.gif | Bin 0 -> 437 bytes
+ img/pawnb.gif   | Bin 0 -> 306 bytes
+ img/pawnw.gif   | Bin 0 -> 384 bytes
+ img/queenb.gif  | Bin 0 -> 492 bytes
+ img/queenw.gif  | Bin 0 -> 560 bytes
+ img/rookb.gif   | Bin 0 -> 346 bytes
+ img/rookw.gif   | Bin 0 -> 418 bytes
+ 16 files changed, 160 insertions(+), 51 deletions(-)
+
+commit 6306016937733d25b47485e3feeef0b0f4f7561c
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Wed Nov 15 17:40:07 2017 -0500
+
+    Tweaked board.
+
+ board.ml  | 23 +++++++++++++++++++++++
+ board.mli | 20 +++++++++-----------
+ piece.ml  | 11 +++++++++++
+ piece.mli | 12 +++---------
+ 4 files changed, 46 insertions(+), 20 deletions(-)
+
+commit bffbfc136be4daf70c8ec593ec8d8dcde1a77a87
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Wed Nov 15 15:11:07 2017 -0500
+
+    Forgot to remove extraction functions
+
+ application.ml  | 14 +++++++++-----
+ application.mli | 12 ++++--------
+ 2 files changed, 13 insertions(+), 13 deletions(-)
+
+commit f9b5327a178474cc7f183d791b0c7d4b22d37392
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Wed Nov 15 15:04:43 2017 -0500
+
+    Bugfix: Circular dependency issues with application-..., board-piece. Added: Application module and interface
+
+ application.ml  | 36 +++++++++++++++++++++++++++++++++
+ application.mli | 62 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ board.mli       |  8 +++++++-
+ opener.ml       | 19 +++---------------
+ opener.mli      | 21 +++----------------
+ piece.mli       | 10 ++--------
+ replayer.ml     |  5 -----
+ replayer.mli    | 20 -------------------
+ test.ml         | 30 ++++++++++++++++++++++++++++
+ 9 files changed, 143 insertions(+), 68 deletions(-)
+
+commit e00acb5fec9be18adc383b445fda775187fbecdd
+Author: vagrant <vagrant@vm3110-2017fa>
+Date:   Wed Nov 15 14:25:58 2017 -0500
+
+    Proto board and piece modules.
+
+ board.mli  | 36 ++++++++++++++++++++++++++++++++++++
+ opener.mli |  7 +------
+ piece.mli  | 20 ++++++++++++++++++++
+ 3 files changed, 57 insertions(+), 6 deletions(-)
+
+commit 9a4df01617343f81c53a4faeaeab2c49a72d14e1
+Author: rgw66 <rgw66@cornell.edu>
+Date:   Tue Nov 14 20:59:46 2017 -0500
+
+    controller.mli, basic controller.ml, basic gui
+
+ .gitignore     |  3 ++
+ _tags          |  2 +-
+ controller.ml  | 27 ++++++++++++++++++
+ controller.mli | 29 +++++++++++++++++++
+ gui.py         | 88 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 148 insertions(+), 1 deletion(-)
+
+commit 28dd6f3adfc673255741f3adadb9eaa559230af8
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Tue Nov 14 17:39:21 2017 -0500
+
+    Added interface file for AI. Just needs to be able to play the next move
+
+ computer.mli | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+commit 83badb190f0abd8f935b8d4660ebc0ed37e0bb7c
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Tue Nov 14 17:30:45 2017 -0500
+
+    Refactored pgn module
+
+ main.ml                 | 2 +-
+ opener.mli              | 2 +-
+ pgn.ml => replayer.ml   | 0
+ pgn.mli => replayer.mli | 0
+ 4 files changed, 2 insertions(+), 2 deletions(-)
+
+commit 096bdc7e25672214600ff12557bb1583a93889b5
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Tue Nov 14 15:25:57 2017 -0500
+
+    Added: An implementation of Trie (by someone else), which did not exist in the OCaml standard library (I think)). Trie will be used for the opening database.
+
+ opener.ml  |   7 +--
+ opener.mli |  10 ++--
+ trie.ml    | 167 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ trie.mli   |  37 ++++++++++++++
+ 4 files changed, 215 insertions(+), 6 deletions(-)
+
+commit 109fc48e312878f331b7bda0acd8384cbe0f3638
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Tue Nov 14 15:06:21 2017 -0500
+
+    Added main.ml.
+
+ main.ml | 3 +++
+ 1 file changed, 3 insertions(+)
+
+commit 4ab99306ccedefabd59bf2ed9c145d84f5342a44
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Tue Nov 14 15:06:11 2017 -0500
+
+    Initial replayer module and interface.
+
+ pgn.ml  | 41 +++++++++++++++++++++++++++++++++
+ pgn.mli | 80 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 121 insertions(+)
+
+commit 9c85b78456fbe3b61c7eb94c87aeee6a336ddce9
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Tue Nov 14 15:05:55 2017 -0500
+
+    Initial opener module and interface.
+
+ opener.ml  | 44 ++++++++++++++++++++++++++++++++++++++++++++
+ opener.mli | 38 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 82 insertions(+)
+
+commit 29d7b1bfc4da5c4e8aa6d6f7fee3286563afdbad
+Author: Clownpiece <Clownpiece@Hello>
+Date:   Tue Nov 14 15:05:39 2017 -0500
+
+    Initial: Makefile and _tags for compiling
+
+ Makefile | 8 ++++++++
+ _tags    | 1 +
+ 2 files changed, 9 insertions(+)
+
+commit 220771657f37a051a2932c2f2f0b222681e03649
+Author: Rudy Gable Winkler <rgw66@cornell.edu>
+Date:   Thu Nov 2 15:01:35 2017 -0400
+
+    Initial commit
+
+ .gitignore | 20 ++++++++++++++++++++
+ README.md  |  1 +
+ 2 files changed, 21 insertions(+)

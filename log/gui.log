@@ -1,0 +1,41 @@
+[CRITICAL] - Starting up
+[INFO] - Called: start_game
+[INFO] - Called: get_click
+[INFO] - Called: highlight
+[DEBUG] - highlight: tiles are [[5, 3], [5, 4]]
+[INFO] - Called: get_click
+[INFO] - Called: update_openers
+[DEBUG] - update_openers: s is [[u'B00', u'Nimzowitsch Defense, General', 0.4407983457700261, [u'Nc6']], [u'B20-99', u'Sicilian Defense, General', 0.4547146233462824, [u'c5']], [u'B10', u'Caro-Kann Defense, General', 0.4556802657308939, [u'c6']], [u'C20', u'King Pawn Game, General', 0.4697375237437403, [u'e5']], [u'B02', u'Alekhine Defense, General', 0.48005009840758633, [u'Nf6']], [u'B01', u'Scandinavian Defense, General', 0.5005481554568876, [u'd5']], [u'B00', u'St. George Defense, General', 0.512022630834512, [u'a6']], [u'C00', u'French Defense, General', 0.5159826505321475, [u'e6']], [u'B06', u'Modern Defense, King Pawn Fianchetto', 0.5187094183010911, [u'g6']], [u'B00', u'Owen Defense, General', 0.5335932813437313, [u'b6']]]
+[INFO] - Called: move
+[DEBUG] - move: pos1, pos2 (5, 2), (5, 4)
+[INFO] - Called: update_history
+[INFO] - Called: get_click
+[INFO] - Called: get_click
+[INFO] - Called: highlight
+[DEBUG] - highlight: tiles are []
+[INFO] - Called: get_click
+[INFO] - Called: highlight
+[DEBUG] - highlight: tiles are [[5, 6], [5, 5]]
+[INFO] - Called: get_click
+[INFO] - Called: update_openers
+[DEBUG] - update_openers: s is [[u'C20', u'King Pawn Game, Macleod Attack', 0.5497076023391813, [u'c3']], [u'C30', u"King's Gambit, General", 0.4909150974562273, [u'f4']], [u'C23', u"Bishop's Opening, General", 0.4889466840052016, [u'Bc4']], [u'C27', u'Vienna Game, General', 0.4867924528301887, [u'Nc3']], [u'C20', u'King Pawn Game, Alapin Opening', 0.39215686274509803, [u'Ne2']], [u'C20', u'King Pawn Game, Leonardis Variation', 0.360313315926893, [u'd3']], [u'C20', u'English Opening, The Whale', 0.22935779816513763, [u'c4']]]
+[INFO] - Called: move
+[DEBUG] - move: pos1, pos2 (5, 7), (5, 5)
+[INFO] - Called: update_history
+[INFO] - Called: get_click
+[INFO] - Called: highlight
+[DEBUG] - highlight: tiles are [[4, 3], [4, 4]]
+[INFO] - Called: get_click
+[INFO] - Called: update_openers
+[DEBUG] - update_openers: s is [[u'C21', u'Center Game, Accepted', nan, [u'exd4']]]
+[INFO] - Called: move
+[DEBUG] - move: pos1, pos2 (4, 2), (4, 4)
+[INFO] - Called: update_history
+[INFO] - Called: get_click
+[INFO] - Called: highlight
+[DEBUG] - highlight: tiles are [[4, 4]]
+[INFO] - Called: get_click
+[INFO] - Called: update_openers
+[INFO] - Called: move
+[DEBUG] - move: pos1, pos2 (5, 5), (4, 4)
+[INFO] - Called: update_history
